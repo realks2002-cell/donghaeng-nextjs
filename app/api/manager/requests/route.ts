@@ -84,11 +84,11 @@ export async function GET() {
 
     // Get applications by this manager
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: applications } = await (supabase.from('applications') as any)
-      .select('request_id')
-      .eq('manager_id', session.managerId) as { data: { request_id: string }[] | null }
+    const { data: applications } = await (supabase.from('manager_applications') as any)
+      .select('service_request_id')
+      .eq('manager_id', session.managerId) as { data: { service_request_id: string }[] | null }
 
-    const appliedRequestIds = new Set(applications?.map((a) => a.request_id) || [])
+    const appliedRequestIds = new Set(applications?.map((a) => a.service_request_id) || [])
 
     // Format requests
     const formattedRequests = requests?.map((request) => {

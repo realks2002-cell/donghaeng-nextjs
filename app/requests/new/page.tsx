@@ -11,23 +11,26 @@ export default function ServiceRequestPage() {
     name: string
     phone: string
     email: string
-    address: string | null
+    address?: string
   } | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function checkAuth() {
+      console.log('[ServiceRequest] Checking authentication...')
       const supabase = createClient()
 
       // Supabase Auth 세션 확인
       const { data: { user: authUser } } = await supabase.auth.getUser()
+      console.log('[ServiceRequest] Supabase user:', authUser ? 'Found' : 'Not found')
 
       if (authUser) {
         setIsLoggedIn(true)
 
         // users 테이블에서 추가 정보 조회
-        const { data: userData } = await supabase
-          .from('users')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const usersTable = supabase.from('users') as any
+        const { data: userData } = await usersTable
           .select('name, phone, address')
           .eq('auth_id', authUser.id)
           .single()
@@ -37,8 +40,12 @@ export default function ServiceRequestPage() {
           name: userData?.name || '',
           phone: userData?.phone || '',
           email: authUser.email || '',
-          address: userData?.address || null
+          address: userData?.address || undefined
         })
+
+        console.log('[ServiceRequest] User logged in:', userData?.name)
+      } else {
+        console.log('[ServiceRequest] No user session found')
       }
 
       setLoading(false)

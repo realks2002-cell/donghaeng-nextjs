@@ -36,16 +36,16 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceClient()
 
-    // Check for duplicate phone or ssn
+    // Check for duplicate phone
     const { data: existingManager } = await supabase
       .from('managers')
       .select('id')
-      .or(`phone.eq.${phone},ssn.eq.${ssn}`)
+      .eq('phone', phone)
       .single()
 
     if (existingManager) {
       return NextResponse.json(
-        { error: '이미 등록된 전화번호 또는 주민번호입니다.' },
+        { error: '이미 등록된 전화번호입니다.' },
         { status: 400 }
       )
     }
@@ -81,23 +81,26 @@ export async function POST(request: NextRequest) {
     // Create manager record
     const managerId = uuidv4()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const insertData: Record<string, any> = {
+      id: managerId,
+      name,
+      gender,
+      ssn,
+      phone,
+      address1,
+      address2,
+      bank_name: bank,
+      bank_account: accountNumber,
+      specialty: specialty ? [specialty] : [],
+      password_hash: passwordHash,
+      photo_url: photoUrl,
+      approval_status: 'pending',
+      is_active: true,
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: insertError } = await (supabase.from('managers') as any)
-      .insert({
-        id: managerId,
-        name,
-        gender,
-        ssn,
-        phone,
-        address1,
-        address2,
-        bank,
-        account_number: accountNumber,
-        specialty,
-        password_hash: passwordHash,
-        photo: photoUrl,
-        approval_status: 'pending',
-        is_active: true,
-      })
+      .insert(insertData)
 
     if (insertError) {
       console.error('Insert error:', insertError)

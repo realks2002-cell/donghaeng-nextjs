@@ -16,6 +16,8 @@ export interface Database {
           email: string | null
           name: string
           phone: string | null
+          address: string | null
+          address_detail: string | null
           role: 'CUSTOMER' | 'MANAGER' | 'ADMIN'
           is_active: boolean
           created_at: string
@@ -26,6 +28,8 @@ export interface Database {
           email?: string | null
           name: string
           phone?: string | null
+          address?: string | null
+          address_detail?: string | null
           role?: 'CUSTOMER' | 'MANAGER' | 'ADMIN'
           is_active?: boolean
           created_at?: string
@@ -36,6 +40,8 @@ export interface Database {
           email?: string | null
           name?: string
           phone?: string | null
+          address?: string | null
+          address_detail?: string | null
           role?: 'CUSTOMER' | 'MANAGER' | 'ADMIN'
           is_active?: boolean
           created_at?: string
@@ -122,15 +128,16 @@ export interface Database {
           phone: string
           password_hash: string
           email: string | null
-          photo: string | null
+          photo_url: string | null
           gender: string | null
           ssn: string | null
           address1: string | null
           address2: string | null
-          bank: string | null
-          account_number: string | null
-          specialty: string | null
-          approval_status: 'pending' | 'approved' | 'rejected'
+          bank_name: string | null
+          bank_account: string | null
+          bank_holder: string | null
+          specialty: string[] | null
+          approval_status: 'pending' | 'approved' | 'rejected' | null
           is_active: boolean
           created_at: string
         }
@@ -140,14 +147,15 @@ export interface Database {
           phone: string
           password_hash: string
           email?: string | null
-          photo?: string | null
+          photo_url?: string | null
           gender?: string | null
           ssn?: string | null
           address1?: string | null
           address2?: string | null
-          bank?: string | null
-          account_number?: string | null
-          specialty?: string | null
+          bank_name?: string | null
+          bank_account?: string | null
+          bank_holder?: string | null
+          specialty?: string[] | null
           approval_status?: 'pending' | 'approved' | 'rejected'
           is_active?: boolean
           created_at?: string
@@ -158,14 +166,15 @@ export interface Database {
           phone?: string
           password_hash?: string
           email?: string | null
-          photo?: string | null
+          photo_url?: string | null
           gender?: string | null
           ssn?: string | null
           address1?: string | null
           address2?: string | null
-          bank?: string | null
-          account_number?: string | null
-          specialty?: string | null
+          bank_name?: string | null
+          bank_account?: string | null
+          bank_holder?: string | null
+          specialty?: string[] | null
           approval_status?: 'pending' | 'approved' | 'rejected'
           is_active?: boolean
           created_at?: string
@@ -204,6 +213,7 @@ export interface Database {
           payment_key: string | null
           order_id: string
           amount: number
+          refund_amount: number
           status: string
           method: string | null
           approved_at: string | null
@@ -217,6 +227,7 @@ export interface Database {
           payment_key?: string | null
           order_id: string
           amount: number
+          refund_amount?: number
           status?: string
           method?: string | null
           approved_at?: string | null
@@ -230,6 +241,7 @@ export interface Database {
           payment_key?: string | null
           order_id?: string
           amount?: number
+          refund_amount?: number
           status?: string
           method?: string | null
           approved_at?: string | null

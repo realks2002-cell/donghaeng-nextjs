@@ -7,9 +7,11 @@ export default function AdminLogoutPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // 로그아웃 처리 후 로그인 페이지로 리다이렉트
-    // TODO: 실제 로그아웃 API 호출
-    router.push('/admin/login')
+    const logout = async () => {
+      await fetch('/api/admin/logout', { method: 'POST' })
+      router.push('/admin/login')
+    }
+    logout()
   }, [router])
 
   return (

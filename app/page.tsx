@@ -197,11 +197,11 @@ export default function Home() {
           <div className="relative self-start">
             <div className="w-[70%] mx-auto bg-white p-4 pb-12 shadow-[0_4px_20px_rgba(0,0,0,0.15),0_8px_30px_rgba(0,0,0,0.1)] rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
               <Image
-                src="https://images.unsplash.com/photo-1758273238564-806f750a2cce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
-                alt="서비스"
+                src="/images/cleaner.png"
+                alt="가사돌봄 서비스"
                 width={600}
-                height={333}
-                className="object-cover w-full h-[333px]"
+                height={400}
+                className="object-cover w-full h-[400px]"
               />
             </div>
             <div className="absolute inset-0 bg-orange-500/5 -z-10 blur-3xl rounded-full"></div>

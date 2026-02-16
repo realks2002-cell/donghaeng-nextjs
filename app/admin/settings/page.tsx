@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Eye, EyeOff, Trash2, UserPlus } from 'lucide-react'
 
 interface Admin {
@@ -29,17 +28,17 @@ export default function AdminSettingsPage() {
   }, [])
 
   const fetchAdmins = async () => {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('admins')
-      .select('id, admin_id, created_at')
-      .order('created_at', { ascending: false })
-
-    if (error) {
+    try {
+      const res = await fetch('/api/admin/list', { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        setAdmins(data.admins || [])
+      } else {
+        setMessage({ type: 'error', text: '관리자 목록을 불러오는데 실패했습니다.' })
+      }
+    } catch (error) {
       console.error('Error fetching admins:', error)
       setMessage({ type: 'error', text: '관리자 목록을 불러오는데 실패했습니다.' })
-    } else {
-      setAdmins(data || [])
     }
     setIsLoading(false)
   }

@@ -103,9 +103,9 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
       </aside>
 
       {/* 메인 콘텐츠 */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         {/* 모바일 헤더 */}
-        <header className="md:hidden bg-white border-b border-gray-200 px-4 py-3">
+        <header className="sticky top-0 z-30 md:hidden bg-white border-b border-gray-200 px-4 py-3">
           <div className="flex items-center justify-between">
             <span className="text-lg font-bold text-primary">행복안심동행 매니저</span>
             <button
@@ -154,7 +154,7 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
         )}
 
         {/* 콘텐츠 영역 */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50">
+        <main className="flex-1 p-4 md:p-8 bg-gray-50">
           {children}
         </main>
       </div>

@@ -3,18 +3,21 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Search } from 'lucide-react'
+import { Search, User } from 'lucide-react'
+import Image from 'next/image'
 
 interface Manager {
   id: string
   name: string
-  ssn: string
+  photo_url: string | null
+  ssn: string | null
   phone: string
-  address1: string
+  address1: string | null
   address2: string | null
-  bank: string | null
-  account_number: string
-  specialty: string | null
+  bank_name: string | null
+  bank_account: string | null
+  specialty: string[] | null
+  approval_status: string | null
   created_at: string
 }
 
@@ -30,38 +33,61 @@ export default function AdminManagersPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchInput, setSearchInput] = useState(search)
 
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
   const totalPages = Math.ceil(total / perPage)
   const offset = (page - 1) * perPage
 
-  useEffect(() => {
-    const fetchManagers = async () => {
-      setIsLoading(true)
-      const supabase = createClient()
+  const fetchManagers = async () => {
+    setIsLoading(true)
+    const supabase = createClient()
 
-      let query = supabase.from('managers').select('*', { count: 'exact' })
+    let query = supabase.from('managers').select('*', { count: 'exact' })
 
-      if (search) {
-        query = query.or(
-          `name.ilike.%${search}%,phone.ilike.%${search}%,address1.ilike.%${search}%,specialty.ilike.%${search}%`
-        )
-      }
-
-      const { data, count, error } = await query
-        .order('created_at', { ascending: false })
-        .range(offset, offset + perPage - 1)
-
-      if (error) {
-        console.error('Error fetching managers:', error)
-      } else {
-        setManagers(data || [])
-        setTotal(count || 0)
-      }
-
-      setIsLoading(false)
+    if (search) {
+      query = query.or(
+        `name.ilike.%${search}%,phone.ilike.%${search}%,address1.ilike.%${search}%`
+      )
     }
 
+    const { data, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + perPage - 1)
+
+    if (error) {
+      console.error('Error fetching managers:', error)
+    } else {
+      setManagers(data || [])
+      setTotal(count || 0)
+    }
+
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
     fetchManagers()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, page, offset])
+
+  const handleApproval = async (managerId: string, status: 'approved' | 'rejected') => {
+    setUpdatingId(managerId)
+    try {
+      const res = await fetch(`/api/admin/managers/${managerId}/approval`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
+      if (res.ok) {
+        await fetchManagers()
+      } else {
+        alert('상태 변경에 실패했습니다.')
+      }
+    } catch {
+      alert('서버 오류가 발생했습니다.')
+    } finally {
+      setUpdatingId(null)
+    }
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -131,7 +157,7 @@ export default function AdminManagersPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      ID
+                      사진
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       이름
@@ -155,6 +181,9 @@ export default function AdminManagersPage() {
                       특기
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      승인상태
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       등록일
                     </th>
                   </tr>
@@ -163,11 +192,25 @@ export default function AdminManagersPage() {
                   {managers.length > 0 ? (
                     managers.map((manager) => (
                       <tr key={manager.id}>
-                        <td className="px-4 py-3 text-sm text-gray-900">{manager.id}</td>
+                        <td className="px-4 py-3">
+                          {manager.photo_url ? (
+                            <Image
+                              src={manager.photo_url}
+                              alt={manager.name}
+                              width={40}
+                              height={40}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                              <User className="w-5 h-5 text-gray-400" />
+                            </div>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">
                           {manager.name}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{maskSsn(manager.ssn)}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{manager.ssn ? maskSsn(manager.ssn) : '-'}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">{manager.phone}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">
                           {manager.address1}
@@ -178,10 +221,41 @@ export default function AdminManagersPage() {
                             </>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{manager.bank || '-'}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{manager.account_number}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{manager.bank_name || '-'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{manager.bank_account || '-'}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">
-                          {manager.specialty || '-'}
+                          {manager.specialty?.join(', ') || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {manager.approval_status === 'approved' ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              승인
+                            </span>
+                          ) : manager.approval_status === 'rejected' ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              거절
+                            </span>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                대기중
+                              </span>
+                              <button
+                                onClick={() => handleApproval(manager.id, 'approved')}
+                                disabled={updatingId === manager.id}
+                                className="min-h-[32px] px-3 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                              >
+                                승인
+                              </button>
+                              <button
+                                onClick={() => handleApproval(manager.id, 'rejected')}
+                                disabled={updatingId === manager.id}
+                                className="min-h-[32px] px-3 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                              >
+                                거절
+                              </button>
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-900">
                           {new Date(manager.created_at).toLocaleDateString('ko-KR')}
@@ -190,7 +264,7 @@ export default function AdminManagersPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                      <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
                         매니저가 없습니다.
                       </td>
                     </tr>

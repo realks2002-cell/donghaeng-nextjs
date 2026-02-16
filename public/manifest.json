@@ -1,0 +1,25 @@
+{
+  "name": "행복안심동행 매니저",
+  "short_name": "동행매니저",
+  "description": "행복안심동행 매니저 앱 - 서비스 요청 관리 및 매칭",
+  "start_url": "/manager/login",
+  "scope": "/manager/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

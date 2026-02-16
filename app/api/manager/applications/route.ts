@@ -4,7 +4,7 @@ import { getManagerSession } from '@/lib/auth/manager'
 
 interface ApplicationWithRequest {
   id: string
-  request_id: string
+  service_request_id: string
   status: string
   message: string | null
   created_at: string
@@ -36,11 +36,11 @@ export async function GET() {
 
     // Get applications by this manager with service request details
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const applicationsTable = supabase.from('applications') as any
+    const applicationsTable = supabase.from('manager_applications') as any
     const { data: applications, error } = await applicationsTable
       .select(`
         id,
-        request_id,
+        service_request_id,
         status,
         message,
         created_at,
@@ -98,7 +98,7 @@ export async function GET() {
 
       return {
         id: app.id,
-        request_id: app.request_id,
+        request_id: app.service_request_id,
         status: app.status,
         created_at: app.created_at,
         service_type: sr?.service_type || '',

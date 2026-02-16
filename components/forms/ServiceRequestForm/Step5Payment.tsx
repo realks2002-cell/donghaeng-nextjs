@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { ServiceRequestFormData, calculatePrice } from './types'
 import { SERVICE_TYPES, ServiceType, DEFAULT_SERVICE_PRICES } from '@/lib/constants/pricing'
-import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk'
 
 interface Step5PaymentProps {
   data: ServiceRequestFormData
@@ -16,105 +15,38 @@ interface Step5PaymentProps {
   servicePrices?: Record<ServiceType, number>
 }
 
+const PAYMENT_METHODS = [
+  { id: '카드', label: '카드 결제', icon: '💳' },
+  { id: '계좌이체', label: '계좌이체', icon: '🏦' },
+  { id: '가상계좌', label: '가상계좌', icon: '📋' },
+  { id: '휴대폰', label: '휴대폰 결제', icon: '📱' },
+] as const
+
 export default function Step5Payment({
   data,
   onUpdate,
   onPrev,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onSubmit: _onSubmit,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isLoggedIn: _isLoggedIn = false,
+  onSubmit,
   user = null,
   servicePrices = DEFAULT_SERVICE_PRICES,
 }: Step5PaymentProps) {
-  const [ready, setReady] = useState(false)
-  const [widgetError, setWidgetError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [widgets, setWidgets] = useState<any>(null)
-  const initializedRef = useRef(false)
+  const [selectedMethod, setSelectedMethod] = useState('카드')
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const estimatedPrice = calculatePrice(data.serviceType, data.durationHours, servicePrices)
   const serviceLabel = data.serviceType ? SERVICE_TYPES[data.serviceType as ServiceType]?.label : '-'
 
-  // 1단계: 토스페이먼츠 SDK v2 로드 및 위젯 객체 생성
-  useEffect(() => {
-    if (initializedRef.current) return
-    initializedRef.current = true
-
-    async function fetchPaymentWidgets() {
-      try {
-        const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
-        console.log('TossPayments clientKey:', clientKey ? `Set (${clientKey.substring(0, 20)}...)` : 'Not set')
-
-        if (!clientKey || clientKey === 'your_toss_client_key') {
-          throw new Error('결제 클라이언트 키가 설정되지 않았습니다.')
-        }
-
-        const tossPayments = await loadTossPayments(clientKey)
-
-        // 비회원: ANONYMOUS, 회원: user.id
-        const customerKey = user?.id || ANONYMOUS
-        console.log('Creating widgets with customerKey:', user?.id ? 'user-id' : 'ANONYMOUS')
-
-        const w = tossPayments.widgets({ customerKey })
-        setWidgets(w)
-      } catch (error) {
-        console.error('Payment SDK load error:', error)
-        setWidgetError(error instanceof Error ? error.message : '결제 시스템 초기화에 실패했습니다.')
-      }
-    }
-
-    fetchPaymentWidgets()
-  }, [user?.id])
-
-  // 2단계: 위젯 객체가 준비되면 결제 UI 렌더링
-  useEffect(() => {
-    if (widgets == null) return
-
-    async function renderPaymentWidgets() {
-      try {
-        // 금액 설정 (renderPaymentMethods 보다 먼저 호출)
-        await widgets.setAmount({ currency: 'KRW', value: estimatedPrice })
-
-        // 결제 UI + 약관 UI 렌더링
-        await Promise.all([
-          widgets.renderPaymentMethods({
-            selector: '#payment-widget',
-            variantKey: 'DEFAULT',
-          }),
-          widgets.renderAgreement({
-            selector: '#agreement',
-            variantKey: 'AGREEMENT',
-          }),
-        ])
-
-        console.log('Payment widget rendered successfully')
-        setReady(true)
-      } catch (error) {
-        console.error('Payment widget render error:', error)
-        setWidgetError(error instanceof Error ? error.message : '결제 UI 렌더링에 실패했습니다.')
-      }
-    }
-
-    renderPaymentWidgets()
-  }, [widgets, estimatedPrice])
-
-  const handlePayment = async () => {
+  const handlePayment = useCallback(async () => {
     if (!data.confirmTerms) {
       toast.error('서비스 이용약관에 동의해주세요.')
-      return
-    }
-
-    if (!widgets) {
-      toast.error('결제 시스템을 초기화하는 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
 
     setIsProcessing(true)
 
     try {
-      // 서비스 요청을 먼저 DB에 저장
+      // 서비스 요청을 DB에 저장
       const saveResponse = await fetch('/api/requests/save-temp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -134,6 +66,9 @@ export default function Step5Payment({
           guest_phone: data.guestPhone,
           guest_address: data.guestAddress,
           guest_address_detail: data.guestAddressDetail,
+          customer_id: user?.id || null,
+          payment_method: selectedMethod,
+          amount: estimatedPrice,
         }),
       })
 
@@ -147,28 +82,19 @@ export default function Step5Payment({
         throw new Error(saveResult.error || '서비스 요청 저장에 실패했습니다.')
       }
 
-      const orderId = saveResult.request_id
-      const orderName = `${serviceLabel} 서비스`
-
-      // 결제 요청
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
-      const successUrl = `${baseUrl}/payment/success`
-      const failUrl = `${baseUrl}/payment/fail`
-
-      await widgets.requestPayment({
-        orderId,
-        orderName,
-        successUrl,
-        failUrl,
-        customerEmail: user?.email,
-        customerName: user?.name || data.guestName,
-      })
+      // 성공 모달 표시
+      setShowSuccessModal(true)
     } catch (error) {
       console.error('Payment error:', error)
-      toast.error(error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.')
+      toast.error(error instanceof Error ? error.message : '처리 중 오류가 발생했습니다.')
     } finally {
       setIsProcessing(false)
     }
+  }, [data, selectedMethod, estimatedPrice, user])
+
+  const handleSuccessConfirm = () => {
+    setShowSuccessModal(false)
+    onSubmit()
   }
 
   return (
@@ -210,26 +136,26 @@ export default function Step5Payment({
         </p>
       </div>
 
-      {/* 토스페이먼츠 결제 위젯 */}
+      {/* 결제 수단 선택 */}
       <div className="mt-6">
-        {widgetError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <p className="font-semibold">결제 시스템 초기화 실패</p>
-            <p className="mt-1">{widgetError}</p>
-            <p className="mt-2 text-xs">페이지를 새로고침하거나 관리자에게 문의하세요.</p>
-          </div>
-        ) : (
-          <>
-            {!ready && (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <span className="ml-2 text-gray-600">결제 시스템 로딩 중...</span>
-              </div>
-            )}
-            <div id="payment-widget" className={!ready ? 'hidden' : ''}></div>
-            <div id="agreement" className={!ready ? 'hidden' : ''}></div>
-          </>
-        )}
+        <h3 className="font-semibold text-sm text-gray-700 mb-3">결제 수단</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {PAYMENT_METHODS.map((method) => (
+            <button
+              key={method.id}
+              type="button"
+              onClick={() => setSelectedMethod(method.id)}
+              className={`min-h-[44px] rounded-lg border-2 p-3 text-center transition-colors ${
+                selectedMethod === method.id
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <span className="text-lg">{method.icon}</span>
+              <span className="ml-1 text-sm font-medium">{method.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <label className="mt-4 flex min-h-[44px] cursor-pointer items-start gap-2">
@@ -255,12 +181,37 @@ export default function Step5Payment({
         <button
           type="button"
           onClick={handlePayment}
-          disabled={!ready || isProcessing || !!widgetError}
+          disabled={isProcessing}
           className="min-h-[44px] rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isProcessing ? '처리 중...' : '결제하기'}
         </button>
       </div>
+
+      {/* 결제 성공 모달 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <h3 className="mt-4 text-lg font-bold text-gray-900">결제가 성공되었습니다</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              서비스 요청이 접수되었습니다.<br />
+              담당 매니저 배정 후 연락드리겠습니다.
+            </p>
+            <button
+              type="button"
+              onClick={handleSuccessConfirm}
+              className="mt-6 min-h-[44px] w-full rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

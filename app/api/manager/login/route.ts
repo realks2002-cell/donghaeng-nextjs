@@ -11,7 +11,7 @@ interface ManagerRecord {
   name: string
   phone: string
   password_hash: string
-  approval_status: string
+  approval_status?: string | null
 }
 
 function normalizePhone(phone: string): string {
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Find manager by phone
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: managers } = await (supabase.from('managers') as any)
-      .select('id, name, phone, password_hash, approval_status') as { data: ManagerRecord[] | null }
+      .select('*') as { data: ManagerRecord[] | null }
 
     if (!managers || managers.length === 0) {
       return NextResponse.json(

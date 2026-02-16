@@ -48,11 +48,11 @@ export async function POST(request: NextRequest) {
 
     // Check if already applied
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const applicationsTable = supabase.from('applications') as any
+    const applicationsTable = supabase.from('manager_applications') as any
     const { data: existingApplication } = await applicationsTable
       .select('id')
       .eq('manager_id', session.managerId)
-      .eq('request_id', request_id)
+      .eq('service_request_id', request_id)
       .single()
 
     if (existingApplication) {
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     const { error: insertError } = await applicationsTable.insert({
       id: applicationId,
       manager_id: session.managerId,
-      request_id: request_id,
+      service_request_id: request_id,
       status: 'PENDING',
       message: message || null,
     })

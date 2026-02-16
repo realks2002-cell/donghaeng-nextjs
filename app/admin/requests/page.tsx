@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 
 interface ServiceRequest {
   id: string
@@ -12,12 +12,17 @@ interface ServiceRequest {
   start_time: string
   status: string
   estimated_price: number
+  manager_name: string | null
+  manager_phone: string | null
+  is_designated: boolean
 }
 
 const statusStyles: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
   CONFIRMED: 'bg-blue-100 text-blue-800',
   MATCHING: 'bg-purple-100 text-purple-800',
+  MATCHED: 'bg-indigo-100 text-indigo-800',
+  IN_PROGRESS: 'bg-orange-100 text-orange-800',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-red-100 text-red-800',
 }
@@ -26,6 +31,8 @@ const statusLabels: Record<string, string> = {
   PENDING: '대기중',
   CONFIRMED: '확인됨',
   MATCHING: '매칭중',
+  MATCHED: '매칭완료',
+  IN_PROGRESS: '진행중',
   COMPLETED: '완료',
   CANCELLED: '취소됨',
 }
@@ -34,47 +41,20 @@ export default function AdminRequestsPage() {
   const [requests, setRequests] = useState<ServiceRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      const supabase = createClient()
-
-      const { data, error } = await supabase
-        .from('service_requests')
-        .select(`
-          id,
-          created_at,
-          guest_name,
-          service_type,
-          service_date,
-          start_time,
-          status,
-          estimated_price,
-          customer_id,
-          users!service_requests_customer_id_fkey (name)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(50)
-
-      if (error) {
-        console.error('Error fetching requests:', error)
-      } else if (data) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const formatted = data.map((req: any) => ({
-          id: req.id,
-          created_at: req.created_at,
-          customer_name: req.users?.name || req.guest_name || '비회원',
-          service_type: req.service_type,
-          service_date: req.service_date,
-          start_time: req.start_time?.slice(0, 5) || '',
-          status: req.status,
-          estimated_price: req.estimated_price || 0,
-        }))
-        setRequests(formatted)
+  const fetchRequests = async () => {
+    try {
+      const res = await fetch('/api/admin/requests', { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        setRequests(data.requests || [])
       }
-
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Error fetching requests:', error)
     }
+    setIsLoading(false)
+  }
 
+  useEffect(() => {
     fetchRequests()
   }, [])
 
@@ -97,8 +77,10 @@ export default function AdminRequestsPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">고객</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">예약일시</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">매니저</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">금액</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">구분</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -109,9 +91,19 @@ export default function AdminRequestsPage() {
                         {new Date(req.created_at).toLocaleString('ko-KR')}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">{req.customer_name}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{req.service_type}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{SERVICE_TYPE_LABELS[req.service_type as ServiceType] || req.service_type}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {req.service_date} {req.start_time}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {req.manager_name ? (
+                          <div>
+                            <div className="font-medium text-gray-900">{req.manager_name}</div>
+                            <div className="text-gray-500 text-xs">{req.manager_phone}</div>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <span
@@ -125,11 +117,20 @@ export default function AdminRequestsPage() {
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {req.estimated_price.toLocaleString()}원
                       </td>
+                      <td className="px-4 py-3 text-sm">
+                        {req.is_designated ? (
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-violet-100 text-violet-800">
+                            지정
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                       요청이 없습니다.
                     </td>
                   </tr>

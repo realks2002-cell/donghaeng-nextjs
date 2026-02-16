@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
@@ -12,11 +12,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = await createClient()
+    const supabase = createServiceClient()
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const adminsTable = supabase.from('admins') as any
 
     // 관리자 존재 확인
-    const { data: existing } = await supabase
-      .from('admins')
+    const { data: existing } = await adminsTable
       .select('id')
       .eq('admin_id', adminId)
       .single()
@@ -29,8 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 관리자 삭제
-    const { error } = await supabase
-      .from('admins')
+    const { error } = await adminsTable
       .delete()
       .eq('admin_id', adminId)
 

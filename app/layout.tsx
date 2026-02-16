@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { headers } from 'next/headers'
 import './globals.css'
-import Header from '@/components/layout/Header'
+import HeaderWrapper from '@/components/layout/HeaderWrapper'
 import Footer from '@/components/layout/Footer'
-import { createClient } from '@/lib/supabase/server'
 import { Toaster } from 'sonner'
+import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,33 +28,28 @@ export default async function RootLayout({
   const headersList = await headers()
   const pathname = headersList.get('x-pathname') || headersList.get('x-invoke-path') || ''
   const isAdminPage = pathname.startsWith('/admin')
+  const isManagerPage = pathname.startsWith('/manager')
 
-  const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
-
-  let user = null
-  if (authUser) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const usersTable = supabase.from('users') as any
-    const { data: userData } = await usersTable
-      .select('name, role')
-      .eq('auth_id', authUser.id)
-      .single()
-
-    if (userData) {
-      user = {
-        name: userData.name as string,
-        role: userData.role as 'CUSTOMER' | 'MANAGER' | 'ADMIN',
-      }
-    }
-  }
-
-  // 관리자 페이지는 헤더/푸터 없이 렌더링
-  if (isAdminPage) {
+  // 관리자/매니저 페이지는 헤더/푸터 없이 렌더링 (자체 레이아웃 사용)
+  if (isAdminPage || isManagerPage) {
     return (
       <html lang="ko">
+        <head>
+          {isManagerPage && (
+            <>
+              <link rel="manifest" href="/manifest.json" />
+              <meta name="theme-color" content="#16a34a" />
+              <meta name="apple-mobile-web-app-capable" content="yes" />
+              <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+              <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+              <meta name="apple-mobile-web-app-title" content="동행매니저" />
+              <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+            </>
+          )}
+        </head>
         <body className={`${inter.className} antialiased min-h-screen`}>
           <Toaster position="top-center" richColors />
+          {isManagerPage && <ServiceWorkerRegistration />}
           {children}
         </body>
       </html>
@@ -65,7 +60,7 @@ export default async function RootLayout({
     <html lang="ko">
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`}>
         <Toaster position="top-center" richColors />
-        <Header user={user} />
+        <HeaderWrapper />
         <main className="flex-1">
           {children}
         </main>

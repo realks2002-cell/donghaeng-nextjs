@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import BookingsContent from './BookingsContent'
 
-export const metadata = {
-  title: '예약 조회 - 행복안심동행',
-  description: '서비스 예약 내역을 확인하세요.',
-}
+export const dynamic = 'force-dynamic'
 
 interface ServiceRequest {
   id: string
@@ -19,43 +20,56 @@ interface ServiceRequest {
   manager_id: string | null
 }
 
-export default async function BookingsPage() {
-  const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+export default function BookingsPage() {
+  const router = useRouter()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [memberRequests, setMemberRequests] = useState<ServiceRequest[]>([])
+  const [loading, setLoading] = useState(true)
 
-  let memberRequests: ServiceRequest[] = []
-  let isLoggedIn = false
+  useEffect(() => {
+    async function checkAuthAndFetchBookings() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
 
-  if (authUser) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const usersTable = supabase.from('users') as any
-    const { data: userData } = await usersTable
-      .select('id')
-      .eq('auth_id', authUser.id)
-      .single()
+      if (!user) {
+        // 비회원 - 로그인 페이지로 리다이렉트하지 않고 비회원 UI 표시
+        setLoading(false)
+        return
+      }
 
-    if (userData) {
-      isLoggedIn = true
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const requestsTable = supabase.from('service_requests') as any
-      const { data: requests } = await requestsTable
-        .select(`
-          id,
-          service_type,
-          service_date,
-          start_time,
-          duration_minutes,
-          address,
-          status,
-          estimated_price,
-          created_at,
-          manager_id
-        `)
-        .eq('customer_id', userData.id)
-        .order('created_at', { ascending: false })
+      // 로그인된 사용자 - API에서 예약 목록 가져오기
+      try {
+        const res = await fetch('/api/bookings')
+        const data = await res.json()
 
-      memberRequests = requests || []
+        if (data.success) {
+          setIsLoggedIn(true)
+          setMemberRequests(data.requests || [])
+        } else {
+          console.error('[Bookings] API error:', data.error)
+        }
+      } catch (err) {
+        console.error('[Bookings] fetch error:', err)
+      } finally {
+        setLoading(false)
+      }
     }
+
+    checkAuthAndFetchBookings()
+  }, [router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 pt-24">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3 mb-8"></div>
+            <div className="h-96 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return <BookingsContent isLoggedIn={isLoggedIn} memberRequests={memberRequests} />

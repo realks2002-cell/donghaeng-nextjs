@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { X } from 'lucide-react'
+import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 
 interface ServiceRequest {
   id: string
@@ -189,7 +190,7 @@ function DashboardContent() {
                   <div key={app.id} className="bg-white rounded-lg border border-gray-200 p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h3 className="font-semibold text-gray-900">{app.service_type}</h3>
+                        <h3 className="font-semibold text-gray-900">{SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}</h3>
                         <p className="text-sm text-gray-500 mt-1">
                           {app.service_date} {app.start_time.substring(0, 5)}
                         </p>
@@ -231,7 +232,7 @@ function DashboardContent() {
                             <br />
                             <span className="text-gray-500">{app.start_time.substring(0, 5)}</span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{app.service_type}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900">{SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{app.customer_name}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{app.created_at}</td>
                           <td className="px-4 py-3 text-sm">{getStatusBadge(app.status)}</td>
@@ -270,7 +271,7 @@ function DashboardContent() {
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{request.service_type}</h3>
+                        <h3 className="font-semibold text-gray-900">{SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type}</h3>
                         <p className="text-sm text-gray-500 mt-1">
                           {request.service_date} {request.start_time.substring(0, 5)}
                         </p>
@@ -344,7 +345,7 @@ function DashboardContent() {
                             <br />
                             <span className="text-gray-500">{request.start_time.substring(0, 5)}</span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{request.service_type}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900">{SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{request.customer_name}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">
                             {request.address.length > 15 ? request.address.substring(0, 15) + '...' : request.address}
@@ -415,7 +416,7 @@ function DashboardContent() {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">서비스</span>
-                    <p className="font-semibold">{selectedRequest.service_type}</p>
+                    <p className="font-semibold">{SERVICE_TYPE_LABELS[selectedRequest.service_type as ServiceType] || selectedRequest.service_type}</p>
                   </div>
                   <div>
                     <span className="text-gray-500">금액</span>

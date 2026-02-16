@@ -1,13 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/'
 
@@ -23,9 +21,6 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const supabase = createClient()
-
-      // 전화번호 정규화 (숫자만)
       const normalizedPhone = phone.replace(/[^0-9]/g, '')
 
       if (!normalizedPhone) {
@@ -34,37 +29,22 @@ export default function LoginPage() {
         return
       }
 
-      // 전화번호로 사용자 이메일 조회
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const usersTable = supabase.from('users') as any
-      const { data: userData, error: userError } = await usersTable
-        .select('email')
-        .eq('phone', normalizedPhone)
-        .single()
-
-      if (userError || !userData) {
-        setError('전화번호 또는 비밀번호가 올바르지 않습니다.')
-        setIsLoading(false)
-        return
-      }
-
-      // 조회된 이메일로 로그인
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email: userData.email,
-        password,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: normalizedPhone, password }),
       })
 
-      if (authError) {
-        if (authError.message.includes('Invalid login credentials')) {
-          setError('전화번호 또는 비밀번호가 올바르지 않습니다.')
-        } else {
-          setError(authError.message)
-        }
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || '로그인에 실패했습니다.')
         return
       }
 
-      router.push(redirect)
-      router.refresh()
+      // Supabase Auth가 자동으로 세션 쿠키 설정
+      console.log('[Login] Login successful, redirecting to:', redirect)
+      window.location.href = redirect
     } catch (err) {
       console.error('Login error:', err)
       setError('로그인 중 오류가 발생했습니다.')

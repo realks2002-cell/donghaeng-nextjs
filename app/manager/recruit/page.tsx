@@ -14,12 +14,20 @@ export default function RecruitPage() {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-2">매니저 모집</h1>
           <p className="text-gray-600">고객에게 따뜻한 돌봄을 전하는 매니저가 되어주세요.</p>
         </div>
-        <Link
-          href="/manager/signup"
-          className="flex-shrink-0 inline-flex min-h-[44px] items-center justify-center rounded-lg bg-primary px-6 py-3 text-base font-medium text-white hover:opacity-90"
-        >
-          매니저 지원하기
-        </Link>
+        <div className="flex-shrink-0 flex gap-2">
+          <Link
+            href="/manager/login"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-primary px-6 py-3 text-base font-medium text-primary hover:bg-primary/5"
+          >
+            매니저 로그인
+          </Link>
+          <Link
+            href="/manager/signup"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-primary px-6 py-3 text-base font-medium text-white hover:opacity-90"
+          >
+            매니저 지원하기
+          </Link>
+        </div>
       </div>
 
       <div className="prose prose-lg max-w-none">

@@ -55,17 +55,6 @@ export default function Header({ user }: HeaderProps) {
             자주 묻는 질문
           </Link>
 
-          {user?.role === 'CUSTOMER' && (
-            <>
-              <Link href="/requests/new" className="text-lg text-gray-900 hover:text-orange-600 font-medium transition-colors">
-                서비스 요청
-              </Link>
-              <Link href="/bookings" className="text-lg text-gray-900 hover:text-orange-600 font-medium transition-colors">
-                내 예약
-              </Link>
-            </>
-          )}
-
           {user?.role === 'MANAGER' && (
             <>
               <Link href="/manager/requests" className="text-lg text-gray-900 hover:text-orange-600 font-medium transition-colors">
@@ -80,9 +69,15 @@ export default function Header({ user }: HeaderProps) {
           {user ? (
             <>
               <span className="text-base text-gray-900">{user.name} 님</span>
-              <Link href="/auth/logout" className="text-lg px-6 py-3 rounded-full font-semibold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-gray-900 hover:text-orange-600">
+              <button
+                onClick={async () => {
+                  await fetch('/api/auth/logout', { method: 'POST' })
+                  window.location.href = '/'
+                }}
+                className="text-lg px-6 py-3 rounded-full font-semibold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-gray-900 hover:text-orange-600"
+              >
                 로그아웃
-              </Link>
+              </button>
             </>
           ) : (
             <>
@@ -123,17 +118,6 @@ export default function Header({ user }: HeaderProps) {
             자주 묻는 질문
           </Link>
 
-          {user?.role === 'CUSTOMER' && (
-            <>
-              <Link href="/requests/new" className="min-h-[44px] flex items-center px-4 py-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100" onClick={() => setMobileMenuOpen(false)}>
-                서비스 요청
-              </Link>
-              <Link href="/bookings" className="min-h-[44px] flex items-center px-4 py-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100" onClick={() => setMobileMenuOpen(false)}>
-                내 예약
-              </Link>
-            </>
-          )}
-
           {user?.role === 'MANAGER' && (
             <>
               <Link href="/manager/requests" className="min-h-[44px] flex items-center px-4 py-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100" onClick={() => setMobileMenuOpen(false)}>
@@ -150,9 +134,16 @@ export default function Header({ user }: HeaderProps) {
               <div className="min-h-[44px] flex items-center px-4 py-2 text-base font-medium text-gray-900">
                 {user.name} 님
               </div>
-              <Link href="/auth/logout" className="min-h-[44px] flex items-center px-4 py-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100" onClick={() => setMobileMenuOpen(false)}>
+              <button
+                onClick={async () => {
+                  await fetch('/api/auth/logout', { method: 'POST' })
+                  setMobileMenuOpen(false)
+                  window.location.href = '/'
+                }}
+                className="min-h-[44px] w-full flex items-center px-4 py-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 text-left"
+              >
                 로그아웃
-              </Link>
+              </button>
             </>
           ) : (
             <>

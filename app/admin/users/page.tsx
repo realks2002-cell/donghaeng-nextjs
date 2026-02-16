@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Search } from 'lucide-react'
 
 interface User {
   id: string
   name: string
-  email: string
   phone: string
   address: string | null
+  address_detail: string | null
   role: string
+  is_active: boolean
   created_at: string
 }
 
@@ -33,30 +33,25 @@ export default function AdminUsersPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading(true)
-      const supabase = createClient()
+      try {
+        const params = new URLSearchParams()
+        if (search) params.set('search', search)
+        params.set('page', String(page))
 
-      let query = supabase.from('users').select('*', { count: 'exact' }).eq('role', 'CUSTOMER')
-
-      if (search) {
-        query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`)
-      }
-
-      const { data, count, error } = await query
-        .order('created_at', { ascending: false })
-        .range(offset, offset + perPage - 1)
-
-      if (error) {
+        const res = await fetch(`/api/admin/users?${params.toString()}`)
+        if (res.ok) {
+          const data = await res.json()
+          setUsers(data.users || [])
+          setTotal(data.total || 0)
+        }
+      } catch (error) {
         console.error('Error fetching users:', error)
-      } else {
-        setUsers(data || [])
-        setTotal(count || 0)
       }
-
       setIsLoading(false)
     }
 
     fetchUsers()
-  }, [search, page, offset])
+  }, [search, page])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,11 +115,10 @@ export default function AdminUsersPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">이름</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">이메일</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">전화번호</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">주소</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">가입일</th>
                   </tr>
                 </thead>
@@ -132,11 +126,23 @@ export default function AdminUsersPage() {
                   {users.length > 0 ? (
                     users.map((user) => (
                       <tr key={user.id}>
-                        <td className="px-4 py-3 text-sm text-gray-900">{user.id.slice(0, 8)}...</td>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">{user.name}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{user.email}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{user.phone}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{user.address || '-'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{user.phone || '-'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {user.address ? (
+                            <div>
+                              <div>{user.address}</div>
+                              {user.address_detail && <div className="text-xs text-gray-500">{user.address_detail}</div>}
+                            </div>
+                          ) : '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {user.is_active ? '활성' : '비활성'}
+                          </span>
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-900">
                           {new Date(user.created_at).toLocaleDateString('ko-KR')}
                         </td>
@@ -144,7 +150,7 @@ export default function AdminUsersPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                      <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                         회원이 없습니다.
                       </td>
                     </tr>

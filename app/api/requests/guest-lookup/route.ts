@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
         address,
         status,
         estimated_price,
-        created_at
+        created_at,
+        guest_phone
       `)
       .eq('guest_name', name.trim())
       .order('created_at', { ascending: false })

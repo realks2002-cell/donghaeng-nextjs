@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
 
 export default function ManagerLoginPage() {
@@ -58,6 +59,14 @@ export default function ManagerLoginPage() {
       <div className="w-full max-w-md">
         {/* 로고 */}
         <div className="text-center mb-8">
+          <Image
+            src="/images/app-logo.png"
+            alt="행복안심동행 로고"
+            width={120}
+            height={91}
+            className="mx-auto mb-4"
+            priority
+          />
           <h1 className="text-3xl font-bold text-primary">행복안심동행</h1>
           <p className="mt-2 text-gray-600">매니저 로그인</p>
         </div>

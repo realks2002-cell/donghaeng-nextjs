@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, CheckCircle } from 'lucide-react'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -24,6 +23,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [addressResults, setAddressResults] = useState<{ address: string }[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const updateField = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -89,56 +89,27 @@ export default function SignupPage() {
     setIsLoading(true)
 
     try {
-      const supabase = createClient()
-
-      // 전화번호 정규화 (숫자만)
-      const normalizedPhone = formData.phone.replace(/[^0-9]/g, '')
-
-      // 더미 이메일 생성 (Supabase Auth 요구사항)
-      const dummyEmail = `user_${normalizedPhone}_${Date.now()}@dolbom.local`
-
-      // Supabase Auth 회원가입
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: dummyEmail,
-        password: formData.password,
-        options: {
-          data: {
-            name: formData.name,
-            phone: normalizedPhone,
-          },
-        },
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          password: formData.password,
+          address: formData.address,
+          addressDetail: formData.addressDetail,
+        }),
       })
 
-      if (authError) {
-        if (authError.message.includes('already registered')) {
-          setError('이미 사용 중인 전화번호입니다.')
-        } else {
-          setError(authError.message)
-        }
+      const result = await res.json()
+
+      if (!res.ok) {
+        setError(result.error || '회원가입에 실패했습니다.')
         return
       }
 
-      if (authData.user) {
-        // users 테이블에 사용자 정보 저장
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const usersTable = supabase.from('users') as any
-        const { error: insertError } = await usersTable.insert({
-          auth_id: authData.user.id,
-          email: dummyEmail,
-          name: formData.name,
-          phone: normalizedPhone,
-          address: formData.address || null,
-          address_detail: formData.addressDetail || null,
-          role: 'CUSTOMER',
-        })
-
-        if (insertError) {
-          console.error('User insert error:', insertError)
-        }
-      }
-
-      // 회원가입 성공
-      router.push('/auth/login?registered=true')
+      // 회원가입 성공 - 모달 표시
+      setShowSuccess(true)
     } catch (err) {
       console.error('Signup error:', err)
       setError('회원가입 중 오류가 발생했습니다.')
@@ -160,6 +131,39 @@ export default function SignupPage() {
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {/* 이름 */}
+          <div>
+            <label htmlFor="name" className="block text-base font-medium text-gray-700">
+              이름
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={formData.name}
+              onChange={(e) => updateField('name', e.target.value)}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3"
+              placeholder="실명"
+              required
+              autoComplete="name"
+            />
+          </div>
+
+          {/* 전화번호 */}
+          <div>
+            <label htmlFor="phone" className="block text-base font-medium text-gray-700">
+              전화번호
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => updateField('phone', e.target.value)}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3"
+              placeholder="010-1234-5678"
+              required
+            />
+          </div>
+
           {/* 비밀번호 */}
           <div>
             <label htmlFor="password" className="block text-base font-medium text-gray-700">
@@ -212,39 +216,6 @@ export default function SignupPage() {
                 {showPasswordConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-          </div>
-
-          {/* 이름 */}
-          <div>
-            <label htmlFor="name" className="block text-base font-medium text-gray-700">
-              이름
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={formData.name}
-              onChange={(e) => updateField('name', e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3"
-              placeholder="실명"
-              required
-              autoComplete="name"
-            />
-          </div>
-
-          {/* 전화번호 */}
-          <div>
-            <label htmlFor="phone" className="block text-base font-medium text-gray-700">
-              전화번호
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => updateField('phone', e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3"
-              placeholder="010-1234-5678"
-              required
-            />
           </div>
 
           {/* 주소 */}
@@ -335,6 +306,31 @@ export default function SignupPage() {
           </Link>
         </p>
       </div>
+
+      {/* 가입 완료 모달 */}
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 text-center">
+            <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">가입 완료</h2>
+            <p className="text-gray-600 mb-1">
+              <span className="font-semibold text-gray-900">{formData.name}</span>님, 환영합니다!
+            </p>
+            <p className="text-gray-500 text-sm mb-8">
+              회원가입이 완료되었습니다.<br />로그인 후 서비스를 이용해주세요.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push('/auth/login?registered=true')}
+              className="w-full min-h-[44px] rounded-lg bg-primary text-lg font-medium text-white hover:opacity-90"
+            >
+              로그인하러 가기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

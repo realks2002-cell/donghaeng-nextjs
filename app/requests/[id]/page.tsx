@@ -1,15 +1,17 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ArrowLeft, MapPin, Clock, Calendar, Phone, User } from 'lucide-react'
 import { formatKoreanPhone } from '@/lib/utils/validation'
+import CancelRequestButton from '@/components/CancelRequestButton'
 
 const STATUS_LABELS: Record<string, { label: string; color: string; description: string }> = {
   PENDING: { label: '대기중', color: 'bg-gray-100 text-gray-800', description: '결제 대기 중입니다.' },
   CONFIRMED: { label: '확정', color: 'bg-green-100 text-green-800', description: '결제가 완료되었습니다. 매니저 매칭을 진행합니다.' },
   MATCHING: { label: '매칭중', color: 'bg-blue-100 text-blue-800', description: '매니저가 지원 중입니다.' },
+  MATCHED: { label: '매칭완료', color: 'bg-indigo-100 text-indigo-800', description: '매니저가 배정되었습니다. 서비스 시작을 준비합니다.' },
   IN_PROGRESS: { label: '진행중', color: 'bg-yellow-100 text-yellow-800', description: '서비스가 진행 중입니다.' },
   COMPLETED: { label: '완료', color: 'bg-gray-100 text-gray-800', description: '서비스가 완료되었습니다.' },
   CANCELLED: { label: '취소', color: 'bg-red-100 text-red-800', description: '요청이 취소되었습니다.' },
@@ -59,7 +61,7 @@ interface RequestData {
 
 export default async function RequestDetailPage({ params }: PageProps) {
   const { id } = await params
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   // 서비스 요청 정보 가져오기
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,14 +187,9 @@ export default async function RequestDetailPage({ params }: PageProps) {
         )}
 
         {/* 취소 버튼 */}
-        {(request.status === 'PENDING' || request.status === 'CONFIRMED') && (
+        {(['PENDING', 'CONFIRMED', 'MATCHING', 'MATCHED'].includes(request.status)) && (
           <div className="text-center">
-            <button
-              type="button"
-              className="text-red-600 hover:text-red-700 text-sm"
-            >
-              요청 취소하기
-            </button>
+            <CancelRequestButton requestId={request.id} />
           </div>
         )}
       </div>

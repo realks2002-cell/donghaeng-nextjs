@@ -1,0 +1,601 @@
+{
+  "timestamp": "2026-02-16T02:04:22.486Z",
+  "reason": "compaction",
+  "status": {
+    "version": "2.0",
+    "lastUpdated": "2026-02-16T01:56:18.437Z",
+    "activeFeatures": [
+      "recruit",
+      "signup",
+      "donghaeng",
+      "e2e",
+      "ServiceRequestForm",
+      "save-temp",
+      "designated-matching",
+      "admin",
+      "[id]",
+      "guest-lookup",
+      "bookings",
+      "search"
+    ],
+    "primaryFeature": "recruit",
+    "features": {
+      "recruit": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-15T14:20:03.168Z",
+          "lastUpdated": "2026-02-16T00:06:45.500Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/manager/recruit/page.tsx"
+      },
+      "signup": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-15T14:45:23.651Z",
+          "lastUpdated": "2026-02-16T01:56:18.437Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/manager/signup/page.tsx"
+      },
+      "donghaeng": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-15T14:55:32.000Z",
+          "lastUpdated": "2026-02-16T00:10:14.591Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/lib/utils/validation.ts"
+      },
+      "e2e": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-15T14:57:02.000Z",
+          "lastUpdated": "2026-02-16T00:06:48.743Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/e2e/service-request.spec.ts"
+      },
+      "ServiceRequestForm": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-15T15:53:23.118Z",
+          "lastUpdated": "2026-02-16T01:55:38.881Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/forms/ServiceRequestForm/Step1_5GuestInfo.tsx"
+      },
+      "save-temp": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-15T16:25:55.605Z",
+          "lastUpdated": "2026-02-15T16:25:55.605Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/requests/save-temp/route.ts"
+      },
+      "designated-matching": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-16T00:06:46.262Z",
+          "lastUpdated": "2026-02-16T00:06:46.262Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/designated-matching/page.tsx"
+      },
+      "admin": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-16T00:06:47.141Z",
+          "lastUpdated": "2026-02-16T00:06:47.141Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/layout.tsx"
+      },
+      "[id]": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-16T00:11:28.567Z",
+          "lastUpdated": "2026-02-16T00:11:35.860Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/[id]/page.tsx"
+      },
+      "guest-lookup": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-16T00:18:28.302Z",
+          "lastUpdated": "2026-02-16T00:18:28.302Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/requests/guest-lookup/route.ts"
+      },
+      "bookings": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-16T00:18:40.873Z",
+          "lastUpdated": "2026-02-16T00:25:50.094Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/bookings/BookingsContent.tsx"
+      },
+      "search": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-02-16T01:55:27.671Z",
+          "lastUpdated": "2026-02-16T01:55:27.671Z"
+        },
+        "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/address/search/route.ts"
+      }
+    },
+    "pipeline": {
+      "currentPhase": 1,
+      "level": "Dynamic",
+      "phaseHistory": []
+    },
+    "session": {
+      "startedAt": "2026-02-15T13:50:57.234Z",
+      "onboardingCompleted": false,
+      "lastActivity": "2026-02-16T01:56:18.437Z"
+    },
+    "history": [
+      {
+        "timestamp": "2026-02-15T14:20:03.168Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:20:36.426Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:21:23.514Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:26:41.723Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:37:44.078Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:38:30.426Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:40:08.725Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:42:01.611Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:44:15.646Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:44:23.956Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:45:23.651Z",
+        "feature": "signup",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:45:41.921Z",
+        "feature": "signup",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:55:32.000Z",
+        "feature": "donghaeng",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T14:57:02.000Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:14:38.298Z",
+        "feature": "donghaeng",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:23:15.474Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:23:21.055Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:23:27.529Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:23:32.163Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:23:38.491Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:23:45.458Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:50:48.595Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:51:27.017Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:53:23.118Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T15:54:11.445Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T16:04:52.093Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T16:07:03.162Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T16:07:46.619Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T16:12:36.311Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T16:15:04.946Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-15T16:25:55.606Z",
+        "feature": "save-temp",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:06:43.679Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:06:44.489Z",
+        "feature": "donghaeng",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:06:45.500Z",
+        "feature": "recruit",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:06:46.262Z",
+        "feature": "designated-matching",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:06:47.141Z",
+        "feature": "admin",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:06:47.834Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:06:48.743Z",
+        "feature": "e2e",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:10:02.502Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:10:06.859Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:10:14.591Z",
+        "feature": "donghaeng",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:10:22.707Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:10:26.862Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:11:28.567Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:11:32.503Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:11:35.860Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:18:10.387Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:18:13.504Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:18:28.302Z",
+        "feature": "guest-lookup",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:18:40.873Z",
+        "feature": "bookings",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:19:15.306Z",
+        "feature": "bookings",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:19:28.507Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:19:33.918Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:19:48.773Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:22:44.569Z",
+        "feature": "signup",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:23:12.666Z",
+        "feature": "signup",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:25:03.537Z",
+        "feature": "bookings",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:25:08.420Z",
+        "feature": "bookings",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:25:46.354Z",
+        "feature": "bookings",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T00:25:50.094Z",
+        "feature": "bookings",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T01:11:38.826Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T01:17:56.813Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T01:55:27.671Z",
+        "feature": "search",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T01:55:32.835Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T01:55:38.881Z",
+        "feature": "ServiceRequestForm",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T01:55:51.507Z",
+        "feature": "signup",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T01:56:06.831Z",
+        "feature": "signup",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-02-16T01:56:18.437Z",
+        "feature": "signup",
+        "phase": "do",
+        "action": "updated"
+      }
+    ]
+  }
+}

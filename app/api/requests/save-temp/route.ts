@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
+import { getCustomerFromRequest } from '@/lib/auth/customer'
 import { v4 as uuidv4 } from 'uuid'
 import { SERVICE_PRICES, ServiceType } from '@/lib/constants/pricing'
 
@@ -19,6 +20,8 @@ interface SaveTempRequest {
   guest_phone?: string
   guest_address?: string
   guest_address_detail?: string
+  payment_method?: string
+  amount?: number
 }
 
 export async function POST(request: NextRequest) {
@@ -40,22 +43,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 현재 로그인한 사용자 확인
-    const supabase = await createClient()
-    const { data: { user: authUser } } = await supabase.auth.getUser()
+    const customer = await getCustomerFromRequest()
 
-    let customerId: string | null = null
-    if (authUser) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const usersTable = supabase.from('users') as any
-      const { data: userData } = await usersTable
-        .select('id')
-        .eq('auth_id', authUser.id)
-        .single()
+    // Service Client 사용 (RLS 우회)
+    const serviceClient = createServiceClient()
 
-      if (userData) {
-        customerId = userData.id
-      }
-    }
+    const customerId: string | null = customer?.userId || null
 
     // 서비스 가격 계산
     const serviceType = body.service_type as ServiceType
@@ -78,8 +71,6 @@ export async function POST(request: NextRequest) {
     // 서비스 요청 ID 생성
     const requestId = uuidv4()
 
-    // Service Client 사용 (RLS 우회)
-    const serviceClient = createServiceClient()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const requestsTable = serviceClient.from('service_requests') as any
 
@@ -99,8 +90,10 @@ export async function POST(request: NextRequest) {
       lat: body.lat || null,
       lng: body.lng || null,
       details: body.details || null,
-      status: 'PENDING',
+      status: 'CONFIRMED',
       estimated_price: estimatedPrice,
+      confirmed_at: new Date().toISOString(),
+      manager_id: body.designated_manager_id || null,
     })
 
     if (insertError) {
@@ -109,6 +102,21 @@ export async function POST(request: NextRequest) {
         { ok: false, error: '서비스 요청 저장에 실패했습니다.' },
         { status: 500 }
       )
+    }
+
+    // 결제 정보 저장
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const paymentsTable = serviceClient.from('payments') as any
+    const { error: paymentError } = await paymentsTable.insert({
+      order_id: requestId,
+      service_request_id: requestId,
+      amount: body.amount ?? estimatedPrice,
+      status: 'PAID',
+      method: body.payment_method || null,
+    })
+
+    if (paymentError) {
+      console.error('Payment insert error:', paymentError)
     }
 
     return NextResponse.json({

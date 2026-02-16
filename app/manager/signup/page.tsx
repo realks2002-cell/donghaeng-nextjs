@@ -36,10 +36,40 @@ export default function ManagerSignupPage() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [addressResults, setAddressResults] = useState<{ address: string }[]>([])
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const searchAddress = async () => {
+    if (!formData.address1.trim()) {
+      setError('주소를 입력한 뒤 검색해주세요.')
+      return
+    }
+    setIsSearchingAddress(true)
+    setAddressResults([])
+    setError('')
+    try {
+      const res = await fetch(`/api/address/search?keyword=${encodeURIComponent(formData.address1)}`)
+      const data = await res.json()
+      if (data.success && data.items?.length > 0) {
+        setAddressResults(data.items)
+      } else {
+        setError(data.message || '일치하는 주소를 찾지 못했습니다.')
+      }
+    } catch {
+      setError('주소 검색 중 오류가 발생했습니다.')
+    } finally {
+      setIsSearchingAddress(false)
+    }
+  }
+
+  const selectAddress = (address: string) => {
+    setFormData((prev) => ({ ...prev, address1: address }))
+    setAddressResults([])
   }
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,8 +105,8 @@ export default function ManagerSignupPage() {
       setError('성별을 선택해주세요.')
       return
     }
-    if (!formData.ssn) {
-      setError('주민번호를 입력해주세요.')
+    if (!formData.ssn || !/^\d{6}-\d{7}$/.test(formData.ssn)) {
+      setError('주민번호 13자리를 모두 입력해주세요.')
       return
     }
     if (!formData.phone) {
@@ -238,19 +268,50 @@ export default function ManagerSignupPage() {
 
             {/* 주민번호 */}
             <div>
-              <label htmlFor="ssn" className="block text-base font-medium text-gray-700 mb-1">
+              <label htmlFor="ssn_front" className="block text-base font-medium text-gray-700 mb-1">
                 주민번호 <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                id="ssn"
-                name="ssn"
-                value={formData.ssn}
-                onChange={handleChange}
-                className="min-h-[44px] block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="123456-1234567"
-                required
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  id="ssn_front"
+                  inputMode="numeric"
+                  value={formData.ssn.split('-')[0] || ''}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\D/g, '').slice(0, 6)
+                    const back = formData.ssn.split('-')[1] || ''
+                    setFormData((prev) => ({ ...prev, ssn: back ? `${v}-${back}` : v }))
+                    if (v.length === 6) {
+                      document.getElementById('ssn_back')?.focus()
+                    }
+                  }}
+                  maxLength={6}
+                  className="min-h-[44px] w-[120px] rounded-lg border border-gray-300 px-4 py-2 text-center tracking-widest focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="700504"
+                  required
+                />
+                <span className="text-xl text-gray-400 font-bold">-</span>
+                <input
+                  type="password"
+                  id="ssn_back"
+                  inputMode="numeric"
+                  value={formData.ssn.split('-')[1] || ''}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\D/g, '').slice(0, 7)
+                    const front = formData.ssn.split('-')[0] || ''
+                    setFormData((prev) => ({ ...prev, ssn: `${front}-${v}` }))
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Backspace' && !(formData.ssn.split('-')[1] || '')) {
+                      document.getElementById('ssn_front')?.focus()
+                    }
+                  }}
+                  maxLength={7}
+                  className="min-h-[44px] w-[140px] rounded-lg border border-gray-300 px-4 py-2 text-center tracking-widest focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="1234567"
+                  required
+                />
+              </div>
             </div>
 
             {/* 전화번호 */}
@@ -276,16 +337,41 @@ export default function ManagerSignupPage() {
               <label htmlFor="address1" className="block text-base font-medium text-gray-700 mb-1">
                 주소 <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                id="address1"
-                name="address1"
-                value={formData.address1}
-                onChange={handleChange}
-                className="min-h-[44px] block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="서울시 강남구 테헤란로 123"
-                required
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  id="address1"
+                  name="address1"
+                  value={formData.address1}
+                  onChange={handleChange}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), searchAddress())}
+                  className="min-h-[44px] block flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="도로명 또는 지번 주소 입력 후 검색"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={searchAddress}
+                  disabled={isSearchingAddress || !formData.address1.trim()}
+                  className="shrink-0 min-h-[44px] rounded-lg bg-primary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSearchingAddress ? '검색 중...' : '주소 검색'}
+                </button>
+              </div>
+              {addressResults.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {addressResults.map((item, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => selectAddress(item.address)}
+                      className="flex min-h-[44px] w-full items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-left text-sm hover:bg-primary hover:text-white transition-colors"
+                    >
+                      {item.address}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 주소2 */}
