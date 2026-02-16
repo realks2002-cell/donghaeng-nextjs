@@ -112,7 +112,7 @@ export default function ServiceRequestForm({ isLoggedIn = false, user = null }: 
       <ProgressBar currentStep={step} />
 
       <div className="mt-6">
-        {step === 1 && (
+        {step === 1 && !isLoggedIn && (
           <Step1UserType
             data={formData}
             onUpdate={updateFormData}
@@ -120,7 +120,7 @@ export default function ServiceRequestForm({ isLoggedIn = false, user = null }: 
           />
         )}
 
-        {step === 1.5 && (
+        {(step === 1.5 || (step === 1 && isLoggedIn)) && (
           <Step1_5GuestInfo
             data={formData}
             onUpdate={updateFormData}
