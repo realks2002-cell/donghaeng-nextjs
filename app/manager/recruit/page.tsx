@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function RecruitPage() {
   return (
-    <section className="mx-auto max-w-4xl px-4 pt-[220px] pb-16 sm:px-6 sm:pb-24">
+    <section className="mx-auto max-w-4xl px-4 pt-44 pb-16 sm:px-6 sm:pb-24">
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-2">매니저 모집</h1>

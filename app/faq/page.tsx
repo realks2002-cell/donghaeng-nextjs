@@ -42,7 +42,7 @@ const faqs = [
 
 export default function FaqPage() {
   return (
-    <section className="mx-auto max-w-4xl px-4 pt-[220px] pb-16 sm:px-6 sm:pb-24">
+    <section className="mx-auto max-w-4xl px-4 pt-44 pb-16 sm:px-6 sm:pb-24">
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-8">자주묻는 질문</h1>
 
       <div className="space-y-6">

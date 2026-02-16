@@ -11,6 +11,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   PENDING: { label: '대기중', color: 'bg-gray-100 text-gray-800' },
   CONFIRMED: { label: '확정', color: 'bg-green-100 text-green-800' },
   MATCHING: { label: '매칭중', color: 'bg-blue-100 text-blue-800' },
+  MATCHED: { label: '매칭완료', color: 'bg-green-100 text-green-800' },
   IN_PROGRESS: { label: '진행중', color: 'bg-yellow-100 text-yellow-800' },
   COMPLETED: { label: '완료', color: 'bg-gray-100 text-gray-800' },
   CANCELLED: { label: '취소', color: 'bg-red-100 text-red-800' },
@@ -149,7 +150,7 @@ export default function BookingsContent({ isLoggedIn, memberRequests }: Bookings
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 pt-24">
+    <div className="min-h-screen bg-gray-50 py-8 pt-36">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <h1 className="text-2xl font-bold">예약 조회</h1>
         <p className="mt-1 text-gray-600">서비스 예약 내역을 확인하세요.</p>

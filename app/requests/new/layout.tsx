@@ -22,7 +22,7 @@ export default async function RequestsNewLayout({
 
   return (
     <FormProvider initialUser={user}>
-      <div className="min-h-screen bg-gray-50 py-8 pt-24">
+      <div className="min-h-screen bg-gray-50 py-8 pt-36">
         <div className="mx-auto max-w-2xl px-4 sm:px-6">
           <h1 className="text-2xl font-bold">서비스 요청</h1>
           <p className="mt-1 text-gray-600">

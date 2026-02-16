@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <section className="mx-auto max-w-4xl px-4 pt-[220px] pb-16 sm:px-6 sm:pb-24">
+    <section className="mx-auto max-w-4xl px-4 pt-44 pb-16 sm:px-6 sm:pb-24">
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-8">회사소개</h1>
 
       <div className="prose prose-lg max-w-none">
