@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-16T10:56:46.183Z",
+  "lastUpdated": "2026-02-16T11:37:38.963Z",
   "activeFeatures": [
     "recruit",
     "signup",
@@ -41,7 +41,14 @@
     "debug",
     "layout",
     "auth",
-    "client"
+    "client",
+    "context",
+    "user-type",
+    "info",
+    "service",
+    "datetime",
+    "details",
+    "payment"
   ],
   "primaryFeature": "recruit",
   "features": {
@@ -106,9 +113,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T15:53:23.118Z",
-        "lastUpdated": "2026-02-16T10:21:54.523Z"
+        "lastUpdated": "2026-02-16T11:35:55.180Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/forms/ServiceRequestForm/index.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/forms/ServiceRequestForm/components/PaymentForm.tsx"
     },
     "save-temp": {
       "phase": "do",
@@ -405,7 +412,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T04:38:20.845Z",
-        "lastUpdated": "2026-02-16T10:55:50.896Z"
+        "lastUpdated": "2026-02-16T11:32:47.914Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/page.tsx"
     },
@@ -496,9 +503,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T05:54:33.453Z",
-        "lastUpdated": "2026-02-16T05:54:40.767Z"
+        "lastUpdated": "2026-02-16T11:37:36.497Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/manager/layout.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/manager/page.tsx"
     },
     "check": {
       "phase": "do",
@@ -564,6 +571,97 @@
         "lastUpdated": "2026-02-16T08:23:14.869Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/debug/client/route.ts"
+    },
+    "context": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-16T11:32:08.238Z",
+        "lastUpdated": "2026-02-16T11:32:08.238Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/forms/ServiceRequestForm/context/FormContext.tsx"
+    },
+    "user-type": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-16T11:37:32.218Z",
+        "lastUpdated": "2026-02-16T11:37:32.218Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/user-type/page.tsx"
+    },
+    "info": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-16T11:37:33.966Z",
+        "lastUpdated": "2026-02-16T11:37:33.966Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/info/page.tsx"
+    },
+    "service": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-16T11:37:34.787Z",
+        "lastUpdated": "2026-02-16T11:37:34.787Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/service/page.tsx"
+    },
+    "datetime": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-16T11:37:35.594Z",
+        "lastUpdated": "2026-02-16T11:37:35.594Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/datetime/page.tsx"
+    },
+    "details": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-16T11:37:37.321Z",
+        "lastUpdated": "2026-02-16T11:37:37.321Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/details/page.tsx"
+    },
+    "payment": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-16T11:37:38.963Z",
+        "lastUpdated": "2026-02-16T11:37:38.963Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/payment/page.tsx"
     }
   },
   "pipeline": {
@@ -574,7 +672,7 @@
   "session": {
     "startedAt": "2026-02-15T13:50:57.234Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-02-16T10:56:46.183Z"
+    "lastActivity": "2026-02-16T11:37:38.963Z"
   },
   "history": [
     {
@@ -2608,6 +2706,114 @@
     {
       "timestamp": "2026-02-16T10:56:46.183Z",
       "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:32:08.238Z",
+      "feature": "context",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:32:13.492Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:32:24.641Z",
+      "feature": "new",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:32:47.914Z",
+      "feature": "new",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:33:09.676Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:33:49.424Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:34:05.998Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:34:27.351Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:35:13.526Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:35:20.747Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:35:55.180Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:37:32.218Z",
+      "feature": "user-type",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:37:33.966Z",
+      "feature": "info",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:37:34.787Z",
+      "feature": "service",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:37:35.594Z",
+      "feature": "datetime",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:37:36.497Z",
+      "feature": "manager",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:37:37.321Z",
+      "feature": "details",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:37:38.963Z",
+      "feature": "payment",
       "phase": "do",
       "action": "updated"
     }
