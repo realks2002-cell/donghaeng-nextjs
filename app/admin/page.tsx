@@ -21,6 +21,23 @@ interface RecentRequest {
   estimated_price: number
 }
 
+// 서비스 타입 한글 매핑
+const serviceTypeLabels: Record<string, string> = {
+  HOSPITAL_COMPANION: '병원 동행',
+  BABY_CARE: '아이돌봄',
+  HOUSEWORK: '가사돌봄',
+  SENIOR_CARE: '노인돌봄',
+  LIFE_COMPANION: '생활동행',
+}
+
+// 상태 한글 매핑
+const statusLabels: Record<string, string> = {
+  PENDING: '대기 중',
+  CONFIRMED: '확인됨',
+  COMPLETED: '완료',
+  CANCELLED: '취소됨',
+}
+
 const statusStyles: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
   CONFIRMED: 'bg-blue-100 text-blue-800',
@@ -184,7 +201,9 @@ export default function AdminDashboardPage() {
                       {new Date(req.created_at).toLocaleString('ko-KR')}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">{req.customer_name}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{req.service_type}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {serviceTypeLabels[req.service_type] || req.service_type}
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
                       {req.service_date} {req.start_time}
                     </td>
@@ -194,7 +213,7 @@ export default function AdminDashboardPage() {
                           statusStyles[req.status] || 'bg-gray-100 text-gray-800'
                         }`}
                       >
-                        {req.status}
+                        {statusLabels[req.status] || req.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
