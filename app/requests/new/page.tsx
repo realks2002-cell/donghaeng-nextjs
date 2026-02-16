@@ -8,20 +8,37 @@ export default function RequestsNewPage() {
   const router = useRouter()
 
   useEffect(() => {
-    async function checkAuthAndRedirect() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+    let isMounted = true
 
-      if (user) {
-        // 로그인한 사용자 → Step 1.5로 바로 이동
-        router.replace('/requests/new/info')
-      } else {
-        // 비로그인 사용자 → Step 1 (회원/비회원 선택)
-        router.replace('/requests/new/user-type')
+    async function checkAuthAndRedirect() {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        // 컴포넌트가 언마운트되었으면 리다이렉트하지 않음
+        if (!isMounted) return
+
+        if (user) {
+          // 로그인한 사용자 → Step 1.5로 바로 이동
+          router.replace('/requests/new/info')
+        } else {
+          // 비로그인 사용자 → Step 1 (회원/비회원 선택)
+          router.replace('/requests/new/user-type')
+        }
+      } catch (error) {
+        // AbortError 무시
+        if (error instanceof Error && error.name === 'AbortError') {
+          return
+        }
+        console.error('[RequestsNew] Auth check error:', error)
       }
     }
 
     checkAuthAndRedirect()
+
+    return () => {
+      isMounted = false
+    }
   }, [router])
 
   // 로딩 중 표시
