@@ -32,6 +32,14 @@ export default function ServiceRequestForm({ isLoggedIn = false, user = null }: 
 
   // 로그인한 회원은 Step 1.5부터 시작
   const [step, setStep] = useState<Step>(isLoggedIn ? 1.5 : 1)
+
+  // isLoggedIn이 변경되면 step 동기화
+  useEffect(() => {
+    if (isLoggedIn && step === 1) {
+      setStep(1.5)
+    }
+  }, [isLoggedIn, step])
+
   const [formData, setFormData] = useState<ServiceRequestFormData>(() => {
     const initial = { ...initialFormData }
 
@@ -93,8 +101,7 @@ export default function ServiceRequestForm({ isLoggedIn = false, user = null }: 
   }
 
   const handleSubmit = async () => {
-    // 결제 완료 후 처리
-    console.log('Form submitted:', formData)
+    router.push('/')
   }
 
   return (
