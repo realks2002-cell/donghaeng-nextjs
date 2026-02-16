@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { X } from 'lucide-react'
+import { toast } from 'sonner'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 
 interface ServiceRequest {
@@ -110,17 +111,27 @@ function DashboardContent() {
         }),
       })
 
+      const data = await res.json()
+
       if (res.ok) {
-        alert('지원이 완료되었습니다!')
+        // 성공 모달
+        toast.success('지원이 완료되었습니다!')
+        setSelectedRequest(null)
+        fetchRequests()
+      } else if (res.status === 409) {
+        // 🆕 이미 지원자가 있는 경우 (선착순 실패)
+        toast.error('이미 지원자가 있어 지원이 불가합니다.', {
+          description: '다른 서비스 요청을 확인해보세요.'
+        })
         setSelectedRequest(null)
         fetchRequests()
       } else {
-        const data = await res.json()
-        alert(data.error || '지원에 실패했습니다.')
+        // 기타 오류
+        toast.error(data.error || '지원에 실패했습니다.')
       }
     } catch (error) {
       console.error('Apply error:', error)
-      alert('지원 중 오류가 발생했습니다.')
+      toast.error('지원 중 오류가 발생했습니다.')
     }
     setApplying(false)
   }

@@ -184,26 +184,29 @@ export interface Database {
         Row: {
           id: string
           manager_id: string
-          request_id: string
+          service_request_id: string
           status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
           message: string | null
           created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
           manager_id: string
-          request_id: string
+          service_request_id: string
           status?: 'PENDING' | 'ACCEPTED' | 'REJECTED'
           message?: string | null
           created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
           manager_id?: string
-          request_id?: string
+          service_request_id?: string
           status?: 'PENDING' | 'ACCEPTED' | 'REJECTED'
           message?: string | null
           created_at?: string
+          updated_at?: string
         }
       }
       payments: {

@@ -46,20 +46,33 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if already applied
+    // 🆕 이미 다른 매니저의 지원이 있는지 체크 (선착순 제한)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const applicationsTable = supabase.from('manager_applications') as any
-    const { data: existingApplication } = await applicationsTable
-      .select('id')
-      .eq('manager_id', session.managerId)
+    const { data: existingApplications, error: checkError } = await applicationsTable
+      .select('id, manager_id')
       .eq('service_request_id', request_id)
-      .single()
+      .limit(1)
 
-    if (existingApplication) {
-      return NextResponse.json(
-        { error: '이미 이 요청에 지원하셨습니다.' },
-        { status: 400 }
-      )
+    if (checkError) {
+      console.error('Check existing applications error:', checkError)
+    }
+
+    if (existingApplications && existingApplications.length > 0) {
+      // 이미 다른 매니저가 지원했으면 거부
+      const isMyApplication = existingApplications[0].manager_id === session.managerId
+
+      if (isMyApplication) {
+        return NextResponse.json(
+          { error: '이미 이 요청에 지원하셨습니다.' },
+          { status: 400 }
+        )
+      } else {
+        return NextResponse.json(
+          { error: '이미 지원자가 있어 지원이 불가합니다.' },
+          { status: 409 } // 409 Conflict
+        )
+      }
     }
 
     // Create application
