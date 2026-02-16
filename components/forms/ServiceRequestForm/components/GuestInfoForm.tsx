@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 import { useFormContext } from '../context/FormContext'
 import { validateKoreanPhone, formatKoreanPhone } from '@/lib/utils/validation'
 
@@ -24,6 +25,53 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
   const [searchMessage, setSearchMessage] = useState('')
   const [searchResults, setSearchResults] = useState<AddressResult[]>([])
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(isLoggedIn)
+
+  // 로그인한 사용자 정보 자동 채우기
+  useEffect(() => {
+    async function loadUserInfo() {
+      if (!isLoggedIn) return
+
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+          setIsLoading(false)
+          return
+        }
+
+        // users 테이블에서 정보 조회
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('name, phone, address, address_detail')
+          .eq('auth_id', user.id)
+          .single()
+
+        if (error || !userData) {
+          console.error('[GuestInfoForm] Failed to load user data:', error)
+          toast.error('사용자 정보를 불러오는데 실패했습니다.')
+          setIsLoading(false)
+          return
+        }
+
+        // 폼 데이터에 자동 채우기
+        updateFormData({
+          guestName: userData.name || '',
+          guestPhone: formatKoreanPhone(userData.phone || ''),
+          guestAddress: userData.address || '',
+          guestAddressDetail: userData.address_detail || '',
+        })
+
+        setIsLoading(false)
+      } catch (err) {
+        console.error('[GuestInfoForm] Error loading user info:', err)
+        setIsLoading(false)
+      }
+    }
+
+    loadUserInfo()
+  }, [isLoggedIn, updateFormData])
 
   const handleAddressSearch = async () => {
     if (!formData.guestAddress.trim()) {
@@ -104,10 +152,28 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
     router.back()
   }
 
+  // 로딩 중 표시
+  if (isLoading) {
+    return (
+      <div className="rounded-lg border bg-white p-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-pulse space-y-4 w-full">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-lg border bg-white p-6">
       <h2 className="text-lg font-semibold">신청자 정보를 입력해주세요</h2>
-      <p className="mt-2 text-sm text-gray-600">서비스 신청을 위해 연락받으실 정보를 입력해주세요.</p>
+      <p className="mt-2 text-sm text-gray-600">
+        {isLoggedIn
+          ? '로그인한 회원 정보가 자동으로 입력되었습니다.'
+          : '서비스 신청을 위해 연락받으실 정보를 입력해주세요.'}
+      </p>
 
       <div className="mt-6 space-y-4">
         <div>
