@@ -27,10 +27,13 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(isLoggedIn)
 
-  // 로그인한 사용자 정보 자동 채우기
+  // 로그인한 사용자 정보 자동 채우기 (한 번만 실행)
   useEffect(() => {
     async function loadUserInfo() {
-      if (!isLoggedIn) return
+      if (!isLoggedIn) {
+        setIsLoading(false)
+        return
+      }
 
       try {
         const supabase = createClient()
@@ -71,7 +74,8 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
     }
 
     loadUserInfo()
-  }, [isLoggedIn, updateFormData])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn]) // updateFormData 제거 - 무한 루프 방지
 
   const handleAddressSearch = async () => {
     if (!formData.guestAddress.trim()) {
