@@ -1,8 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
   const pathname = request.nextUrl.pathname
+
+  // Supabase 세션 갱신 (고객 인증)
+  let response = await updateSession(request)
 
   // 현재 경로를 헤더에 추가
   response.headers.set('x-pathname', pathname)

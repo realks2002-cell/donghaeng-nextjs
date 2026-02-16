@@ -29,6 +29,7 @@ export default function LoginPage() {
         return
       }
 
+      // 1. users 테이블에서 이메일 조회
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,7 +43,20 @@ export default function LoginPage() {
         return
       }
 
-      // Supabase Auth가 자동으로 세션 쿠키 설정
+      // 2. 클라이언트에서 Supabase Auth 로그인 (세션 쿠키 자동 설정)
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: data.user.email,
+        password,
+      })
+
+      if (authError) {
+        setError('로그인에 실패했습니다.')
+        return
+      }
+
       console.log('[Login] Login successful, redirecting to:', redirect)
       window.location.href = redirect
     } catch (err) {

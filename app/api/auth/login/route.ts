@@ -27,24 +27,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '전화번호 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 })
     }
 
-    // Supabase Auth로 비밀번호 검증
-    const authClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    // 이메일 정보 반환 (클라이언트에서 실제 로그인 수행)
+    console.log('[Login] Phone lookup successful, userId:', userData.id)
 
-    const { error: authError } = await authClient.auth.signInWithPassword({
-      email: userData.email,
-      password,
-    })
-
-    if (authError) {
-      return NextResponse.json({ error: '전화번호 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 })
-    }
-
-    console.log('[Login] Supabase Auth session created, userId:', userData.id)
-
-    // Supabase Auth가 자동으로 세션 쿠키 생성
     return NextResponse.json({
       success: true,
       user: {
