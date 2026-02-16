@@ -4,30 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ServiceRequestFormData, calculatePrice } from './types'
 import { SERVICE_TYPES, ServiceType, DEFAULT_SERVICE_PRICES } from '@/lib/constants/pricing'
-
-declare global {
-  interface Window {
-    PaymentWidget: (clientKey: string, customerKey: string) => PaymentWidgetInstance
-  }
-}
-
-interface PaymentWidgetInstance {
-  renderPaymentMethods: (selector: string, options: { value: number }, config?: { variantKey: string }) => PaymentMethodWidget
-  renderAgreement: (selector: string, config?: { variantKey: string }) => void
-  requestPayment: (options: {
-    orderId: string
-    orderName: string
-    successUrl: string
-    failUrl: string
-    customerEmail?: string
-    customerName?: string
-  }) => Promise<void>
-}
-
-interface PaymentMethodWidget {
-  on: (event: string, callback: () => void) => void
-  getSelectedPaymentMethod?: () => { method: string } | null
-}
+import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk'
 
 interface Step5PaymentProps {
   data: ServiceRequestFormData
@@ -50,70 +27,78 @@ export default function Step5Payment({
   user = null,
   servicePrices = DEFAULT_SERVICE_PRICES,
 }: Step5PaymentProps) {
-  const [isWidgetLoading, setIsWidgetLoading] = useState(true)
+  const [ready, setReady] = useState(false)
   const [widgetError, setWidgetError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
-  const paymentWidgetRef = useRef<PaymentWidgetInstance | null>(null)
-  const paymentMethodWidgetRef = useRef<PaymentMethodWidget | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [widgets, setWidgets] = useState<any>(null)
+  const initializedRef = useRef(false)
 
   const estimatedPrice = calculatePrice(data.serviceType, data.durationHours, servicePrices)
   const serviceLabel = data.serviceType ? SERVICE_TYPES[data.serviceType as ServiceType]?.label : '-'
 
-  // 토스페이먼츠 SDK 로드 및 위젯 초기화
+  // 1단계: 토스페이먼츠 SDK v2 로드 및 위젯 객체 생성
   useEffect(() => {
-    const loadPaymentWidget = async () => {
-      // SDK 스크립트 로드
-      if (!window.PaymentWidget) {
-        const script = document.createElement('script')
-        script.src = 'https://js.tosspayments.com/v1/payment-widget'
-        script.async = true
-        script.onload = () => initializeWidget()
-        script.onerror = () => setWidgetError('결제 시스템을 불러오는데 실패했습니다.')
-        document.head.appendChild(script)
-      } else {
-        initializeWidget()
-      }
-    }
+    if (initializedRef.current) return
+    initializedRef.current = true
 
-    const initializeWidget = () => {
+    async function fetchPaymentWidgets() {
       try {
         const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
-        console.log('TossPayments clientKey:', clientKey ? 'Set' : 'Not set')
+        console.log('TossPayments clientKey:', clientKey ? `Set (${clientKey.substring(0, 20)}...)` : 'Not set')
 
         if (!clientKey || clientKey === 'your_toss_client_key') {
-          throw new Error('결제 클라이언트 키가 설정되지 않았습니다. 서버를 재시작하세요.')
+          throw new Error('결제 클라이언트 키가 설정되지 않았습니다.')
         }
 
-        // 고객 키 생성
-        const customerKey = user?.id || `guest_${Math.random().toString(36).substring(2, 12)}`
+        const tossPayments = await loadTossPayments(clientKey)
 
-        console.log('Initializing PaymentWidget with customerKey:', customerKey)
-        const widget = window.PaymentWidget(clientKey, customerKey)
-        paymentWidgetRef.current = widget
+        // 비회원: ANONYMOUS, 회원: user.id
+        const customerKey = user?.id || ANONYMOUS
+        console.log('Creating widgets with customerKey:', user?.id ? 'user-id' : 'ANONYMOUS')
 
-        console.log('Rendering payment methods, amount:', estimatedPrice)
-        // 결제 UI 렌더링
-        const methodWidget = widget.renderPaymentMethods(
-          '#payment-widget',
-          { value: estimatedPrice },
-          { variantKey: 'DEFAULT' }
-        )
-        paymentMethodWidgetRef.current = methodWidget
-
-        // 약관 UI 렌더링
-        widget.renderAgreement('#agreement', { variantKey: 'AGREEMENT' })
-
-        // 로딩 완료 - ready 이벤트가 발생하지 않을 수 있으므로 타임아웃 설정
-        setIsWidgetLoading(false)
+        const w = tossPayments.widgets({ customerKey })
+        setWidgets(w)
       } catch (error) {
-        console.error('Payment widget error:', error)
+        console.error('Payment SDK load error:', error)
         setWidgetError(error instanceof Error ? error.message : '결제 시스템 초기화에 실패했습니다.')
-        setIsWidgetLoading(false)
       }
     }
 
-    loadPaymentWidget()
-  }, [estimatedPrice, user?.id])
+    fetchPaymentWidgets()
+  }, [user?.id])
+
+  // 2단계: 위젯 객체가 준비되면 결제 UI 렌더링
+  useEffect(() => {
+    if (widgets == null) return
+
+    async function renderPaymentWidgets() {
+      try {
+        // 금액 설정 (renderPaymentMethods 보다 먼저 호출)
+        await widgets.setAmount({ currency: 'KRW', value: estimatedPrice })
+
+        // 결제 UI + 약관 UI 렌더링
+        await Promise.all([
+          widgets.renderPaymentMethods({
+            selector: '#payment-widget',
+            variantKey: 'DEFAULT',
+          }),
+          widgets.renderAgreement({
+            selector: '#agreement',
+            variantKey: 'AGREEMENT',
+          }),
+        ])
+
+        console.log('Payment widget rendered successfully')
+        setReady(true)
+      } catch (error) {
+        console.error('Payment widget render error:', error)
+        setWidgetError(error instanceof Error ? error.message : '결제 UI 렌더링에 실패했습니다.')
+      }
+    }
+
+    renderPaymentWidgets()
+  }, [widgets, estimatedPrice])
 
   const handlePayment = async () => {
     if (!data.confirmTerms) {
@@ -121,7 +106,7 @@ export default function Step5Payment({
       return
     }
 
-    if (!paymentWidgetRef.current) {
+    if (!widgets) {
       toast.error('결제 시스템을 초기화하는 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
@@ -170,7 +155,7 @@ export default function Step5Payment({
       const successUrl = `${baseUrl}/payment/success`
       const failUrl = `${baseUrl}/payment/fail`
 
-      await paymentWidgetRef.current.requestPayment({
+      await widgets.requestPayment({
         orderId,
         orderName,
         successUrl,
@@ -235,14 +220,14 @@ export default function Step5Payment({
           </div>
         ) : (
           <>
-            {isWidgetLoading && (
+            {!ready && (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 <span className="ml-2 text-gray-600">결제 시스템 로딩 중...</span>
               </div>
             )}
-            <div id="payment-widget" className={isWidgetLoading ? 'hidden' : ''}></div>
-            <div id="agreement" className={isWidgetLoading ? 'hidden' : ''}></div>
+            <div id="payment-widget" className={!ready ? 'hidden' : ''}></div>
+            <div id="agreement" className={!ready ? 'hidden' : ''}></div>
           </>
         )}
       </div>
@@ -270,7 +255,7 @@ export default function Step5Payment({
         <button
           type="button"
           onClick={handlePayment}
-          disabled={isWidgetLoading || isProcessing || !!widgetError}
+          disabled={!ready || isProcessing || !!widgetError}
           className="min-h-[44px] rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isProcessing ? '처리 중...' : '결제하기'}

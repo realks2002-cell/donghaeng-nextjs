@@ -103,7 +103,7 @@ export default function Home() {
               </div>
               <div className="p-6">
                 <h3 className="text-3xl font-bold mb-3">아이돌봄</h3>
-                <p className="text-base text-gray-800 leading-relaxed mb-4">등하원 도우미부터 긴급 돌봄까지, 사랑과 정성으로 우리 아이의 행복한 시간을 책임집니다.</p>
+                <p className="text-base text-gray-800 leading-relaxed mb-4">등하원 매니저부터 긴급 돌봄까지, 사랑과 정성으로 우리 아이의 행복한 시간을 책임집니다.</p>
                 <Link href="/service-guide" className="inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
               </div>
             </div>

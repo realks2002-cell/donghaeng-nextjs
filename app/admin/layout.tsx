@@ -26,7 +26,7 @@ const menuItems = [
   { href: '/admin/managers', label: '매니저 관리', icon: ShieldCheck, dividerAfter: true },
   { href: '/admin/manager-applications', label: '매니저 지원확인', icon: UserPlus },
   { href: '/admin/requests', label: '예약요청 및 매칭 현황', icon: ClipboardList },
-  { href: '/admin/designated-matching', label: '지정 도우미 매칭', icon: CheckCircle, dividerAfter: true },
+  { href: '/admin/designated-matching', label: '지정 매니저 매칭', icon: CheckCircle, dividerAfter: true },
   { href: '/admin/refund-info', label: '취소요청 및 환불', icon: XCircle },
   { href: '/admin/payments', label: '결제 내역 조회', icon: CreditCard },
   { href: '/admin/revenue', label: '일/월 매출 집계', icon: BarChart3, dividerAfter: true },

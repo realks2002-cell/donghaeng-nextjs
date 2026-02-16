@@ -24,7 +24,7 @@ export interface ServiceRequestFormData {
   startTime: string
   durationHours: number
 
-  // Step 3.5: 도우미 지정 (선택)
+  // Step 3.5: 매니저 지정 (선택)
   designatedManagerId: string | null
   designatedManager?: {
     id: string
@@ -38,6 +38,9 @@ export interface ServiceRequestFormData {
   // Step 4: 상세 요청사항
   details: string
 
+  // Step 1.5: 개인정보 수집동의 (비회원)
+  privacyConsent: boolean
+
   // Step 5: 결제
   confirmTerms: boolean
 }
@@ -49,6 +52,7 @@ export const initialFormData: ServiceRequestFormData = {
   guestPhone: '',
   guestAddress: '',
   guestAddressDetail: '',
+  privacyConsent: false,
   serviceType: null,
   serviceDate: '',
   startTime: '',

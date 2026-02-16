@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ArrowLeft, MapPin, Clock, Calendar, Phone, User } from 'lucide-react'
+import { formatKoreanPhone } from '@/lib/utils/validation'
 
 const STATUS_LABELS: Record<string, { label: string; color: string; description: string }> = {
   PENDING: { label: '대기중', color: 'bg-gray-100 text-gray-800', description: '결제 대기 중입니다.' },
@@ -128,7 +129,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
             </div>
             <div className="flex items-center gap-3 text-gray-700">
               <Phone className="w-5 h-5 text-gray-400" />
-              <span>{request.phone}</span>
+              <span>{formatKoreanPhone(request.phone)}</span>
             </div>
           </div>
 
@@ -177,7 +178,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <p className="font-semibold">{request.managers.name}</p>
-                <p className="text-sm text-gray-600">{request.managers.phone}</p>
+                <p className="text-sm text-gray-600">{formatKoreanPhone(request.managers.phone)}</p>
               </div>
             </div>
           </div>

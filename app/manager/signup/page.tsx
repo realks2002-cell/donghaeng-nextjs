@@ -32,6 +32,8 @@ export default function ManagerSignupPage() {
   const [privacy, setPrivacy] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
+  const [isTermsOpen, setIsTermsOpen] = useState(false)
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -143,7 +145,7 @@ export default function ManagerSignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-12">
+    <div className="min-h-screen bg-gray-50 px-4 py-12" style={{ paddingTop: '120px' }}>
       <div className="mx-auto max-w-2xl mt-12 text-base">
         {/* 헤더 */}
         <div className="text-center mb-8">
@@ -411,32 +413,107 @@ export default function ManagerSignupPage() {
 
             {/* 약관 동의 */}
             <div className="space-y-3">
-              <div className="flex items-start">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={terms}
-                  onChange={(e) => setTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
-                  required
-                />
-                <label htmlFor="terms" className="ml-2 text-base text-gray-700">
-                  <a href="#" className="text-primary hover:underline">서비스 이용약관</a>에 동의합니다.{' '}
-                  <span className="text-red-500">*</span>
+              {/* 서비스 이용약관 */}
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <button
+                  type="button"
+                  onClick={() => setIsTermsOpen(!isTermsOpen)}
+                  className="flex w-full items-center justify-between text-sm font-medium text-gray-700"
+                >
+                  <span>서비스 이용약관</span>
+                  <svg
+                    className={`h-5 w-5 transition-transform ${isTermsOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </button>
+
+                {isTermsOpen && (
+                  <div className="mt-3 max-h-48 overflow-y-auto rounded border border-gray-200 bg-white p-4 text-sm text-gray-600 leading-relaxed">
+                    <p className="font-medium text-gray-700 mb-2">제1조 (목적)</p>
+                    <p className="mb-3">본 약관은 행복안심동행(이하 &quot;회사&quot;)이 제공하는 돌봄 서비스 중개 플랫폼의 매니저 이용에 관한 사항을 규정합니다.</p>
+                    <p className="font-medium text-gray-700 mb-2">제2조 (매니저의 의무)</p>
+                    <p className="mb-3">매니저는 서비스 제공 시 성실히 업무를 수행하며, 고객의 개인정보를 보호해야 합니다. 서비스 예약을 수락한 후 정당한 사유 없이 취소할 수 없습니다.</p>
+                    <p className="font-medium text-gray-700 mb-2">제3조 (수수료 및 정산)</p>
+                    <p className="mb-3">서비스 완료 후 정산은 등록된 계좌로 진행되며, 플랫폼 수수료가 차감됩니다. 정산 주기 및 수수료율은 별도 공지합니다.</p>
+                    <p className="font-medium text-gray-700 mb-2">제4조 (계정 해지)</p>
+                    <p>매니저는 언제든지 탈퇴를 요청할 수 있으며, 진행 중인 서비스가 완료된 후 처리됩니다.</p>
+                  </div>
+                )}
+
+                <label className="mt-3 flex min-h-[44px] cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={terms}
+                    onChange={(e) => setTerms(e.target.checked)}
+                    className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    서비스 이용약관에 동의합니다 <span className="text-red-500">*</span>
+                  </span>
                 </label>
               </div>
-              <div className="flex items-start">
-                <input
-                  type="checkbox"
-                  id="privacy"
-                  checked={privacy}
-                  onChange={(e) => setPrivacy(e.target.checked)}
-                  className="mt-1 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
-                  required
-                />
-                <label htmlFor="privacy" className="ml-2 text-base text-gray-700">
-                  <a href="#" className="text-primary hover:underline">개인정보 이용</a>에 동의합니다.{' '}
-                  <span className="text-red-500">*</span>
+
+              {/* 개인정보 수집동의 */}
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <button
+                  type="button"
+                  onClick={() => setIsPrivacyOpen(!isPrivacyOpen)}
+                  className="flex w-full items-center justify-between text-sm font-medium text-gray-700"
+                >
+                  <span>개인정보 수집 및 이용 안내</span>
+                  <svg
+                    className={`h-5 w-5 transition-transform ${isPrivacyOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </button>
+
+                {isPrivacyOpen && (
+                  <div className="mt-3 space-y-2 text-sm text-gray-600">
+                    <div className="overflow-hidden rounded border border-gray-200 bg-white">
+                      <table className="w-full text-left text-sm">
+                        <tbody>
+                          <tr className="border-b">
+                            <td className="bg-gray-50 px-4 py-2.5 font-medium text-gray-700 whitespace-nowrap">수집항목</td>
+                            <td className="px-4 py-2.5">이름, 성별, 주민번호, 전화번호, 주소, 사진, 은행·계좌번호, 특기</td>
+                          </tr>
+                          <tr className="border-b">
+                            <td className="bg-gray-50 px-4 py-2.5 font-medium text-gray-700 whitespace-nowrap">수집목적</td>
+                            <td className="px-4 py-2.5">매니저 본인 확인, 서비스 매칭, 정산 처리</td>
+                          </tr>
+                          <tr className="border-b">
+                            <td className="bg-gray-50 px-4 py-2.5 font-medium text-gray-700 whitespace-nowrap">보유기간</td>
+                            <td className="px-4 py-2.5">회원 탈퇴 후 1년 (법령에 따른 보관 의무 시 해당 기간)</td>
+                          </tr>
+                          <tr>
+                            <td className="bg-gray-50 px-4 py-2.5 font-medium text-gray-700 whitespace-nowrap">동의 거부</td>
+                            <td className="px-4 py-2.5">동의를 거부할 수 있으나, 거부 시 매니저 가입이 불가합니다.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                <label className="mt-3 flex min-h-[44px] cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={privacy}
+                    onChange={(e) => setPrivacy(e.target.checked)}
+                    className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    개인정보 수집 및 이용에 동의합니다 <span className="text-red-500">*</span>
+                  </span>
                 </label>
               </div>
             </div>

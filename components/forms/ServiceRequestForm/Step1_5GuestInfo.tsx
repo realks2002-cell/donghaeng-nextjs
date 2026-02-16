@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ServiceRequestFormData } from './types'
-import { validateKoreanPhone } from '@/lib/utils/validation'
+import { validateKoreanPhone, formatKoreanPhone } from '@/lib/utils/validation'
 
 interface AddressResult {
   address: string
@@ -29,6 +29,7 @@ export default function Step1_5GuestInfo({
   const [isSearching, setIsSearching] = useState(false)
   const [searchMessage, setSearchMessage] = useState('')
   const [searchResults, setSearchResults] = useState<AddressResult[]>([])
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
 
   const handleAddressSearch = async () => {
     if (!data.guestAddress.trim()) {
@@ -97,6 +98,10 @@ export default function Step1_5GuestInfo({
       toast.error('주소를 입력해주세요.')
       return
     }
+    if (!data.privacyConsent) {
+      toast.error('개인정보 수집 및 이용에 동의해주세요.')
+      return
+    }
     onNext()
   }
 
@@ -128,7 +133,11 @@ export default function Step1_5GuestInfo({
             type="tel"
             id="guest_phone"
             value={data.guestPhone}
-            onChange={(e) => onUpdate({ guestPhone: e.target.value })}
+            onChange={(e) => {
+              const formatted = formatKoreanPhone(e.target.value)
+              onUpdate({ guestPhone: formatted })
+            }}
+            maxLength={13}
             className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             placeholder="010-1234-5678"
           />
@@ -199,6 +208,67 @@ export default function Step1_5GuestInfo({
           />
         </div>
       </div>
+
+      {/* 개인정보 수집동의 (비회원만) */}
+      {!isLoggedIn && (
+        <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <button
+            type="button"
+            onClick={() => setIsPrivacyOpen(!isPrivacyOpen)}
+            className="flex w-full items-center justify-between text-sm font-medium text-gray-700"
+          >
+            <span>개인정보 수집 및 이용 안내</span>
+            <svg
+              className={`h-5 w-5 transition-transform ${isPrivacyOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+
+          {isPrivacyOpen && (
+            <div className="mt-3 space-y-2 text-sm text-gray-600">
+              <div className="overflow-hidden rounded border border-gray-200 bg-white">
+                <table className="w-full text-left text-sm">
+                  <tbody>
+                    <tr className="border-b">
+                      <td className="bg-gray-50 px-4 py-2.5 font-medium text-gray-700 whitespace-nowrap">수집항목</td>
+                      <td className="px-4 py-2.5">이름, 전화번호, 주소</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="bg-gray-50 px-4 py-2.5 font-medium text-gray-700 whitespace-nowrap">수집목적</td>
+                      <td className="px-4 py-2.5">돌봄 서비스 예약 및 연락</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="bg-gray-50 px-4 py-2.5 font-medium text-gray-700 whitespace-nowrap">보유기간</td>
+                      <td className="px-4 py-2.5">서비스 완료 후 1년</td>
+                    </tr>
+                    <tr>
+                      <td className="bg-gray-50 px-4 py-2.5 font-medium text-gray-700 whitespace-nowrap">동의 거부</td>
+                      <td className="px-4 py-2.5">동의를 거부할 수 있으나, 거부 시 서비스 이용이 불가합니다.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          <label className="mt-3 flex min-h-[44px] cursor-pointer items-center gap-3">
+            <input
+              type="checkbox"
+              checked={data.privacyConsent}
+              onChange={(e) => onUpdate({ privacyConsent: e.target.checked })}
+              className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              개인정보 수집 및 이용에 동의합니다
+            </span>
+          </label>
+        </div>
+      )}
 
       <div className="mt-6 flex justify-between">
         {!isLoggedIn && (

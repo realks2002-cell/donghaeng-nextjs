@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { ServiceRequestFormData } from './types'
 import { X } from 'lucide-react'
+import { formatKoreanPhone } from '@/lib/utils/validation'
 
 interface Manager {
   id: string
@@ -48,7 +49,7 @@ export default function Step3_5ManagerSelect({ data, onUpdate, onNext, onPrev }:
 
       if (result.ok && result.managers?.length > 0) {
         setSearchResults(result.managers)
-        setSearchMessage(`${result.count}명의 도우미를 찾았습니다.`)
+        setSearchMessage(`${result.count}명의 매니저를 찾았습니다.`)
       } else {
         setSearchMessage('검색 결과가 없습니다. 전화번호나 이름을 다시 확인해주세요.')
       }
@@ -66,7 +67,7 @@ export default function Step3_5ManagerSelect({ data, onUpdate, onNext, onPrev }:
       designatedManager: manager,
     })
     setSearchResults([])
-    setSearchMessage('도우미가 선택되었습니다.')
+    setSearchMessage('매니저가 선택되었습니다.')
   }
 
   const clearManager = () => {
@@ -81,9 +82,9 @@ export default function Step3_5ManagerSelect({ data, onUpdate, onNext, onPrev }:
 
   return (
     <div className="rounded-lg border bg-white p-6">
-      <h2 className="text-lg font-semibold">원하는 도우미가 있으신가요?</h2>
+      <h2 className="text-lg font-semibold">원하는 매니저가 있으신가요?</h2>
       <p className="mt-2 text-sm text-gray-600">
-        원하는 도우미가 있으시면 전화번호나 이름으로 검색해주세요. 도우미를 지정하시면 관리자 확인 후 매칭됩니다.
+        원하는 매니저가 있으시면 전화번호나 이름으로 검색해주세요. 매니저를 지정하시면 관리자 확인 후 매칭됩니다.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -97,7 +98,8 @@ export default function Step3_5ManagerSelect({ data, onUpdate, onNext, onPrev }:
               type="tel"
               id="manager_search_phone"
               value={searchPhone}
-              onChange={(e) => setSearchPhone(e.target.value)}
+              onChange={(e) => setSearchPhone(formatKoreanPhone(e.target.value))}
+              maxLength={13}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               placeholder="010-1234-5678"
             />
@@ -112,7 +114,7 @@ export default function Step3_5ManagerSelect({ data, onUpdate, onNext, onPrev }:
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              placeholder="도우미 이름"
+              placeholder="매니저 이름"
             />
           </div>
         </div>
@@ -123,7 +125,7 @@ export default function Step3_5ManagerSelect({ data, onUpdate, onNext, onPrev }:
           disabled={isSearching}
           className="w-full min-h-[44px] rounded-lg bg-primary px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSearching ? '검색 중...' : '도우미 찾기'}
+          {isSearching ? '검색 중...' : '매니저 찾기'}
         </button>
 
         {/* 검색 메시지 */}
@@ -170,7 +172,7 @@ export default function Step3_5ManagerSelect({ data, onUpdate, onNext, onPrev }:
           </div>
         )}
 
-        {/* 선택된 도우미 */}
+        {/* 선택된 매니저 */}
         {data.designatedManager && (
           <div className="rounded-lg border-2 border-primary bg-blue-50 p-4">
             <div className="flex items-start gap-4">
@@ -204,7 +206,7 @@ export default function Step3_5ManagerSelect({ data, onUpdate, onNext, onPrev }:
             <svg className="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
-            도우미를 지정하지 않으시면 여러 도우미가 지원할 수 있으며, 더 빠르게 매칭될 수 있습니다.
+            매니저를 지정하지 않으시면 여러 매니저가 지원할 수 있으며, 더 빠르게 매칭될 수 있습니다.
           </p>
         </div>
       </div>

@@ -35,17 +35,17 @@ export function validateKoreanPhone(phone: string): boolean {
 export function formatKoreanPhone(phone: string): string {
   if (!phone) return ''
 
-  // 하이픈 제거
-  const cleanPhone = phone.replace(/[^0-9]/g, '')
+  // 숫자만 추출
+  const digits = phone.replace(/[^0-9]/g, '').slice(0, 11)
 
-  // 010-1234-5678 또는 010-123-4567 형식으로 변환
-  if (cleanPhone.length === 11) {
-    return cleanPhone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
-  } else if (cleanPhone.length === 10) {
-    return cleanPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')
+  // 입력 중에도 자동 하이픈 삽입
+  if (digits.length <= 3) {
+    return digits
+  } else if (digits.length <= 7) {
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`
+  } else {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`
   }
-
-  return phone
 }
 
 /**

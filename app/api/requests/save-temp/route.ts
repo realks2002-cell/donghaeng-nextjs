@@ -87,7 +87,6 @@ export async function POST(request: NextRequest) {
     const { error: insertError } = await requestsTable.insert({
       id: requestId,
       customer_id: customerId,
-      designated_manager_id: body.designated_manager_id || null,
       guest_name: body.guest_name || null,
       guest_phone: body.guest_phone || null,
       service_type: body.service_type,
