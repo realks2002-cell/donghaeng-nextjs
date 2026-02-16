@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         managerPhone: manager.phone,
       },
       JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '10y' }
     )
 
     // Set cookie
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60, // 30 days
+      maxAge: 10 * 365 * 24 * 60 * 60, // 10 years
       path: '/',
     })
 
