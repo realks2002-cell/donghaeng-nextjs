@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 
 interface Stats {
   total_users: number
@@ -21,19 +22,13 @@ interface RecentRequest {
   estimated_price: number
 }
 
-// 서비스 타입 한글 매핑
-const serviceTypeLabels: Record<string, string> = {
-  HOSPITAL_COMPANION: '병원 동행',
-  BABY_CARE: '아이돌봄',
-  HOUSEWORK: '가사돌봄',
-  SENIOR_CARE: '노인돌봄',
-  LIFE_COMPANION: '생활동행',
-}
-
 // 상태 한글 매핑
 const statusLabels: Record<string, string> = {
   PENDING: '대기 중',
   CONFIRMED: '확인됨',
+  MATCHING: '매칭 중',
+  MATCHED: '매칭 완료',
+  IN_PROGRESS: '진행 중',
   COMPLETED: '완료',
   CANCELLED: '취소됨',
 }
@@ -41,6 +36,9 @@ const statusLabels: Record<string, string> = {
 const statusStyles: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
   CONFIRMED: 'bg-blue-100 text-blue-800',
+  MATCHING: 'bg-purple-100 text-purple-800',
+  MATCHED: 'bg-green-100 text-green-800',
+  IN_PROGRESS: 'bg-indigo-100 text-indigo-800',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-red-100 text-red-800',
 }
@@ -202,7 +200,7 @@ export default function AdminDashboardPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">{req.customer_name}</td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {serviceTypeLabels[req.service_type] || req.service_type}
+                      {SERVICE_TYPE_LABELS[req.service_type as ServiceType] || req.service_type}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
                       {req.service_date} {req.start_time}
