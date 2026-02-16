@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import ServiceRequestForm from '@/components/forms/ServiceRequestForm'
 
 export default function ServiceRequestPage() {
@@ -15,27 +16,35 @@ export default function ServiceRequestPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('customer_token')
+    async function checkAuth() {
+      const supabase = createClient()
 
-    if (token) {
-      // JWT 디코드해서 사용자 정보 추출
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]))
+      // Supabase Auth 세션 확인
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+
+      if (authUser) {
         setIsLoggedIn(true)
+
+        // users 테이블에서 추가 정보 조회
+        const { data: userData } = await supabase
+          .from('users')
+          .select('name, phone, address')
+          .eq('auth_id', authUser.id)
+          .single()
+
         setUser({
-          id: payload.userId,
-          name: payload.userName,
-          phone: payload.userPhone,
-          email: payload.userEmail,
-          address: null // 주소는 Step 1.5에서 입력받음
+          id: authUser.id,
+          name: userData?.name || '',
+          phone: userData?.phone || '',
+          email: authUser.email || '',
+          address: userData?.address || null
         })
-      } catch (err) {
-        console.error('Token decode error:', err)
-        localStorage.removeItem('customer_token')
       }
+
+      setLoading(false)
     }
 
-    setLoading(false)
+    checkAuth()
   }, [])
 
   if (loading) {
