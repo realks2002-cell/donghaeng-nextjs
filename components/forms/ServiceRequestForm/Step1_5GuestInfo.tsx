@@ -7,8 +7,9 @@ import { validateKoreanPhone, formatKoreanPhone } from '@/lib/utils/validation'
 
 interface AddressResult {
   address: string
-  x: number
-  y: number
+  jibunAddress?: string
+  zipCode?: string
+  buildingName?: string
 }
 
 interface Step1_5GuestInfoProps {
@@ -68,8 +69,8 @@ export default function Step1_5GuestInfo({
   const selectAddress = (item: AddressResult) => {
     onUpdate({
       guestAddress: item.address,
-      guestLat: item.y,
-      guestLng: item.x,
+      guestLat: 0,
+      guestLng: 0,
     })
     setSearchResults([])
     setSearchMessage('주소가 선택되었습니다.')
@@ -98,7 +99,8 @@ export default function Step1_5GuestInfo({
       toast.error('주소를 입력해주세요.')
       return
     }
-    if (!data.privacyConsent) {
+    // 비회원만 개인정보 동의 확인
+    if (!isLoggedIn && !data.privacyConsent) {
       toast.error('개인정보 수집 및 이용에 동의해주세요.')
       return
     }
