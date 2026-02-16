@@ -42,8 +42,8 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
         }
 
         // users 테이블에서 정보 조회
-        const { data: userData, error } = await supabase
-          .from('users')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: userData, error } = await (supabase.from('users') as any)
           .select('name, phone, address, address_detail')
           .eq('auth_id', user.id)
           .single()
@@ -57,10 +57,10 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
 
         // 폼 데이터에 자동 채우기
         updateFormData({
-          guestName: userData.name || '',
-          guestPhone: formatKoreanPhone(userData.phone || ''),
-          guestAddress: userData.address || '',
-          guestAddressDetail: userData.address_detail || '',
+          guestName: (userData.name as string) || '',
+          guestPhone: formatKoreanPhone((userData.phone as string) || ''),
+          guestAddress: (userData.address as string) || '',
+          guestAddressDetail: (userData.address_detail as string) || '',
         })
 
         setIsLoading(false)

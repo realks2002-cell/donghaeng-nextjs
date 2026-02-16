@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-16T11:37:38.963Z",
+  "lastUpdated": "2026-02-16T13:37:09.158Z",
   "activeFeatures": [
     "recruit",
     "signup",
@@ -48,7 +48,8 @@
     "service",
     "datetime",
     "details",
-    "payment"
+    "payment",
+    "scripts"
   ],
   "primaryFeature": "recruit",
   "features": {
@@ -87,9 +88,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T14:55:32.000Z",
-        "lastUpdated": "2026-02-16T09:46:48.411Z"
+        "lastUpdated": "2026-02-16T12:35:49.385Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/layout.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/middleware.ts"
     },
     "e2e": {
       "phase": "do",
@@ -113,9 +114,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T15:53:23.118Z",
-        "lastUpdated": "2026-02-16T11:35:55.180Z"
+        "lastUpdated": "2026-02-16T13:37:09.158Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/forms/ServiceRequestForm/components/PaymentForm.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/forms/ServiceRequestForm/components/GuestInfoForm.tsx"
     },
     "save-temp": {
       "phase": "do",
@@ -243,7 +244,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T02:12:44.819Z",
-        "lastUpdated": "2026-02-16T10:52:43.481Z"
+        "lastUpdated": "2026-02-16T11:52:08.054Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/auth/login/route.ts"
     },
@@ -412,7 +413,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T04:38:20.845Z",
-        "lastUpdated": "2026-02-16T11:32:47.914Z"
+        "lastUpdated": "2026-02-16T11:50:28.799Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/page.tsx"
     },
@@ -662,6 +663,19 @@
         "lastUpdated": "2026-02-16T11:37:38.963Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/new/payment/page.tsx"
+    },
+    "scripts": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-02-16T12:41:49.749Z",
+        "lastUpdated": "2026-02-16T12:41:49.749Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/scripts/apply-rls-policies.ts"
     }
   },
   "pipeline": {
@@ -672,7 +686,7 @@
   "session": {
     "startedAt": "2026-02-15T13:50:57.234Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-02-16T11:37:38.963Z"
+    "lastActivity": "2026-02-16T13:37:09.158Z"
   },
   "history": [
     {
@@ -2814,6 +2828,60 @@
     {
       "timestamp": "2026-02-16T11:37:38.963Z",
       "feature": "payment",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:50:28.799Z",
+      "feature": "new",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:52:00.378Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T11:52:08.054Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T12:35:49.385Z",
+      "feature": "donghaeng",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T12:41:49.749Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T13:10:51.757Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T13:11:02.451Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T13:11:10.686Z",
+      "feature": "ServiceRequestForm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-16T13:37:09.158Z",
+      "feature": "ServiceRequestForm",
       "phase": "do",
       "action": "updated"
     }
