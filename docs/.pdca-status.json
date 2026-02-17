@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-16T23:54:24.672Z",
+  "lastUpdated": "2026-02-17T01:04:51.641Z",
   "activeFeatures": [
     "recruit",
     "signup",
@@ -143,9 +143,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T00:06:46.262Z",
-        "lastUpdated": "2026-02-16T05:20:59.882Z"
+        "lastUpdated": "2026-02-17T01:04:39.394Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/designated-matching/route.ts"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/designated-matching/page.tsx"
     },
     "admin": {
       "phase": "do",
@@ -156,9 +156,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T00:06:47.141Z",
-        "lastUpdated": "2026-02-16T15:09:06.590Z"
+        "lastUpdated": "2026-02-17T01:04:51.641Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/page.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/layout.tsx"
     },
     "[id]": {
       "phase": "do",
@@ -169,9 +169,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T00:11:28.567Z",
-        "lastUpdated": "2026-02-16T09:06:45.613Z"
+        "lastUpdated": "2026-02-17T00:03:36.661Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/requests/[id]/page.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/requests/[id]/route.ts"
     },
     "guest-lookup": {
       "phase": "do",
@@ -234,7 +234,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T02:12:18.528Z",
-        "lastUpdated": "2026-02-16T03:17:31.255Z"
+        "lastUpdated": "2026-02-17T01:04:46.610Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/managers/page.tsx"
     },
@@ -260,7 +260,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T03:16:42.935Z",
-        "lastUpdated": "2026-02-16T05:21:46.877Z"
+        "lastUpdated": "2026-02-17T00:03:29.461Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/managers/[id]/approval/route.ts"
     },
@@ -273,7 +273,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T03:29:04.613Z",
-        "lastUpdated": "2026-02-16T03:44:00.438Z"
+        "lastUpdated": "2026-02-17T00:03:17.551Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/payments/[id]/refund/route.ts"
     },
@@ -286,7 +286,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T03:29:41.618Z",
-        "lastUpdated": "2026-02-16T03:44:29.700Z"
+        "lastUpdated": "2026-02-17T01:04:44.099Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/payments/page.tsx"
     },
@@ -325,9 +325,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T03:55:38.491Z",
-        "lastUpdated": "2026-02-16T05:20:53.307Z"
+        "lastUpdated": "2026-02-17T01:04:40.474Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/requests/route.ts"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/requests/page.tsx"
     },
     "applications": {
       "phase": "do",
@@ -351,7 +351,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T04:04:08.596Z",
-        "lastUpdated": "2026-02-16T04:11:58.966Z"
+        "lastUpdated": "2026-02-17T01:04:49.043Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/manager-applications/page.tsx"
     },
@@ -403,9 +403,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T04:24:32.324Z",
-        "lastUpdated": "2026-02-16T04:29:30.333Z"
+        "lastUpdated": "2026-02-17T00:03:53.477Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/users/page.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/users/route.ts"
     },
     "new": {
       "phase": "do",
@@ -429,7 +429,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T05:28:39.697Z",
-        "lastUpdated": "2026-02-16T05:28:39.697Z"
+        "lastUpdated": "2026-02-17T00:03:12.748Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/create/route.ts"
     },
@@ -442,7 +442,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T05:28:50.808Z",
-        "lastUpdated": "2026-02-16T05:28:50.808Z"
+        "lastUpdated": "2026-02-17T00:03:15.079Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/delete/route.ts"
     },
@@ -455,7 +455,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T05:29:45.665Z",
-        "lastUpdated": "2026-02-16T05:29:52.127Z"
+        "lastUpdated": "2026-02-17T01:04:50.329Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/settings/page.tsx"
     },
@@ -468,7 +468,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T05:30:01.565Z",
-        "lastUpdated": "2026-02-16T05:30:01.565Z"
+        "lastUpdated": "2026-02-17T00:03:55.851Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/list/route.ts"
     },
@@ -559,9 +559,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T08:18:34.911Z",
-        "lastUpdated": "2026-02-16T10:56:46.183Z"
+        "lastUpdated": "2026-02-17T00:21:19.610Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/lib/auth/customer.ts"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/lib/auth/admin.ts"
     },
     "client": {
       "phase": "do",
@@ -728,7 +728,7 @@
   "session": {
     "startedAt": "2026-02-15T13:50:57.234Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-02-16T23:54:24.672Z"
+    "lastActivity": "2026-02-17T01:04:51.641Z"
   },
   "history": [
     {
@@ -3056,6 +3056,252 @@
     {
       "timestamp": "2026-02-16T23:54:24.672Z",
       "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:01.517Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:12.748Z",
+      "feature": "create",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:15.079Z",
+      "feature": "delete",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:17.551Z",
+      "feature": "refund",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:29.461Z",
+      "feature": "approval",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:32.173Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:36.661Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:39.774Z",
+      "feature": "designated-matching",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:41.699Z",
+      "feature": "designated-matching",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:51.071Z",
+      "feature": "requests",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:53.477Z",
+      "feature": "users",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:03:55.851Z",
+      "feature": "list",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:21:19.610Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:46:40.117Z",
+      "feature": "requests",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:46:46.040Z",
+      "feature": "requests",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:46:49.670Z",
+      "feature": "requests",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T00:47:01.541Z",
+      "feature": "requests",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:41.875Z",
+      "feature": "designated-matching",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:43.201Z",
+      "feature": "designated-matching",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:44.545Z",
+      "feature": "requests",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:45.818Z",
+      "feature": "payments",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:47.155Z",
+      "feature": "payments",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:48.769Z",
+      "feature": "payments",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:50.100Z",
+      "feature": "managers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:51.376Z",
+      "feature": "managers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:52.761Z",
+      "feature": "manager-applications",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:53.986Z",
+      "feature": "manager-applications",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:56.391Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:00:57.323Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:37.989Z",
+      "feature": "designated-matching",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:39.394Z",
+      "feature": "designated-matching",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:40.474Z",
+      "feature": "requests",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:41.716Z",
+      "feature": "payments",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:42.952Z",
+      "feature": "payments",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:44.099Z",
+      "feature": "payments",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:45.359Z",
+      "feature": "managers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:46.610Z",
+      "feature": "managers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:47.826Z",
+      "feature": "manager-applications",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:49.043Z",
+      "feature": "manager-applications",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:50.329Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-02-17T01:04:51.641Z",
+      "feature": "admin",
       "phase": "do",
       "action": "updated"
     }
