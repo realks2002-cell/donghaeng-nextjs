@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { requireAdminAuth } from '@/lib/auth/admin'
 
 export const dynamic = 'force-dynamic'
 
 // 지정 매니저가 있는 매칭 대기 요청 목록
 export async function GET() {
+  try {
+    await requireAdminAuth()
+  } catch {
+    return NextResponse.json(
+      { error: '관리자 인증이 필요합니다.' },
+      { status: 401 }
+    )
+  }
+
   const supabase = createServiceClient()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,6 +91,15 @@ export async function GET() {
 
 // 승인/거절 처리
 export async function POST(request: NextRequest) {
+  try {
+    await requireAdminAuth()
+  } catch {
+    return NextResponse.json(
+      { error: '관리자 인증이 필요합니다.' },
+      { status: 401 }
+    )
+  }
+
   try {
     const { requestId, action } = await request.json()
 

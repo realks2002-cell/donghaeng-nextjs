@@ -1,9 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { requireAdminAuth } from '@/lib/auth/admin'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  try {
+    await requireAdminAuth()
+  } catch {
+    return NextResponse.json(
+      { error: '관리자 인증이 필요합니다.' },
+      { status: 401 }
+    )
+  }
+
   try {
     const supabase = createServiceClient()
 
