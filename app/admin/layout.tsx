@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <Link
               href="/admin/logout"
-              className="mt-3 min-h-[44px] inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+              className="mt-3 min-h-[35px] inline-flex items-center justify-center w-full px-3 py-1.5 text-sm font-bold text-red-400 border border-red-200 rounded-lg hover:bg-red-50"
             >
               <LogOut className="w-4 h-4 mr-2" />
               로그아웃

@@ -241,7 +241,7 @@ export default function AdminSettingsPage() {
                           type="button"
                           onClick={() => handleDelete(admin.admin_id)}
                           disabled={deletingId === admin.admin_id}
-                          className="min-h-[44px] px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                          className="min-h-[35px] px-3 py-1.5 bg-red-400 text-white rounded-lg hover:bg-red-500 transition-colors text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
                         >
                           <Trash2 className="w-4 h-4" />
                           {deletingId === admin.admin_id ? '삭제 중...' : '삭제'}

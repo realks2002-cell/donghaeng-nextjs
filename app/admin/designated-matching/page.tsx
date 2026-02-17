@@ -126,14 +126,14 @@ export default function AdminDesignatedMatchingPage() {
                           <button
                             onClick={() => handleAction(req.id, 'approve')}
                             disabled={processingId === req.id}
-                            className="min-h-[32px] px-3 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                            className="min-h-[26px] px-2 text-xs font-bold bg-green-400 text-white rounded-md hover:bg-green-500 disabled:opacity-50"
                           >
                             승인
                           </button>
                           <button
                             onClick={() => handleAction(req.id, 'reject')}
                             disabled={processingId === req.id}
-                            className="min-h-[32px] px-3 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                            className="min-h-[26px] px-2 text-xs font-bold bg-red-400 text-white rounded-md hover:bg-red-500 disabled:opacity-50"
                           >
                             거절
                           </button>

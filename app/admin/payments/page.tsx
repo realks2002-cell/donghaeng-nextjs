@@ -218,7 +218,7 @@ export default function AdminPaymentsPage() {
                             <button
                               onClick={() => handleFullRefund(payment)}
                               disabled={processingId === payment.id}
-                              className="min-h-[32px] px-3 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                              className="min-h-[26px] px-2 text-xs font-bold bg-red-400 text-white rounded-md hover:bg-red-500 disabled:opacity-50"
                             >
                               전액환불
                             </button>
@@ -228,7 +228,7 @@ export default function AdminPaymentsPage() {
                                 setRefundAmount('')
                               }}
                               disabled={processingId === payment.id}
-                              className="min-h-[32px] px-3 text-xs bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50"
+                              className="min-h-[26px] px-2 text-xs font-bold bg-orange-300 text-white rounded-md hover:bg-orange-400 disabled:opacity-50"
                             >
                               부분환불
                             </button>
@@ -307,7 +307,7 @@ export default function AdminPaymentsPage() {
                 type="button"
                 onClick={handlePartialRefundSubmit}
                 disabled={processingId === refundModal.id}
-                className="flex-1 min-h-[44px] rounded-lg bg-orange-500 font-medium text-white hover:bg-orange-600 disabled:opacity-50"
+                className="flex-1 min-h-[35px] rounded-lg bg-orange-300 font-bold text-white hover:bg-orange-400 disabled:opacity-50"
               >
                 {processingId === refundModal.id ? '처리 중...' : '환불하기'}
               </button>
