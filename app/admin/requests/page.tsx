@@ -37,9 +37,12 @@ const statusLabels: Record<string, string> = {
   CANCELLED: '취소됨',
 }
 
+const CANCELLABLE_STATUSES = ['CONFIRMED', 'MATCHING', 'MATCHED']
+
 export default function AdminRequestsPage() {
   const [requests, setRequests] = useState<ServiceRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [cancellingId, setCancellingId] = useState<string | null>(null)
 
   const fetchRequests = async () => {
     try {
@@ -52,6 +55,29 @@ export default function AdminRequestsPage() {
       console.error('Error fetching requests:', error)
     }
     setIsLoading(false)
+  }
+
+  const handleCancel = async (requestId: string, customerName: string) => {
+    if (!confirm(`${customerName}님의 서비스 요청을 취소하시겠습니까?\n\n취소 시 자동으로 전액 환불 처리됩니다.`)) return
+
+    setCancellingId(requestId)
+    try {
+      const res = await fetch(`/api/requests/${requestId}/cancel`, {
+        method: 'PATCH',
+      })
+      const result = await res.json()
+
+      if (result.success) {
+        alert('서비스 요청이 취소되었습니다.\n결제 금액은 자동으로 환불 처리되었습니다.')
+        await fetchRequests()
+      } else {
+        alert(result.message || '취소 처리에 실패했습니다.')
+      }
+    } catch {
+      alert('서버 오류가 발생했습니다.')
+    } finally {
+      setCancellingId(null)
+    }
   }
 
   useEffect(() => {
@@ -81,6 +107,7 @@ export default function AdminRequestsPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">금액</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">구분</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">액션</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -126,11 +153,24 @@ export default function AdminRequestsPage() {
                           <span className="text-xs text-gray-400">-</span>
                         )}
                       </td>
+                      <td className="px-4 py-3 text-sm">
+                        {CANCELLABLE_STATUSES.includes(req.status) ? (
+                          <button
+                            onClick={() => handleCancel(req.id, req.customer_name)}
+                            disabled={cancellingId === req.id}
+                            className="min-h-[32px] px-3 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                          >
+                            {cancellingId === req.id ? '처리 중...' : '취소'}
+                          </button>
+                        ) : (
+                          <span className="text-gray-400 text-xs">-</span>
+                        )}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                       요청이 없습니다.
                     </td>
                   </tr>
