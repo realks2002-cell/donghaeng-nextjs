@@ -16,6 +16,7 @@ export async function getAdminSession(): Promise<AdminPayload | null> {
 
     // DB에서 관리자 존재 확인 (쿠키 조작 방지)
     const supabase = createServiceClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: admin, error } = await (supabase.from('admins') as any)
       .select('id, admin_id')
       .eq('admin_id', adminId)
