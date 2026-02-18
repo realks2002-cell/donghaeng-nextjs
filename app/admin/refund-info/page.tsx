@@ -26,14 +26,14 @@ interface RefundRecord {
   } | null
 }
 
-const statusLabels: Record<string, string> = {
-  REFUNDED: '전액환불',
-  PARTIAL_REFUNDED: '부분환불',
-}
-
-const statusStyles: Record<string, string> = {
-  REFUNDED: 'bg-gray-100 text-gray-800',
-  PARTIAL_REFUNDED: 'bg-orange-100 text-orange-800',
+const getRefundLabel = (refund: RefundRecord) => {
+  if (refund.status === 'REFUNDED' && refund.service_requests?.status === 'CANCELLED') {
+    return { label: '취소 환불', style: 'bg-purple-100 text-purple-800' }
+  }
+  if (refund.status === 'PARTIAL_REFUNDED') {
+    return { label: '부분환불', style: 'bg-orange-100 text-orange-800' }
+  }
+  return { label: '전액환불', style: 'bg-gray-100 text-gray-800' }
 }
 
 export default function AdminRefundInfoPage() {
@@ -105,7 +105,12 @@ export default function AdminRefundInfoPage() {
 
   // 통계 계산
   const totalRefundAmount = refunds.reduce((sum, r) => sum + (r.refund_amount || 0), 0)
-  const fullRefundCount = refunds.filter((r) => r.status === 'REFUNDED').length
+  const cancelRefundCount = refunds.filter(
+    (r) => r.status === 'REFUNDED' && r.service_requests?.status === 'CANCELLED'
+  ).length
+  const fullRefundCount = refunds.filter(
+    (r) => r.status === 'REFUNDED' && r.service_requests?.status !== 'CANCELLED'
+  ).length
   const partialRefundCount = refunds.filter((r) => r.status === 'PARTIAL_REFUNDED').length
 
   return (
@@ -113,7 +118,7 @@ export default function AdminRefundInfoPage() {
       <h1 className="text-2xl font-bold mb-6">취소요청 및 환불</h1>
 
       {/* 요약 카드 */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm text-gray-500">총 환불 건수</p>
           <p className="text-2xl font-bold text-gray-900 mt-1">{refunds.length}건</p>
@@ -121,6 +126,10 @@ export default function AdminRefundInfoPage() {
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm text-gray-500">총 환불 금액</p>
           <p className="text-2xl font-bold text-red-600 mt-1">{totalRefundAmount.toLocaleString()}원</p>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <p className="text-sm text-gray-500">취소 환불</p>
+          <p className="text-2xl font-bold text-purple-600 mt-1">{cancelRefundCount}건</p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm text-gray-500">전액 / 부분</p>
@@ -181,13 +190,14 @@ export default function AdminRefundInfoPage() {
                         {refund.method || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            statusStyles[refund.status] || 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {statusLabels[refund.status] || refund.status}
-                        </span>
+                        {(() => {
+                          const { label, style } = getRefundLabel(refund)
+                          return (
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${style}`}>
+                              {label}
+                            </span>
+                          )
+                        })()}
                       </td>
                     </tr>
                   ))
