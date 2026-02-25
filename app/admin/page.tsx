@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 
 interface Stats {
@@ -25,7 +24,7 @@ interface RecentRequest {
 // 상태 한글 매핑
 const statusLabels: Record<string, string> = {
   PENDING: '대기 중',
-  CONFIRMED: '확인됨',
+  CONFIRMED: 'New',
   MATCHING: '매칭 중',
   MATCHED: '매칭 완료',
   IN_PROGRESS: '진행 중',
@@ -35,7 +34,7 @@ const statusLabels: Record<string, string> = {
 
 const statusStyles: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
-  CONFIRMED: 'bg-blue-100 text-blue-800',
+  CONFIRMED: 'bg-orange-50 text-orange-600',
   MATCHING: 'bg-purple-100 text-purple-800',
   MATCHED: 'bg-green-100 text-green-800',
   IN_PROGRESS: 'bg-indigo-100 text-indigo-800',
@@ -55,59 +54,18 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = createClient()
+      try {
+        const res = await fetch('/api/admin/stats')
+        if (!res.ok) throw new Error('Failed to fetch stats')
+        const data = await res.json()
 
-      // 통계 조회
-      const [usersRes, managersRes, requestsRes, paymentsRes] = await Promise.all([
-        supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'CUSTOMER'),
-        supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'MANAGER'),
-        supabase.from('service_requests').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
-        supabase.from('payments').select('amount').eq('status', 'SUCCESS'),
-      ])
-
-      const totalRevenue = paymentsRes.data?.reduce((sum, p: { amount?: number }) => sum + (p.amount || 0), 0) || 0
-
-      setStats({
-        total_users: usersRes.count || 0,
-        total_managers: managersRes.count || 0,
-        pending_requests: requestsRes.count || 0,
-        total_revenue: totalRevenue,
-      })
-
-      // 최근 요청 조회
-      const { data: requests } = await supabase
-        .from('service_requests')
-        .select(`
-          id,
-          created_at,
-          guest_name,
-          service_type,
-          service_date,
-          start_time,
-          status,
-          estimated_price,
-          customer_id,
-          users!service_requests_customer_id_fkey (name)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      if (requests) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const formattedRequests = requests.map((req: any) => ({
-          id: req.id,
-          created_at: req.created_at,
-          customer_name: req.users?.name || req.guest_name || '비회원',
-          service_type: req.service_type,
-          service_date: req.service_date,
-          start_time: req.start_time?.slice(0, 5) || '',
-          status: req.status,
-          estimated_price: req.estimated_price || 0,
-        }))
-        setRecentRequests(formattedRequests)
+        setStats(data.stats)
+        setRecentRequests(data.recentRequests)
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error)
+      } finally {
+        setIsLoading(false)
       }
-
-      setIsLoading(false)
     }
 
     fetchData()
