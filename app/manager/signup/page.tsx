@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
+import { formatKoreanPhone } from '@/lib/utils/validation'
 
 const BANKS = [
   '국민은행', '신한은행', '하나은행', '우리은행', '농협', '기업은행',
@@ -324,9 +325,10 @@ export default function ManagerSignupPage() {
                 id="phone"
                 name="phone"
                 value={formData.phone}
-                onChange={handleChange}
+                onChange={(e) => setFormData((prev) => ({ ...prev, phone: formatKoreanPhone(e.target.value) }))}
                 className="min-h-[44px] block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="010-1234-5678"
+                placeholder="010-0000-0000"
+                maxLength={13}
                 required
                 autoComplete="tel"
               />

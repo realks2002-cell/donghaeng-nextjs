@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { formatKoreanPhone } from '@/lib/utils/validation'
+import { formatDateTime } from '@/lib/utils/format'
 
 interface Payment {
   id: string
@@ -140,7 +142,7 @@ export default function AdminPaymentsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <h1 className="text-2xl font-bold mb-6">결제 내역 조회</h1>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -156,7 +158,7 @@ export default function AdminPaymentsPage() {
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">요청자</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">결제일시</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">결제일시</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">주문번호</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">결제금액</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">환불금액</th>
@@ -180,12 +182,12 @@ export default function AdminPaymentsPage() {
                             {payment.service_requests.guest_name && (
                               <div className="font-medium">{payment.service_requests.guest_name}</div>
                             )}
-                            <div className="text-gray-500">{payment.service_requests.guest_phone || payment.service_requests.phone || '-'}</div>
+                            <div className="text-gray-500">{formatKoreanPhone(payment.service_requests.guest_phone || payment.service_requests.phone || '')|| '-'}</div>
                           </div>
                         ) : '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {new Date(payment.created_at).toLocaleString('ko-KR')}
+                      <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                        {formatDateTime(payment.created_at)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 font-mono">
                         {payment.order_id.slice(0, 12)}...

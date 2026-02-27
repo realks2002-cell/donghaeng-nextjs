@@ -13,7 +13,9 @@ import {
   XCircle,
   CreditCard,
   BarChart3,
+  Calculator,
   DollarSign,
+  MapPin,
   Settings,
   Menu,
   X,
@@ -29,8 +31,10 @@ const menuItems = [
   { href: '/admin/designated-matching', label: '지정 매니저 매칭', icon: CheckCircle, dividerAfter: true },
   { href: '/admin/payments', label: '결제 내역 조회', icon: CreditCard },
   { href: '/admin/refund-info', label: '취소요청 및 환불', icon: XCircle },
-  { href: '/admin/revenue', label: '일/월 매출 집계', icon: BarChart3, dividerAfter: true },
+  { href: '/admin/revenue', label: '일/월 매출 집계', icon: BarChart3 },
+  { href: '/admin/manager-settlement', label: '매니저 정산', icon: Calculator, dividerAfter: true },
   { href: '/admin/service-prices', label: '서비스 가격 설정', icon: DollarSign },
+  { href: '/admin/branches', label: '지점 관리', icon: MapPin },
   { href: '/admin/settings', label: '관리자 설정', icon: Settings },
 ]
 

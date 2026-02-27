@@ -44,6 +44,11 @@ export default function PaymentSuccessPage() {
 
         const data: PaymentResult = await response.json()
         setResult(data)
+
+        // 결제 성공 시 폼 데이터 정리
+        if (data.ok) {
+          sessionStorage.removeItem('service_request_form_data')
+        }
       } catch (error) {
         console.error('Payment confirm error:', error)
         setResult({ ok: false, error: '결제 확인 중 오류가 발생했습니다.' })

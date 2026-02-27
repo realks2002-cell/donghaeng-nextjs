@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
+import { formatKoreanPhone } from '@/lib/utils/validation'
 
 export default function LoginPage() {
   const searchParams = useSearchParams()
@@ -88,20 +89,14 @@ export default function LoginPage() {
               type="tel"
               id="phone"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              onInput={(e) => {
-                const target = e.target as HTMLInputElement
-                target.value = target.value.replace(/[^0-9]/g, '')
-                setPhone(target.value)
-              }}
+              onChange={(e) => setPhone(formatKoreanPhone(e.target.value))}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-lg focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              placeholder="01012345678"
-              pattern="[0-9]*"
+              placeholder="010-0000-0000"
               inputMode="numeric"
+              maxLength={13}
               required
               autoComplete="off"
             />
-            <p className="mt-1 text-sm text-gray-500">숫자만 입력해주세요</p>
           </div>
 
           <div>

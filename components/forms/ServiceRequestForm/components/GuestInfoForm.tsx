@@ -137,7 +137,7 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
       return
     }
     if (!validateKoreanPhone(formData.guestPhone)) {
-      toast.error('올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)')
+      toast.error('올바른 전화번호 형식을 입력해주세요. (예: 010-0000-0000)')
       return
     }
     if (!formData.guestAddress.trim()) {
@@ -209,7 +209,7 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
             }}
             maxLength={13}
             className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            placeholder="010-1234-5678"
+            placeholder="010-0000-0000"
             readOnly={isLoggedIn}
           />
         </div>

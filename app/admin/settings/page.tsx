@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Eye, EyeOff, Trash2, UserPlus } from 'lucide-react'
+import { formatDateTime } from '@/lib/utils/format'
 
 interface Admin {
   id: string
@@ -120,7 +121,7 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">관리자 설정</h1>
       </div>
@@ -233,8 +234,8 @@ export default function AdminSettingsPage() {
                   admins.map((admin) => (
                     <tr key={admin.id}>
                       <td className="px-6 py-4 text-sm text-gray-900">{admin.admin_id}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {new Date(admin.created_at).toLocaleString('ko-KR')}
+                      <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                        {formatDateTime(admin.created_at)}
                       </td>
                       <td className="px-6 py-4 text-sm text-center">
                         <button

@@ -137,6 +137,7 @@ export interface Database {
           bank_account: string | null
           bank_holder: string | null
           specialty: string[] | null
+          branch: string | null
           approval_status: 'pending' | 'approved' | 'rejected' | null
           is_active: boolean
           created_at: string
@@ -156,6 +157,7 @@ export interface Database {
           bank_account?: string | null
           bank_holder?: string | null
           specialty?: string[] | null
+          branch?: string | null
           approval_status?: 'pending' | 'approved' | 'rejected'
           is_active?: boolean
           created_at?: string
@@ -175,6 +177,7 @@ export interface Database {
           bank_account?: string | null
           bank_holder?: string | null
           specialty?: string[] | null
+          branch?: string | null
           approval_status?: 'pending' | 'approved' | 'rejected'
           is_active?: boolean
           created_at?: string

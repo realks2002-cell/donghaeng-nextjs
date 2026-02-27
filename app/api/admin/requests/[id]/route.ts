@@ -1,15 +1,7 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminAuth } from '@/lib/auth/admin'
-
-// 허용되는 상태 전이 정의
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  CONFIRMED: ['MATCHING', 'IN_PROGRESS', 'CANCELLED'],
-  MATCHING: ['CONFIRMED', 'MATCHED', 'CANCELLED'],
-  MATCHED: ['IN_PROGRESS', 'CANCELLED'],
-  IN_PROGRESS: ['COMPLETED'],
-  // COMPLETED, CANCELLED은 최종 상태
-}
+import { VALID_TRANSITIONS } from '@/lib/constants/status'
 
 export async function PATCH(
   request: NextRequest,
@@ -26,7 +18,7 @@ export async function PATCH(
 
   try {
     const { id } = await params
-    const { status } = await request.json()
+    const { status, force } = await request.json()
 
     if (!status) {
       return NextResponse.json(
@@ -52,20 +44,36 @@ export async function PATCH(
       )
     }
 
-    // 상태 전이 유효성 검증
-    const allowedNext = VALID_TRANSITIONS[serviceRequest.status]
-    if (!allowedNext || !allowedNext.includes(status)) {
+    // force 모드에서도 COMPLETED/CANCELLED에서의 변경은 불가
+    if (force && ['COMPLETED', 'CANCELLED'].includes(serviceRequest.status)) {
       return NextResponse.json(
-        { success: false, message: `${serviceRequest.status}에서 ${status}로 변경할 수 없습니다.` },
+        { success: false, message: '완료 또는 취소된 요청은 변경할 수 없습니다.' },
         { status: 400 }
       )
     }
 
+    // 상태 전이 유효성 검증 (force가 아닌 경우)
+    if (!force) {
+      const allowedNext = VALID_TRANSITIONS[serviceRequest.status]
+      if (!allowedNext || !allowedNext.includes(status)) {
+        return NextResponse.json(
+          { success: false, message: `${serviceRequest.status}에서 ${status}로 변경할 수 없습니다.` },
+          { status: 400 }
+        )
+      }
+    }
+
     // 상태 업데이트
-    const updateData: Record<string, string> = { status }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateData: Record<string, any> = { status }
 
     if (status === 'COMPLETED') {
       updateData.completed_at = new Date().toISOString()
+    }
+
+    // 재매칭: MATCHED → CONFIRMED 시 manager_id 초기화
+    if (serviceRequest.status === 'MATCHED' && status === 'CONFIRMED') {
+      updateData.manager_id = null
     }
 
     const { error: updateError } = await requestsTable

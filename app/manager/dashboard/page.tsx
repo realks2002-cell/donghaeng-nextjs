@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { X } from 'lucide-react'
 import { toast } from 'sonner'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { formatDate, formatDateTime } from '@/lib/utils/format'
 
 interface ServiceRequest {
   id: string
@@ -21,6 +22,7 @@ interface ServiceRequest {
   details: string | null
   status: string
   estimated_price: number
+  manager_amount: number
   created_at: string
   is_applied?: boolean
 }
@@ -63,8 +65,10 @@ function DashboardContent() {
 
   useEffect(() => {
     if (tab === 'matching') {
+      setRequests([])
       fetchApplications()
     } else {
+      setApplications([])
       fetchRequests()
     }
   }, [tab])
@@ -115,7 +119,7 @@ function DashboardContent() {
 
       if (res.ok) {
         // 성공 모달
-        toast.success('지원이 완료되었습니다!')
+        toast.success('매칭이 완료되었습니다!')
         setSelectedRequest(null)
         fetchRequests()
       } else if (res.status === 409) {
@@ -138,12 +142,10 @@ function DashboardContent() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">대기중</span>
       case 'ACCEPTED':
-        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">수락됨</span>
+        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">매칭완료</span>
       case 'REJECTED':
-        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">거절됨</span>
+        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">취소됨. 먼저 지원한 매니저가 매칭되었습니다.</span>
       default:
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">{status}</span>
     }
@@ -203,7 +205,7 @@ function DashboardContent() {
                       <div>
                         <h3 className="font-semibold text-gray-900">{SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}</h3>
                         <p className="text-sm text-gray-500 mt-1">
-                          {app.service_date} {app.start_time.substring(0, 5)}
+                          {formatDate(app.service_date)} {app.start_time.substring(0, 5)}
                         </p>
                       </div>
                       {getStatusBadge(app.status)}
@@ -215,7 +217,7 @@ function DashboardContent() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">지원일</span>
-                        <span className="text-gray-900">{app.created_at}</span>
+                        <span className="text-gray-900">{formatDateTime(app.created_at)}</span>
                       </div>
                     </div>
                   </div>
@@ -238,14 +240,14 @@ function DashboardContent() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {applications.map((app) => (
                         <tr key={app.id}>
-                          <td className="px-4 py-3 text-sm text-gray-900">
-                            {app.service_date}
+                          <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                            {formatDate(app.service_date)}
                             <br />
                             <span className="text-gray-500">{app.start_time.substring(0, 5)}</span>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900">{SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{app.customer_name}</td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{app.created_at}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{formatDateTime(app.created_at)}</td>
                           <td className="px-4 py-3 text-sm">{getStatusBadge(app.status)}</td>
                         </tr>
                       ))}
@@ -284,12 +286,12 @@ function DashboardContent() {
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type}</h3>
                         <p className="text-sm text-gray-500 mt-1">
-                          {request.service_date} {request.start_time.substring(0, 5)}
+                          {formatDate(request.service_date)} {request.start_time.substring(0, 5)}
                         </p>
                       </div>
                       <div className="ml-4 text-right">
                         <p className="text-lg font-bold text-primary">
-                          {request.estimated_price.toLocaleString()}원
+                          {request.manager_amount.toLocaleString()}원
                         </p>
                         {request.is_applied ? (
                           <span className="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
@@ -351,8 +353,8 @@ function DashboardContent() {
                           }`}
                           onClick={() => !request.is_applied && setSelectedRequest(request)}
                         >
-                          <td className="px-4 py-3 text-sm text-gray-900">
-                            {request.service_date}
+                          <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                            {formatDate(request.service_date)}
                             <br />
                             <span className="text-gray-500">{request.start_time.substring(0, 5)}</span>
                           </td>
@@ -373,8 +375,8 @@ function DashboardContent() {
                           <td className="px-4 py-3 text-sm text-gray-900">
                             {formatDuration(request.duration_minutes)}
                           </td>
-                          <td className="px-4 py-3 text-sm font-medium text-primary">
-                            {request.estimated_price.toLocaleString()}원
+                          <td className="px-4 py-3 text-sm">
+                            <span className="font-medium text-primary">{request.manager_amount.toLocaleString()}원</span>
                           </td>
                           <td className="px-4 py-3 text-sm">
                             {request.is_applied ? (
@@ -430,15 +432,15 @@ function DashboardContent() {
                     <p className="font-semibold">{SERVICE_TYPE_LABELS[selectedRequest.service_type as ServiceType] || selectedRequest.service_type}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500">금액</span>
+                    <span className="text-gray-500">예상 수령액</span>
                     <p className="font-bold text-primary">
-                      {selectedRequest.estimated_price.toLocaleString()}원
+                      {selectedRequest.manager_amount.toLocaleString()}원
                     </p>
                   </div>
                   <div>
                     <span className="text-gray-500">날짜/시간</span>
                     <p className="font-medium">
-                      {selectedRequest.service_date} {selectedRequest.start_time.substring(0, 5)}
+                      {formatDate(selectedRequest.service_date)} {selectedRequest.start_time.substring(0, 5)}
                     </p>
                   </div>
                   <div>
@@ -461,7 +463,7 @@ function DashboardContent() {
               </div>
               <div className="text-center py-4">
                 <p className="text-lg font-medium">이 서비스에 지원하시겠습니까?</p>
-                <p className="text-sm text-gray-500 mt-1">지원 후 고객 확인 시 매칭이 완료됩니다.</p>
+                <p className="text-sm text-gray-500 mt-1">지원 즉시 매칭이 완료됩니다.</p>
               </div>
             </div>
             <div className="px-6 py-4 border-t border-gray-200 flex gap-3">

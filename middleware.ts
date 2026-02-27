@@ -4,11 +4,8 @@ import { updateSession } from '@/lib/supabase/middleware'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Supabase 세션 갱신 (고객 인증)
-  let response = await updateSession(request)
-
-  // 현재 경로를 헤더에 추가
-  response.headers.set('x-pathname', pathname)
+  // Supabase 세션 갱신
+  const response = await updateSession(request)
 
   // 관리자 페이지 인증 체크
   const adminPublicPaths = ['/admin/login']

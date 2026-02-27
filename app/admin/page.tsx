@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { STATUS_LABELS, STATUS_STYLES } from '@/lib/constants/status'
+import { formatDate, formatDateTime } from '@/lib/utils/format'
 
 interface Stats {
   total_users: number
@@ -19,27 +21,6 @@ interface RecentRequest {
   start_time: string
   status: string
   estimated_price: number
-}
-
-// 상태 한글 매핑
-const statusLabels: Record<string, string> = {
-  PENDING: '대기 중',
-  CONFIRMED: 'New',
-  MATCHING: '매칭 중',
-  MATCHED: '매칭 완료',
-  IN_PROGRESS: '진행 중',
-  COMPLETED: '완료',
-  CANCELLED: '취소됨',
-}
-
-const statusStyles: Record<string, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  CONFIRMED: 'bg-orange-50 text-orange-600',
-  MATCHING: 'bg-purple-100 text-purple-800',
-  MATCHED: 'bg-green-100 text-green-800',
-  IN_PROGRESS: 'bg-indigo-100 text-indigo-800',
-  COMPLETED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
 }
 
 export default function AdminDashboardPage() {
@@ -73,7 +54,7 @@ export default function AdminDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1408px]">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-32 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -90,7 +71,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <h1 className="text-2xl font-bold mb-6">대시보드</h1>
 
       {/* 통계 카드 */}
@@ -130,7 +111,7 @@ export default function AdminDashboardPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     요청일시
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -139,7 +120,7 @@ export default function AdminDashboardPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     서비스
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     일시
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -153,23 +134,23 @@ export default function AdminDashboardPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {recentRequests.map((req) => (
                   <tr key={req.id}>
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      {new Date(req.created_at).toLocaleString('ko-KR')}
+                    <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                      {formatDateTime(req.created_at)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">{req.customer_name}</td>
                     <td className="px-4 py-3 text-sm text-gray-900">
                       {SERVICE_TYPE_LABELS[req.service_type as ServiceType] || req.service_type}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      {req.service_date} {req.start_time}
+                    <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                      {formatDate(req.service_date)} {req.start_time?.substring(0, 5)}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       <span
                         className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          statusStyles[req.status] || 'bg-gray-100 text-gray-800'
+                          STATUS_STYLES[req.status] || 'bg-gray-100 text-gray-800'
                         }`}
                       >
-                        {statusLabels[req.status] || req.status}
+                        {STATUS_LABELS[req.status] || req.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">

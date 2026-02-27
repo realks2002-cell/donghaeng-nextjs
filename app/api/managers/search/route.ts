@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
       .from('managers')
       .select('id, name, phone, photo_url, specialty')
       .eq('is_active', true)
+      .eq('approval_status', 'approved')
 
     // 검색 조건 추가
     if (phone?.trim()) {

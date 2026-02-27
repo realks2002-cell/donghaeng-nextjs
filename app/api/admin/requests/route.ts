@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { requireAdminAuth } from '@/lib/auth/admin'
+import { updateServiceStatuses } from '@/lib/services/status-updater'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,11 @@ export async function GET() {
       { status: 401 }
     )
   }
+
+  // 관리자 페이지 로드 시 자동 상태 업데이트
+  await updateServiceStatuses().catch((err) =>
+    console.error('Auto status update failed:', err)
+  )
 
   const supabase = createServiceClient()
 

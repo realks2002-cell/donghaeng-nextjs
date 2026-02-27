@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { formatKoreanPhone } from '@/lib/utils/validation'
+import { formatDate, formatDateTime } from '@/lib/utils/format'
 
 interface DesignatedRequest {
   id: string
@@ -71,7 +73,7 @@ export default function AdminDesignatedMatchingPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <h1 className="text-2xl font-bold mb-2">지정 매니저 매칭</h1>
       <p className="text-gray-600 mb-6">고객이 지정한 매니저 매칭 요청을 승인 또는 거절하세요.</p>
 
@@ -86,10 +88,10 @@ export default function AdminDesignatedMatchingPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">요청일시</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">요청일시</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">고객</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">예약일시</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">예약일시</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">지정 매니저</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">금액</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">처리</th>
@@ -99,24 +101,24 @@ export default function AdminDesignatedMatchingPage() {
                 {requests.length > 0 ? (
                   requests.map((req) => (
                     <tr key={req.id}>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {new Date(req.created_at).toLocaleString('ko-KR')}
+                      <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                        {formatDateTime(req.created_at)}
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <div className="font-medium text-gray-900">{req.customer_name}</div>
-                        <div className="text-gray-500 text-xs">{req.customer_phone}</div>
+                        <div className="text-gray-500 text-xs">{formatKoreanPhone(req.customer_phone)}</div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {SERVICE_TYPE_LABELS[req.service_type as ServiceType] || req.service_type}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {req.service_date}
+                      <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                        {formatDate(req.service_date)}
                         <br />
-                        <span className="text-gray-500">{req.start_time}</span>
+                        <span className="text-gray-500">{req.start_time?.substring(0, 5)}</span>
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <div className="font-medium text-gray-900">{req.manager_name}</div>
-                        <div className="text-gray-500 text-xs">{req.manager_phone}</div>
+                        <div className="text-gray-500 text-xs">{formatKoreanPhone(req.manager_phone)}</div>
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">
                         {req.estimated_price.toLocaleString()}원

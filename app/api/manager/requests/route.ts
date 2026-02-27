@@ -31,6 +31,14 @@ export async function GET() {
 
     const supabase = createServiceClient()
 
+    // 수수료율 조회
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: commissionData } = await (supabase.from('service_prices') as any)
+      .select('price_per_hour')
+      .eq('service_type', 'commission_rate')
+      .single()
+    const commissionRate = commissionData?.price_per_hour ?? 0
+
     // Get service requests with CONFIRMED or MATCHING status
     const { data: requests, error } = await supabase
       .from('service_requests')
@@ -93,15 +101,17 @@ export async function GET() {
     // Format requests
     const formattedRequests = requests?.map((request) => {
       const customer = request.customer_id ? customerMap[request.customer_id] : null
+      const managerAmount = Math.floor(request.estimated_price * (1 - commissionRate / 100))
       return {
         ...request,
         customer_name: customer?.name || request.guest_name || '비회원',
         customer_phone: customer?.phone || request.guest_phone || '',
         is_applied: appliedRequestIds.has(request.id),
+        manager_amount: managerAmount,
       }
     }) || []
 
-    return NextResponse.json({ requests: formattedRequests })
+    return NextResponse.json({ requests: formattedRequests, commission_rate: commissionRate })
   } catch (error) {
     console.error('Requests error:', error)
     return NextResponse.json(

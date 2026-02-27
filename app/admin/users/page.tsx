@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
+import { formatKoreanPhone } from '@/lib/utils/validation'
+import { formatDate } from '@/lib/utils/format'
 
 interface User {
   id: string
@@ -66,7 +68,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">회원 관리</h1>
       </div>
@@ -116,10 +118,10 @@ export default function AdminUsersPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">이름</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">전화번호</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">전화번호</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">주소</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">가입일</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">가입일</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -127,7 +129,7 @@ export default function AdminUsersPage() {
                     users.map((user) => (
                       <tr key={user.id}>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">{user.name}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{user.phone || '-'}</td>
+                        <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">{user.phone ? formatKoreanPhone(user.phone) : '-'}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">
                           {user.address ? (
                             <div>
@@ -143,8 +145,8 @@ export default function AdminUsersPage() {
                             {user.is_active ? '활성' : '비활성'}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          {new Date(user.created_at).toLocaleDateString('ko-KR')}
+                        <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                          {formatDate(user.created_at)}
                         </td>
                       </tr>
                     ))

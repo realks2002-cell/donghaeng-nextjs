@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
+import { formatKoreanPhone } from '@/lib/utils/validation'
 
 export default function ManagerLoginPage() {
   const router = useRouter()
@@ -15,9 +16,7 @@ export default function ManagerLoginPage() {
   const [loading, setLoading] = useState(false)
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 숫자만 허용
-    const value = e.target.value.replace(/[^0-9]/g, '')
-    setPhone(value)
+    setPhone(formatKoreanPhone(e.target.value))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,13 +91,13 @@ export default function ManagerLoginPage() {
                   value={phone}
                   onChange={handlePhoneChange}
                   className="min-h-[44px] block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="01012345678"
-                  pattern="[0-9]*"
+                  placeholder="010-0000-0000"
                   inputMode="numeric"
+                  maxLength={13}
                   required
                   autoComplete="off"
                 />
-                <p className="mt-1 text-xs text-gray-500">숫자만 입력해주세요</p>
+                <p className="mt-1 text-xs text-gray-500">전화번호를 입력해주세요</p>
               </div>
 
               <div>

@@ -17,8 +17,8 @@ export async function GET() {
   const [usersRes, managersRes, requestsRes, paymentsRes, recentRes] = await Promise.all([
     supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'CUSTOMER'),
     supabase.from('managers').select('*', { count: 'exact', head: true }),
-    supabase.from('service_requests').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
-    supabase.from('payments').select('amount').eq('status', 'SUCCESS'),
+    supabase.from('service_requests').select('*', { count: 'exact', head: true }).in('status', ['PENDING', 'PENDING_PAYMENT', 'CONFIRMED']),
+    supabase.from('payments').select('amount, refund_amount').in('status', ['PAID', 'PARTIAL_REFUNDED']),
     supabase
       .from('service_requests')
       .select(`
@@ -38,7 +38,7 @@ export async function GET() {
   ])
 
   const totalRevenue = paymentsRes.data?.reduce(
-    (sum: number, p: { amount?: number }) => sum + (p.amount || 0),
+    (sum: number, p: { amount?: number; refund_amount?: number }) => sum + (p.amount || 0) - (p.refund_amount || 0),
     0
   ) || 0
 

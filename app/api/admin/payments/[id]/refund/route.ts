@@ -51,6 +51,9 @@ export async function PATCH(
 
     const now = new Date().toISOString()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requestsTable = supabase.from('service_requests') as any
+
     if (type === 'full') {
       const { error } = await paymentsTable
         .update({
@@ -67,6 +70,18 @@ export async function PATCH(
           { success: false, message: '환불 처리에 실패했습니다.' },
           { status: 500 }
         )
+      }
+
+      // 전액 환불 시 연관된 서비스 요청을 CANCELLED로 변경
+      if (payment.service_request_id) {
+        const { error: reqError } = await requestsTable
+          .update({ status: 'CANCELLED' })
+          .eq('id', payment.service_request_id)
+          .not('status', 'in', '("COMPLETED","CANCELLED")')
+
+        if (reqError) {
+          console.error('Service request cancel after refund error:', reqError)
+        }
       }
     } else {
       if (!refundAmount || refundAmount <= 0) {
@@ -103,6 +118,18 @@ export async function PATCH(
           { success: false, message: '부분 환불 처리에 실패했습니다.' },
           { status: 500 }
         )
+      }
+
+      // 부분 환불 누적으로 전액 환불이 된 경우에도 서비스 요청 취소
+      if (isFullyRefunded && payment.service_request_id) {
+        const { error: reqError } = await requestsTable
+          .update({ status: 'CANCELLED' })
+          .eq('id', payment.service_request_id)
+          .not('status', 'in', '("COMPLETED","CANCELLED")')
+
+        if (reqError) {
+          console.error('Service request cancel after full refund error:', reqError)
+        }
       }
     }
 

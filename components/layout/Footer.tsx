@@ -61,7 +61,18 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-base">
+        {/* 사업자 정보 */}
+        <div className="border-t border-gray-800 pt-8 mb-6">
+          <div className="text-sm text-gray-400 space-y-1">
+            <p><span className="text-gray-300">상호 :</span> 한국직업능력평생교육원</p>
+            <p><span className="text-gray-300">대표 :</span> 임채계</p>
+            <p><span className="text-gray-300">주소 :</span> 경기도 화성시 동탄대로5길 21, B동 2층 W243호(송동)</p>
+            <p><span className="text-gray-300">전화번호 :</span> 010-2479-3112</p>
+            <p><span className="text-gray-300">통신판매업 신고번호 :</span> 제 2026-화성동탄-0213 호</p>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-base">
           <p className="text-white">&copy; {currentYear} {APP_NAME}. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="#" className="text-white hover:text-orange-400 transition-colors">

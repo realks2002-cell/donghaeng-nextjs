@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { formatDate } from '@/lib/utils/format'
 
 interface PaymentRecord {
   id: string
@@ -117,7 +118,7 @@ export default function AdminRevenuePage() {
   const serviceSummaries = Array.from(serviceMap.values()).sort((a, b) => b.totalAmount - a.totalAmount)
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <h1 className="text-2xl font-bold mb-6">일/월 매출 집계</h1>
 
       {isLoading ? (
@@ -213,7 +214,7 @@ export default function AdminRevenuePage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                       {viewMode === 'daily' ? '날짜' : '월'}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">건수</th>
@@ -227,7 +228,7 @@ export default function AdminRevenuePage() {
                     dailySummaries.length > 0 ? (
                       dailySummaries.map((d) => (
                         <tr key={d.date}>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900">{d.date}</td>
+                          <td className="px-3 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">{formatDate(d.date)}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{d.count}건</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{d.totalAmount.toLocaleString()}원</td>
                           <td className="px-4 py-3 text-sm text-red-600">
@@ -245,7 +246,7 @@ export default function AdminRevenuePage() {
                     monthlySummaries.length > 0 ? (
                       monthlySummaries.map((m) => (
                         <tr key={m.month}>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900">{m.month}</td>
+                          <td className="px-3 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">{m.month.replace('-', '.')}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{m.count}건</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{m.totalAmount.toLocaleString()}원</td>
                           <td className="px-4 py-3 text-sm text-red-600">

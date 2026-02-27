@@ -1,25 +1,14 @@
 {
   "version": "1.0",
-  "enabled": true,
+  "enabled": false,
   "teamName": "",
   "feature": "recruit",
   "pdcaPhase": "do",
   "orchestrationPattern": "leader",
   "ctoAgent": "opus",
-  "startedAt": "2026-02-17T14:11:55.286Z",
-  "lastUpdated": "2026-02-17T14:12:43.507Z",
-  "teammates": [
-    {
-      "name": "a41c2b4",
-      "role": "Explore",
-      "model": "sonnet",
-      "status": "completed",
-      "currentTask": null,
-      "taskId": null,
-      "startedAt": "2026-02-17T14:11:55.287Z",
-      "lastActivityAt": "2026-02-17T14:12:43.506Z"
-    }
-  ],
+  "startedAt": "2026-02-27T05:23:40.184Z",
+  "lastUpdated": "2026-02-27T06:10:23.749Z",
+  "teammates": [],
   "progress": {
     "totalTasks": 0,
     "completedTasks": 0,
@@ -28,5 +17,5 @@
     "pendingTasks": 0
   },
   "recentMessages": [],
-  "sessionId": "ae5722f7-a672-4967-b197-cf60f7ee5477"
+  "sessionId": "cd359263-5c92-4029-b513-f68fc7ea9962"
 }

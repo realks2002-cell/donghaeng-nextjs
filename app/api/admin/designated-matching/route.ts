@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { requireAdminAuth } from '@/lib/auth/admin'
+import { sendMatchingSMS } from '@/lib/services/sms-notification'
 
 export const dynamic = 'force-dynamic'
 
@@ -134,6 +135,14 @@ export async function POST(request: NextRequest) {
       if (updateError) {
         console.error('Approve update error:', updateError)
         return NextResponse.json({ error: '승인 처리에 실패했습니다.' }, { status: 500 })
+      }
+
+      // 고객에게 매칭 완료 SMS 발송 (실패해도 매칭은 유지)
+      if (serviceRequest.manager_id) {
+        sendMatchingSMS({
+          serviceRequestId: requestId,
+          managerId: serviceRequest.manager_id,
+        }).catch((err) => console.error('[SMS] 비동기 발송 실패:', err))
       }
 
       // 기존 PENDING 지원 모두 거절

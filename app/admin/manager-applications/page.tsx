@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { STATUS_LABELS, STATUS_STYLES } from '@/lib/constants/status'
+import { formatKoreanPhone } from '@/lib/utils/validation'
+import { formatDate, formatDateTime } from '@/lib/utils/format'
 
 interface ApplicationRecord {
   id: string
@@ -19,18 +22,6 @@ interface ApplicationRecord {
   customer_name: string
   request_status: string
   estimated_price: number
-}
-
-const appStatusStyles: Record<string, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  ACCEPTED: 'bg-green-100 text-green-800',
-  REJECTED: 'bg-red-100 text-red-800',
-}
-
-const appStatusLabels: Record<string, string> = {
-  PENDING: '대기중',
-  ACCEPTED: '승인됨',
-  REJECTED: '거절됨',
 }
 
 export default function AdminManagerApplicationsPage() {
@@ -123,9 +114,8 @@ export default function AdminManagerApplicationsPage() {
     fetchApplications()
   }, [])
 
-  const handleAction = async (applicationId: string, action: 'accept' | 'reject') => {
-    const actionLabel = action === 'accept' ? '승인' : '거절'
-    if (!confirm(`이 지원을 ${actionLabel}하시겠습니까?`)) return
+  const handleAction = async (applicationId: string, action: 'reject') => {
+    if (!confirm('이 매칭을 취소하시겠습니까?')) return
 
     setProcessingId(applicationId)
     try {
@@ -138,7 +128,7 @@ export default function AdminManagerApplicationsPage() {
       if (result.success) {
         await fetchApplications()
       } else {
-        alert(result.message || `${actionLabel} 처리에 실패했습니다.`)
+        alert(result.message || '매칭 취소에 실패했습니다.')
       }
     } catch {
       alert('서버 오류가 발생했습니다.')
@@ -148,7 +138,7 @@ export default function AdminManagerApplicationsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <h1 className="text-2xl font-bold mb-6">매니저 지원확인</h1>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -162,10 +152,10 @@ export default function AdminManagerApplicationsPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">지원일시</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">지원일시</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">매니저</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">예약일시</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">예약일시</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">고객</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">금액</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
@@ -176,16 +166,16 @@ export default function AdminManagerApplicationsPage() {
                 {applications.length > 0 ? (
                   applications.map((app) => (
                     <tr key={app.id}>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {new Date(app.created_at).toLocaleString('ko-KR')}
+                      <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                        {formatDateTime(app.created_at)}
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <div className="font-medium text-gray-900">{app.manager_name}</div>
-                        <div className="text-gray-500 text-xs">{app.manager_phone}</div>
+                        <div className="text-gray-500 text-xs">{formatKoreanPhone(app.manager_phone)}</div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">{SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {app.service_date}
+                      <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                        {formatDate(app.service_date)}
                         <br />
                         <span className="text-gray-500">{app.start_time.substring(0, 5)}</span>
                       </td>
@@ -196,32 +186,25 @@ export default function AdminManagerApplicationsPage() {
                       <td className="px-4 py-3 text-sm">
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            appStatusStyles[app.status] || 'bg-gray-100 text-gray-800'
+                            STATUS_STYLES[app.request_status] || 'bg-gray-100 text-gray-800'
                           }`}
                         >
-                          {appStatusLabels[app.status] || app.status}
+                          {STATUS_LABELS[app.request_status] || app.request_status}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        {app.status === 'PENDING' ? (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleAction(app.id, 'accept')}
-                              disabled={processingId === app.id}
-                              className="min-h-[26px] px-2 text-xs font-bold bg-green-400 text-white rounded-md hover:bg-green-500 disabled:opacity-50"
-                            >
-                              승인
-                            </button>
-                            <button
-                              onClick={() => handleAction(app.id, 'reject')}
-                              disabled={processingId === app.id}
-                              className="min-h-[26px] px-2 text-xs font-bold bg-red-400 text-white rounded-md hover:bg-red-500 disabled:opacity-50"
-                            >
-                              거절
-                            </button>
-                          </div>
+                        {app.status === 'ACCEPTED' ? (
+                          <button
+                            onClick={() => handleAction(app.id, 'reject')}
+                            disabled={processingId === app.id}
+                            className="min-h-[26px] px-2 text-xs font-bold bg-red-400 text-white rounded-md hover:bg-red-500 disabled:opacity-50"
+                          >
+                            매칭 취소
+                          </button>
+                        ) : app.status === 'REJECTED' ? (
+                          <span className="text-xs text-gray-400">취소됨</span>
                         ) : (
-                          <span className="text-xs text-gray-400">처리완료</span>
+                          <span className="text-xs text-gray-400">-</span>
                         )}
                       </td>
                     </tr>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { sendPushToAllManagers } from '@/lib/services/push-notification'
 
 interface TossPaymentConfirmRequest {
   paymentKey: string
@@ -47,6 +48,47 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // DB에서 서비스 요청 조회하여 금액 검증 및 상태 확인
+    const supabase = createServiceClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requestsTable = supabase.from('service_requests') as any
+    const { data: serviceRequest, error: fetchError } = await requestsTable
+      .select('status, estimated_price')
+      .eq('id', orderId)
+      .single()
+
+    if (fetchError || !serviceRequest) {
+      return NextResponse.json(
+        { ok: false, error: '서비스 요청을 찾을 수 없습니다.' },
+        { status: 404 }
+      )
+    }
+
+    // 이미 결제된 주문 중복 처리 방지
+    if (serviceRequest.status === 'CONFIRMED') {
+      return NextResponse.json(
+        { ok: false, error: '이미 결제가 완료된 주문입니다.' },
+        { status: 409 }
+      )
+    }
+
+    // 결제 대기 상태인지 확인
+    if (serviceRequest.status !== 'PENDING_PAYMENT') {
+      return NextResponse.json(
+        { ok: false, error: `결제할 수 없는 상태입니다. (현재: ${serviceRequest.status})` },
+        { status: 400 }
+      )
+    }
+
+    // 결제 금액과 DB 예상 금액 일치 확인
+    if (serviceRequest.estimated_price !== amount) {
+      console.error('Amount mismatch:', { expected: serviceRequest.estimated_price, received: amount })
+      return NextResponse.json(
+        { ok: false, error: '결제 금액이 일치하지 않습니다.' },
+        { status: 400 }
+      )
+    }
+
     // 토스페이먼츠 결제 승인 API 호출
     const authHeader = Buffer.from(`${secretKey}:`).toString('base64')
 
@@ -74,9 +116,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 결제 정보 저장
-    const supabase = createServiceClient()
-
     // 결제 레코드 생성
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const paymentsTable = supabase.from('payments') as any
@@ -96,8 +135,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 서비스 요청 상태 업데이트
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const requestsTable = supabase.from('service_requests') as any
     const { error: updateError } = await requestsTable
       .update({
         status: 'CONFIRMED',
@@ -108,6 +145,13 @@ export async function POST(request: NextRequest) {
     if (updateError) {
       console.error('Request update error:', updateError)
     }
+
+    // 푸시 알림 발송 (비동기, 실패해도 응답에 영향 없음)
+    sendPushToAllManagers({
+      title: '새 서비스 요청',
+      body: '새로운 서비스 요청이 결제 완료되었습니다.',
+      url: '/manager/dashboard',
+    }).catch((err) => console.error('Push notification error:', err))
 
     return NextResponse.json({
       ok: true,

@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { formatKoreanPhone } from '@/lib/utils/validation'
+import { formatDateTime } from '@/lib/utils/format'
 
 interface RefundRecord {
   id: string
@@ -114,7 +116,7 @@ export default function AdminRefundInfoPage() {
   const partialRefundCount = refunds.filter((r) => r.status === 'PARTIAL_REFUNDED').length
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <h1 className="text-2xl font-bold mb-6">취소요청 및 환불</h1>
 
       {/* 요약 카드 */}
@@ -150,10 +152,10 @@ export default function AdminRefundInfoPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">환불일시</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">환불일시</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">고객</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">연락처</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">연락처</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">결제금액</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">환불금액</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">결제수단</th>
@@ -164,9 +166,9 @@ export default function AdminRefundInfoPage() {
                 {refunds.length > 0 ? (
                   refunds.map((refund) => (
                     <tr key={refund.id}>
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                      <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
                         {refund.refunded_at
-                          ? new Date(refund.refunded_at).toLocaleString('ko-KR')
+                          ? formatDateTime(refund.refunded_at)
                           : '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
@@ -177,8 +179,8 @@ export default function AdminRefundInfoPage() {
                       <td className="px-4 py-3 text-sm text-gray-900 font-medium">
                         {getCustomerName(refund)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {getPhone(refund)}
+                      <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
+                        {formatKoreanPhone(getPhone(refund))}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {refund.amount.toLocaleString()}원

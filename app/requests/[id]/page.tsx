@@ -7,15 +7,7 @@ import { ArrowLeft, MapPin, Clock, Calendar, Phone, User } from 'lucide-react'
 import { formatKoreanPhone } from '@/lib/utils/validation'
 import CancelRequestButton from '@/components/CancelRequestButton'
 
-const STATUS_LABELS: Record<string, { label: string; color: string; description: string }> = {
-  PENDING: { label: '대기중', color: 'bg-gray-100 text-gray-800', description: '결제 대기 중입니다.' },
-  CONFIRMED: { label: '확정', color: 'bg-green-100 text-green-800', description: '결제가 완료되었습니다. 매니저 매칭을 진행합니다.' },
-  MATCHING: { label: '매칭중', color: 'bg-blue-100 text-blue-800', description: '매니저가 지원 중입니다.' },
-  MATCHED: { label: '매칭완료', color: 'bg-indigo-100 text-indigo-800', description: '매니저가 배정되었습니다. 서비스 시작을 준비합니다.' },
-  IN_PROGRESS: { label: '진행중', color: 'bg-yellow-100 text-yellow-800', description: '서비스가 진행 중입니다.' },
-  COMPLETED: { label: '완료', color: 'bg-gray-100 text-gray-800', description: '서비스가 완료되었습니다.' },
-  CANCELLED: { label: '취소', color: 'bg-red-100 text-red-800', description: '요청이 취소되었습니다.' },
-}
+import { STATUS_DISPLAY } from '@/lib/constants/status'
 
 const SERVICE_LABELS: Record<string, string> = {
   hospital_companion: '병원 동행',
@@ -85,7 +77,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const status = STATUS_LABELS[request.status] || STATUS_LABELS.PENDING
+  const status = STATUS_DISPLAY[request.status] || STATUS_DISPLAY.PENDING
   const serviceLabel = SERVICE_LABELS[request.service_type] || request.service_type
   const formattedDate = format(new Date(request.service_date), 'yyyy년 M월 d일 (EEEE)', { locale: ko })
   const durationHours = Math.floor(request.duration_minutes / 60)
@@ -120,7 +112,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
             </div>
             <div className="flex items-center gap-3 text-gray-700">
               <Clock className="w-5 h-5 text-gray-400" />
-              <span>{request.start_time} 시작 · {durationHours}시간</span>
+              <span>{request.start_time?.substring(0, 5)} 시작 · {durationHours}시간</span>
             </div>
             <div className="flex items-start gap-3 text-gray-700">
               <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />

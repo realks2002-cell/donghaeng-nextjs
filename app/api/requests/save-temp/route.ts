@@ -20,8 +20,6 @@ interface SaveTempRequest {
   guest_phone?: string
   guest_address?: string
   guest_address_detail?: string
-  payment_method?: string
-  amount?: number
 }
 
 export async function POST(request: NextRequest) {
@@ -90,9 +88,8 @@ export async function POST(request: NextRequest) {
       lat: body.lat || null,
       lng: body.lng || null,
       details: body.details || null,
-      status: 'CONFIRMED',
+      status: 'PENDING_PAYMENT',
       estimated_price: estimatedPrice,
-      confirmed_at: new Date().toISOString(),
       manager_id: body.designated_manager_id || null,
     })
 
@@ -102,21 +99,6 @@ export async function POST(request: NextRequest) {
         { ok: false, error: '서비스 요청 저장에 실패했습니다.' },
         { status: 500 }
       )
-    }
-
-    // 결제 정보 저장
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const paymentsTable = serviceClient.from('payments') as any
-    const { error: paymentError } = await paymentsTable.insert({
-      order_id: requestId,
-      service_request_id: requestId,
-      amount: body.amount ?? estimatedPrice,
-      status: 'PAID',
-      method: body.payment_method || null,
-    })
-
-    if (paymentError) {
-      console.error('Payment insert error:', paymentError)
     }
 
     return NextResponse.json({

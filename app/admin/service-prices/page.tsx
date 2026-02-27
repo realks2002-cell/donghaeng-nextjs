@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { formatDateTime } from '@/lib/utils/format'
 
 interface ServicePrice {
   service_type: string
@@ -16,7 +17,6 @@ const serviceDescriptions: Record<string, string> = {
   '생활동행': '일상 생활 동행을 도와드립니다',
   '노인 돌봄': '어르신의 일상을 도와드립니다',
   '아이 돌봄': '안전하게 아이를 돌봐드립니다',
-  '기타': '기타 동행 및 돌봄 서비스',
 }
 
 const defaultPrices: Record<string, number> = {
@@ -25,7 +25,6 @@ const defaultPrices: Record<string, number> = {
   '생활동행': 18000,
   '노인 돌봄': 22000,
   '아이 돌봄': 20000,
-  '기타': 20000,
 }
 
 export default function AdminServicePricesPage() {
@@ -34,6 +33,9 @@ export default function AdminServicePricesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [commissionRate, setCommissionRate] = useState(0)
+  const [editingCommission, setEditingCommission] = useState(0)
+  const [savingCommission, setSavingCommission] = useState(false)
 
   useEffect(() => {
     fetchPrices()
@@ -66,6 +68,11 @@ export default function AdminServicePricesPage() {
 
       // 기존 데이터 설정
       data.forEach((item: ServicePrice) => {
+        if (item.service_type === 'commission_rate') {
+          setCommissionRate(item.price_per_hour)
+          setEditingCommission(item.price_per_hour)
+          return
+        }
         priceMap[item.service_type] = item
         editMap[item.service_type] = item.price_per_hour
       })
@@ -126,13 +133,42 @@ export default function AdminServicePricesPage() {
     setSaving(null)
   }
 
+  const handleSaveCommission = async () => {
+    if (editingCommission < 0 || editingCommission > 100) {
+      setMessage({ type: 'error', text: '수수료율은 0% 이상 100% 이하로 설정해주세요.' })
+      return
+    }
+
+    setSavingCommission(true)
+    setMessage(null)
+
+    const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('service_prices') as any)
+      .upsert({
+        service_type: 'commission_rate',
+        price_per_hour: editingCommission,
+        is_active: true,
+      })
+
+    if (error) {
+      console.error('Error saving commission rate:', error)
+      setMessage({ type: 'error', text: '수수료율 저장에 실패했습니다.' })
+    } else {
+      setMessage({ type: 'success', text: `매니저 수수료율이 ${editingCommission}%로 변경되었습니다.` })
+      setCommissionRate(editingCommission)
+    }
+
+    setSavingCommission(false)
+  }
+
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1408px]">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-48 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="bg-white rounded-lg border border-gray-200 p-6 h-48"></div>
             ))}
           </div>
@@ -142,7 +178,7 @@ export default function AdminServicePricesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-[1408px]">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">서비스 가격 관리</h1>
       </div>
@@ -220,7 +256,7 @@ export default function AdminServicePricesPage() {
 
                 {updatedAt && (
                   <p className="text-xs text-gray-400">
-                    최종 수정: {new Date(updatedAt).toLocaleString('ko-KR')}
+                    최종 수정: {formatDateTime(updatedAt)}
                   </p>
                 )}
 
@@ -236,6 +272,46 @@ export default function AdminServicePricesPage() {
             </div>
           )
         })}
+      </div>
+
+      {/* 매니저 수수료율 설정 */}
+      <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold mb-4">매니저 수수료율</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          매니저 정산 시 차감되는 수수료율입니다. 정산액 = (결제액 - 환불액) × (1 - 수수료%)
+        </p>
+        <div className="flex items-end gap-4">
+          <div className="flex-1 max-w-xs">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              수수료율 (%)
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                value={editingCommission}
+                onChange={(e) => setEditingCommission(Math.max(0, Math.min(100, parseInt(e.target.value, 10) || 0)))}
+                min="0"
+                max="100"
+                step="1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent pr-12"
+              />
+              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+                %
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              현재: <strong>{commissionRate}%</strong>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSaveCommission}
+            disabled={savingCommission}
+            className="min-h-[44px] px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {savingCommission ? '저장 중...' : '수수료율 저장'}
+          </button>
+        </div>
       </div>
 
       {/* 가격 요약 테이블 */}

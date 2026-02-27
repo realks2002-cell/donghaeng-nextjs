@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, CheckCircle } from 'lucide-react'
+import { formatKoreanPhone } from '@/lib/utils/validation'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -157,9 +158,10 @@ export default function SignupPage() {
               type="tel"
               id="phone"
               value={formData.phone}
-              onChange={(e) => updateField('phone', e.target.value)}
+              onChange={(e) => updateField('phone', formatKoreanPhone(e.target.value))}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3"
-              placeholder="010-1234-5678"
+              placeholder="010-0000-0000"
+              maxLength={13}
               required
             />
           </div>

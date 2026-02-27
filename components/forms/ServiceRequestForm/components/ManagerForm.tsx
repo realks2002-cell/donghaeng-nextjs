@@ -107,7 +107,7 @@ export default function ManagerForm() {
               onChange={(e) => setSearchPhone(formatKoreanPhone(e.target.value))}
               maxLength={13}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              placeholder="010-1234-5678"
+              placeholder="010-0000-0000"
             />
           </div>
           <div>
@@ -167,7 +167,7 @@ export default function ManagerForm() {
                 />
                 <div className="flex-1">
                   <p className="font-semibold text-lg">{manager.name}</p>
-                  <p className="text-sm text-gray-600">{manager.phone}</p>
+                  <p className="text-sm text-gray-600">{formatKoreanPhone(manager.phone)}</p>
                   <p className="text-sm text-gray-600">{manager.address}</p>
                   <p className="text-sm text-primary mt-1">{manager.specialty}</p>
                 </div>
@@ -196,7 +196,7 @@ export default function ManagerForm() {
               />
               <div className="flex-1">
                 <p className="font-semibold text-lg">{formData.designatedManager.name}</p>
-                <p className="text-sm text-gray-600">{formData.designatedManager.phone}</p>
+                <p className="text-sm text-gray-600">{formatKoreanPhone(formData.designatedManager.phone)}</p>
                 <p className="text-sm text-gray-600">{formData.designatedManager.address}</p>
                 <p className="text-sm text-primary mt-1">{formData.designatedManager.specialty}</p>
               </div>

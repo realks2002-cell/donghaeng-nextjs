@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
+import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk'
 import { useFormContext } from '../context/FormContext'
 import { calculatePrice } from '../types'
 import { SERVICE_TYPES, ServiceType, DEFAULT_SERVICE_PRICES } from '@/lib/constants/pricing'
@@ -12,38 +12,55 @@ interface PaymentFormProps {
   servicePrices?: Record<ServiceType, number>
 }
 
-const PAYMENT_METHODS = [
-  { id: '카드', label: '카드 결제', icon: '💳' },
-  { id: '계좌이체', label: '계좌이체', icon: '🏦' },
-  { id: '가상계좌', label: '가상계좌', icon: '📋' },
-  { id: '휴대폰', label: '휴대폰 결제', icon: '📱' },
-] as const
+const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || ''
 
 export default function PaymentForm({
   user = null,
   servicePrices = DEFAULT_SERVICE_PRICES,
 }: PaymentFormProps) {
-  const router = useRouter()
-  const { formData, updateFormData, clearFormData } = useFormContext()
+  const { formData } = useFormContext()
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedMethod, setSelectedMethod] = useState('카드')
-  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [sdkReady, setSdkReady] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const paymentRef = useRef<any>(null)
 
   const estimatedPrice = calculatePrice(formData.serviceType, formData.durationHours, servicePrices)
   const serviceLabel = formData.serviceType
     ? SERVICE_TYPES[formData.serviceType as ServiceType]?.label
     : '-'
 
+  // SDK 초기화
+  useEffect(() => {
+    async function initSDK() {
+      try {
+        if (!clientKey) {
+          console.error('TossPayments client key is not set')
+          return
+        }
+        const tossPayments = await loadTossPayments(clientKey)
+        const customerKey = user?.id || ANONYMOUS
+        const payment = tossPayments.payment({ customerKey })
+        paymentRef.current = payment
+        setSdkReady(true)
+      } catch (error) {
+        console.error('TossPayments SDK init error:', error)
+        toast.error('결제 시스템 초기화에 실패했습니다.')
+      }
+    }
+
+    initSDK()
+  }, [user])
+
   const handlePayment = useCallback(async () => {
-    if (!formData.confirmTerms) {
-      toast.error('서비스 이용약관에 동의해주세요.')
+    if (!sdkReady || !paymentRef.current) {
+      toast.error('결제 시스템이 준비되지 않았습니다. 잠시 후 다시 시도해주세요.')
       return
     }
 
     setIsProcessing(true)
 
     try {
-      // 서비스 요청을 DB에 저장
+      // 1. 서비스 요청을 DB에 저장 (PENDING_PAYMENT 상태)
       const saveResponse = await fetch('/api/requests/save-temp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,9 +80,6 @@ export default function PaymentForm({
           guest_phone: formData.guestPhone,
           guest_address: formData.guestAddress,
           guest_address_detail: formData.guestAddressDetail,
-          customer_id: user?.id || null,
-          payment_method: selectedMethod,
-          amount: estimatedPrice,
         }),
       })
 
@@ -79,24 +93,44 @@ export default function PaymentForm({
         throw new Error(saveResult.error || '서비스 요청 저장에 실패했습니다.')
       }
 
-      // 성공 모달 표시
-      setShowSuccessModal(true)
+      const orderId = saveResult.request_id
+      const orderName = `${serviceLabel} ${formData.durationHours}시간`
+
+      // 2. 토스페이먼츠 결제 요청
+      await paymentRef.current.requestPayment({
+        method: 'CARD',
+        amount: {
+          currency: 'KRW',
+          value: estimatedPrice,
+        },
+        orderId,
+        orderName,
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`,
+        customerName: formData.guestName || undefined,
+        customerMobilePhone: formData.guestPhone?.replace(/-/g, '') || undefined,
+        card: {
+          useEscrow: false,
+          flowMode: 'DEFAULT',
+          useCardPoint: false,
+          useAppCardOnly: false,
+        },
+      })
     } catch (error) {
       console.error('Payment error:', error)
-      toast.error(error instanceof Error ? error.message : '처리 중 오류가 발생했습니다.')
+      // 사용자가 결제창을 닫은 경우는 별도 처리
+      if (error instanceof Error && error.message.includes('USER_CANCEL')) {
+        toast.error('결제가 취소되었습니다.')
+      } else {
+        toast.error(error instanceof Error ? error.message : '처리 중 오류가 발생했습니다.')
+      }
     } finally {
       setIsProcessing(false)
     }
-  }, [formData, selectedMethod, estimatedPrice, user])
-
-  const handleSuccessConfirm = () => {
-    setShowSuccessModal(false)
-    clearFormData()
-    router.push('/')
-  }
+  }, [formData, estimatedPrice, serviceLabel, sdkReady])
 
   const handlePrev = () => {
-    router.back()
+    window.history.back()
   }
 
   return (
@@ -142,39 +176,24 @@ export default function PaymentForm({
         </p>
       </div>
 
-      {/* 결제 수단 선택 */}
-      <div className="mt-6">
-        <h3 className="font-semibold text-sm text-gray-700 mb-3">결제 수단</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {PAYMENT_METHODS.map((method) => (
-            <button
-              key={method.id}
-              type="button"
-              onClick={() => setSelectedMethod(method.id)}
-              className={`min-h-[44px] rounded-lg border-2 p-3 text-center transition-colors ${
-                selectedMethod === method.id
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <span className="text-lg">{method.icon}</span>
-              <span className="ml-1 text-sm font-medium">{method.label}</span>
-            </button>
-          ))}
+      {/* SDK 로딩 상태 */}
+      {!sdkReady && (
+        <div className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-6">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-primary" />
+          <span className="text-sm text-gray-500">결제 시스템을 준비하는 중...</span>
         </div>
-      </div>
+      )}
 
-      <label className="mt-4 flex min-h-[44px] cursor-pointer items-start gap-2">
-        <input
-          type="checkbox"
-          checked={formData.confirmTerms}
-          onChange={(e) => updateFormData({ confirmTerms: e.target.checked })}
-          className="mt-1"
-        />
-        <span className="text-sm text-gray-700">
-          위 내용을 확인했으며 서비스 이용약관에 동의합니다.
-        </span>
-      </label>
+      {/* 결제 안내 */}
+      {sdkReady && (
+        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <p className="text-sm text-blue-800">
+            결제하기 버튼을 누르면 토스페이먼츠 결제창이 열립니다.
+            <br />
+            결제창에서 원하시는 결제 수단을 선택해주세요.
+          </p>
+        </div>
+      )}
 
       <div className="mt-6 flex justify-between">
         <button
@@ -187,44 +206,12 @@ export default function PaymentForm({
         <button
           type="button"
           onClick={handlePayment}
-          disabled={isProcessing}
+          disabled={isProcessing || !sdkReady}
           className="min-h-[44px] rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isProcessing ? '처리 중...' : '결제하기'}
+          {isProcessing ? '처리 중...' : `${estimatedPrice.toLocaleString()}원 결제하기`}
         </button>
       </div>
-
-      {/* 결제 성공 모달 */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-              <svg
-                className="h-8 w-8 text-green-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2.5}
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
-            </div>
-            <h3 className="mt-4 text-lg font-bold text-gray-900">결제가 성공되었습니다</h3>
-            <p className="mt-2 text-sm text-gray-600">
-              서비스 요청이 접수되었습니다.
-              <br />
-              담당 매니저 배정 후 연락드리겠습니다.
-            </p>
-            <button
-              type="button"
-              onClick={handleSuccessConfirm}
-              className="mt-6 min-h-[44px] w-full rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90"
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getManagerSession } from '@/lib/auth/manager'
 import { v4 as uuidv4 } from 'uuid'
+import { sendMatchingSMS } from '@/lib/services/sms-notification'
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,10 +53,15 @@ export async function POST(request: NextRequest) {
     const { data: existingApplications, error: checkError } = await applicationsTable
       .select('id, manager_id')
       .eq('service_request_id', request_id)
+      .in('status', ['PENDING', 'ACCEPTED'])
       .limit(1)
 
     if (checkError) {
       console.error('Check existing applications error:', checkError)
+      return NextResponse.json(
+        { error: '지원 가능 여부 확인 중 오류가 발생했습니다.' },
+        { status: 500 }
+      )
     }
 
     if (existingApplications && existingApplications.length > 0) {
@@ -81,7 +87,7 @@ export async function POST(request: NextRequest) {
       id: applicationId,
       manager_id: session.managerId,
       service_request_id: request_id,
-      status: 'PENDING',
+      status: 'ACCEPTED',
       message: message || null,
     })
 
@@ -93,17 +99,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update request status to MATCHING if it was CONFIRMED
-    if (serviceRequest.status === 'CONFIRMED') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from('service_requests') as any)
-        .update({ status: 'MATCHING' })
-        .eq('id', request_id)
-    }
+    // 즉시 자동매칭: service_request에 매니저 배정 + MATCHED 상태로 변경
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase.from('service_requests') as any)
+      .update({
+        manager_id: session.managerId,
+        status: 'MATCHED',
+      })
+      .eq('id', request_id)
+
+    // 고객에게 매칭 완료 SMS 발송 (실패해도 매칭은 유지)
+    sendMatchingSMS({
+      serviceRequestId: request_id,
+      managerId: session.managerId,
+    }).catch((err) => console.error('[SMS] 비동기 발송 실패:', err))
 
     return NextResponse.json({
       success: true,
-      message: '지원이 완료되었습니다.',
+      message: '매칭이 완료되었습니다.',
     })
   } catch (error) {
     console.error('Apply error:', error)

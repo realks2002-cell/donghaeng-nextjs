@@ -7,15 +7,7 @@ import { ko } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { validateKoreanPhone, formatKoreanPhone } from '@/lib/utils/validation'
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  PENDING: { label: '대기중', color: 'bg-gray-100 text-gray-800' },
-  CONFIRMED: { label: '확정', color: 'bg-green-100 text-green-800' },
-  MATCHING: { label: '매칭중', color: 'bg-blue-100 text-blue-800' },
-  MATCHED: { label: '매칭완료', color: 'bg-green-100 text-green-800' },
-  IN_PROGRESS: { label: '진행중', color: 'bg-yellow-100 text-yellow-800' },
-  COMPLETED: { label: '완료', color: 'bg-gray-100 text-gray-800' },
-  CANCELLED: { label: '취소', color: 'bg-red-100 text-red-800' },
-}
+import { STATUS_DISPLAY } from '@/lib/constants/status'
 
 const SERVICE_LABELS: Record<string, string> = {
   hospital_companion: '병원 동행',
@@ -62,7 +54,7 @@ export default function BookingsContent({ isLoggedIn, memberRequests }: Bookings
       return
     }
     if (!validateKoreanPhone(guestPhone)) {
-      toast.error('올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)')
+      toast.error('올바른 전화번호 형식을 입력해주세요. (예: 010-0000-0000)')
       return
     }
     setIsSearching(true)
@@ -107,7 +99,7 @@ export default function BookingsContent({ isLoggedIn, memberRequests }: Bookings
     return (
       <div className="space-y-4">
         {requests.map((request) => {
-          const status = STATUS_LABELS[request.status] || STATUS_LABELS.PENDING
+          const status = STATUS_DISPLAY[request.status] || STATUS_DISPLAY.PENDING
           const serviceLabel = SERVICE_LABELS[request.service_type] || request.service_type
           const formattedDate = format(new Date(request.service_date), 'yyyy년 M월 d일 (EEE)', { locale: ko })
           const durationHours = Math.floor(request.duration_minutes / 60)
@@ -127,7 +119,7 @@ export default function BookingsContent({ isLoggedIn, memberRequests }: Bookings
                     </span>
                   </div>
                   <p className="mt-1 text-sm text-gray-600">
-                    {formattedDate} {request.start_time} · {durationHours}시간
+                    {formattedDate} {request.start_time?.substring(0, 5)} · {durationHours}시간
                   </p>
                   <p className="mt-1 text-sm text-gray-500 truncate max-w-md">
                     {request.address}
@@ -222,7 +214,7 @@ export default function BookingsContent({ isLoggedIn, memberRequests }: Bookings
                       onChange={(e) => setGuestPhone(formatKoreanPhone(e.target.value))}
                       maxLength={13}
                       className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                      placeholder="010-1234-5678"
+                      placeholder="010-0000-0000"
                     />
                   </div>
 
