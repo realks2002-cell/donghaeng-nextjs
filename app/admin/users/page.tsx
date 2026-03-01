@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { formatKoreanPhone } from '@/lib/utils/validation'
@@ -18,6 +18,14 @@ interface User {
 }
 
 export default function AdminUsersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center"><div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto"></div></div>}>
+      <AdminUsersContent />
+    </Suspense>
+  )
+}
+
+function AdminUsersContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const search = searchParams.get('search') || ''

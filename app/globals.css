@@ -10,6 +10,17 @@
 
 
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+@media (max-width: 767px) {
+  html {
+    font-size: 85%;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -28,30 +28,36 @@ async function subscribeToPush() {
   try {
     const registration = await navigator.serviceWorker.ready
 
-    // Check existing subscription
-    const existingSubscription = await registration.pushManager.getSubscription()
-    if (existingSubscription) {
-      // Already subscribed, send to server to ensure it's saved
-      await saveSubscription(existingSubscription)
-      return
-    }
-
     // Request notification permission
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') {
       return
     }
 
-    // Subscribe to push
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
-    })
+    // Check existing subscription
+    let subscription = await registration.pushManager.getSubscription()
 
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
+      })
+    }
+
+    // Always save to ensure keys are stored correctly
     await saveSubscription(subscription)
   } catch (error) {
     console.error('Push subscription failed:', error)
   }
+}
+
+function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
 async function saveSubscription(subscription: PushSubscription) {
@@ -69,8 +75,8 @@ async function saveSubscription(subscription: PushSubscription) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         endpoint: subscription.endpoint,
-        p256dh: btoa(Array.from(new Uint8Array(key), (b) => String.fromCharCode(b)).join('')),
-        auth: btoa(Array.from(new Uint8Array(auth), (b) => String.fromCharCode(b)).join('')),
+        p256dh: arrayBufferToBase64Url(key),
+        auth: arrayBufferToBase64Url(auth),
       }),
     })
 

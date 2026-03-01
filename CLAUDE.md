@@ -21,10 +21,10 @@ npm run start    # 프로덕션 서버 실행
 - **프레임워크**: Next.js 14 App Router
 - **데이터베이스**: Supabase (PostgreSQL)
 - **인증**: Supabase Auth (고객) + 커스텀 JWT (매니저) + bcrypt (관리자)
-- **결제**: 토스페이먼츠 SDK v1
+- **결제**: 토스페이먼츠 SDK v2
 - **UI**: Tailwind CSS + shadcn/ui (new-york 스타일) + lucide-react 아이콘
 - **폼**: React Hook Form + Zod 유효성 검사
-- **주소 검색**: VWorld API (`/api/address/search`를 통해 프록시)
+- **주소 검색**: 행정안전부 JUSO API (`/api/address/search`를 통해 프록시, `JUSO_API_KEY` 환경변수)
 
 ### 3개의 독립된 인증 시스템
 

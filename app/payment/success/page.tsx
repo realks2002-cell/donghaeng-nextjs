@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, Loader2 } from 'lucide-react'
@@ -15,6 +15,14 @@ interface PaymentResult {
 }
 
 export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="mt-4 text-lg text-gray-600">로딩 중...</p></div>}>
+      <PaymentSuccessContent />
+    </Suspense>
+  )
+}
+
+function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const [isProcessing, setIsProcessing] = useState(true)
   const [result, setResult] = useState<PaymentResult | null>(null)

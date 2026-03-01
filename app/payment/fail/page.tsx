@@ -1,10 +1,19 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { XCircle } from 'lucide-react'
+import { XCircle, Loader2 } from 'lucide-react'
 
 export default function PaymentFailPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-gray-400" /></div>}>
+      <PaymentFailContent />
+    </Suspense>
+  )
+}
+
+function PaymentFailContent() {
   const searchParams = useSearchParams()
   const code = searchParams.get('code')
   const message = searchParams.get('message')

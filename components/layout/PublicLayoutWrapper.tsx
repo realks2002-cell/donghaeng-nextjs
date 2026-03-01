@@ -7,7 +7,7 @@ import Footer from './Footer'
 export default function PublicLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdminPage = pathname.startsWith('/admin')
-  const isManagerPage = pathname.startsWith('/manager')
+  const isManagerPage = pathname.startsWith('/manager') && !pathname.startsWith('/manager/recruit')
 
   if (isAdminPage || isManagerPage) {
     return <>{children}</>

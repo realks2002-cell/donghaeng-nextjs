@@ -79,7 +79,7 @@ function DashboardContent() {
       const res = await fetch('/api/manager/requests')
       if (res.ok) {
         const data = await res.json()
-        setRequests(data.requests || [])
+        setRequests((data.requests || []).filter((r: ServiceRequest) => !r.is_applied))
       }
     } catch (error) {
       console.error('Failed to fetch requests:', error)
@@ -118,12 +118,12 @@ function DashboardContent() {
       const data = await res.json()
 
       if (res.ok) {
-        // 성공 모달
+        // 매칭 성공: 로컬 state에서 즉시 제거 (optimistic UI)
+        setRequests(prev => prev.filter(r => r.id !== selectedRequest.id))
         toast.success('매칭이 완료되었습니다!')
         setSelectedRequest(null)
-        fetchRequests()
       } else if (res.status === 409) {
-        // 🆕 이미 지원자가 있는 경우 (선착순 실패)
+        // 이미 지원자가 있는 경우 (선착순 실패)
         toast.error('이미 지원자가 있어 지원이 불가합니다.', {
           description: '다른 서비스 요청을 확인해보세요.'
         })
@@ -277,10 +277,8 @@ function DashboardContent() {
                 {requests.map((request) => (
                   <div
                     key={request.id}
-                    className={`bg-white rounded-lg border border-gray-200 p-4 ${
-                      request.is_applied ? 'opacity-60' : 'cursor-pointer'
-                    }`}
-                    onClick={() => !request.is_applied && setSelectedRequest(request)}
+                    className="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer"
+                    onClick={() => setSelectedRequest(request)}
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -293,15 +291,9 @@ function DashboardContent() {
                         <p className="text-lg font-bold text-primary">
                           {request.manager_amount.toLocaleString()}원
                         </p>
-                        {request.is_applied ? (
-                          <span className="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                            지원완료
-                          </span>
-                        ) : (
-                          <span className="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-                            매칭대기
-                          </span>
-                        )}
+                        <span className="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                          매칭대기
+                        </span>
                       </div>
                     </div>
                     <div className="space-y-2 text-sm border-t border-gray-100 pt-3">
@@ -348,10 +340,8 @@ function DashboardContent() {
                       {requests.map((request) => (
                         <tr
                           key={request.id}
-                          className={`hover:bg-gray-50 ${
-                            request.is_applied ? 'opacity-60' : 'cursor-pointer'
-                          }`}
-                          onClick={() => !request.is_applied && setSelectedRequest(request)}
+                          className="hover:bg-gray-50 cursor-pointer"
+                          onClick={() => setSelectedRequest(request)}
                         >
                           <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
                             {formatDate(request.service_date)}
@@ -379,15 +369,9 @@ function DashboardContent() {
                             <span className="font-medium text-primary">{request.manager_amount.toLocaleString()}원</span>
                           </td>
                           <td className="px-4 py-3 text-sm">
-                            {request.is_applied ? (
-                              <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                지원완료
-                              </span>
-                            ) : (
-                              <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-                                매칭대기
-                              </span>
-                            )}
+                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                              매칭대기
+                            </span>
                           </td>
                         </tr>
                       ))}

@@ -11,68 +11,26 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-10 mb-10">
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-2 mb-4 text-white">
-              <HeartHandshake className="text-orange-500 w-6 h-6" />
-              <span className="text-2xl font-bold">{APP_NAME}</span>
+            <div className="flex items-center gap-2 mb-3 text-white">
+              <HeartHandshake className="text-orange-500 w-5 h-5" />
+              <span className="text-xl font-bold">{APP_NAME}</span>
             </div>
-            <p className="text-lg leading-relaxed max-w-sm text-white">
+            <p className="text-xl leading-relaxed text-white whitespace-nowrap">
               우리는 고객의 삶에 따뜻한 온기를 전하는 동반자입니다.<br />
               신뢰와 정성으로 가장 가까운 곳에서 함께하겠습니다.
             </p>
           </div>
-          <div>
-            <h4 className="text-lg text-white font-bold mb-4">서비스</h4>
-            <ul className="space-y-2 text-lg">
-              <li>
-                <Link href="/service-guide" className="text-white hover:text-orange-400 transition-colors">
-                  병원동행
-                </Link>
-              </li>
-              <li>
-                <Link href="/service-guide" className="text-white hover:text-orange-400 transition-colors">
-                  아이돌봄
-                </Link>
-              </li>
-              <li>
-                <Link href="/service-guide" className="text-white hover:text-orange-400 transition-colors">
-                  가사동행
-                </Link>
-              </li>
-              <li>
-                <Link href="/service-guide" className="text-white hover:text-orange-400 transition-colors">
-                  일상/생활동행
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-lg text-white font-bold mb-4">고객지원</h4>
-            <ul className="space-y-2 text-lg">
-              <li>
-                <Link href="/faq" className="text-white hover:text-orange-400 transition-colors">
-                  자주 묻는 질문
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="text-white hover:text-orange-400 transition-colors">
-                  회사소개
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-        {/* 사업자 정보 */}
-        <div className="border-t border-gray-800 pt-8 mb-6">
-          <div className="text-sm text-gray-400 space-y-1">
-            <p><span className="text-gray-300">상호 :</span> 한국직업능력평생교육원</p>
-            <p><span className="text-gray-300">대표 :</span> 임채계</p>
-            <p><span className="text-gray-300">주소 :</span> 경기도 화성시 동탄대로5길 21, B동 2층 W243호(송동)</p>
-            <p><span className="text-gray-300">전화번호 :</span> 010-2479-3112</p>
-            <p><span className="text-gray-300">통신판매업 신고번호 :</span> 제 2026-화성동탄-0213 호</p>
+          <div className="col-span-1 md:col-span-2">
+            <div className="text-xl text-white space-y-1.5">
+              <p><span className="text-gray-300">상호 :</span> 한국직업능력평생교육원</p>
+              <p><span className="text-gray-300">주소 :</span> 경기도 화성시 동탄대로5길 21, B동 2층 W243호(송동)</p>
+              <p><span className="text-gray-300">전화번호 :</span> 010-2479-3112</p>
+              <p><span className="text-gray-300">통신판매업 신고번호 :</span> 제 2026-화성동탄-0213 호</p>
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-base">
+        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
           <p className="text-white">&copy; {currentYear} {APP_NAME}. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="#" className="text-white hover:text-orange-400 transition-colors">

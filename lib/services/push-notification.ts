@@ -36,8 +36,11 @@ export async function sendPushToAllManagers(payload: PushPayload) {
   }
 
   if (!subscriptions || subscriptions.length === 0) {
+    console.log('No push subscriptions found')
     return
   }
+
+  console.log(`Sending push to ${subscriptions.length} subscription(s)`)
 
   const notificationPayload = JSON.stringify(payload)
 

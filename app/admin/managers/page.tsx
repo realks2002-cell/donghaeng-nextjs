@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Search, User, X } from 'lucide-react'
@@ -25,6 +25,14 @@ interface Manager {
 }
 
 export default function AdminManagersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center"><div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto"></div></div>}>
+      <AdminManagersContent />
+    </Suspense>
+  )
+}
+
+function AdminManagersContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const search = searchParams.get('search') || ''
