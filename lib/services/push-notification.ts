@@ -1,16 +1,4 @@
-import webpush from 'web-push'
 import { createServiceClient } from '@/lib/supabase/server'
-
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || ''
-
-if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    'mailto:admin@donghaeng.com',
-    VAPID_PUBLIC_KEY,
-    VAPID_PRIVATE_KEY
-  )
-}
 
 interface PushPayload {
   title: string
@@ -18,8 +6,28 @@ interface PushPayload {
   url?: string
 }
 
+let vapidInitialized = false
+
+async function getWebPush() {
+  const webpush = (await import('web-push')).default
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
+  const privateKey = process.env.VAPID_PRIVATE_KEY || ''
+
+  if (!publicKey || !privateKey) {
+    return null
+  }
+
+  if (!vapidInitialized) {
+    webpush.setVapidDetails('mailto:admin@donghaeng.com', publicKey, privateKey)
+    vapidInitialized = true
+  }
+
+  return webpush
+}
+
 export async function sendPushToAllManagers(payload: PushPayload) {
-  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+  const webpush = await getWebPush()
+  if (!webpush) {
     console.warn('VAPID keys not configured, skipping push notification')
     return
   }
