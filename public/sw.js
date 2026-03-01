@@ -1,4 +1,4 @@
-const CACHE_NAME = 'donghaeng-manager-v1'
+const CACHE_NAME = 'donghaeng-manager-v2'
 const STATIC_ASSETS = [
   '/manager/login',
   '/icons/icon-192x192.png',
@@ -47,6 +47,9 @@ self.addEventListener('push', (event) => {
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-192x192.png',
       data: { url: data.url },
+      vibrate: [200, 100, 200],
+      silent: false,
+      requireInteraction: true,
     })
   )
 })

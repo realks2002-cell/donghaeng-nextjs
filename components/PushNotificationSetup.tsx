@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
 
@@ -89,9 +90,24 @@ async function saveSubscription(subscription: PushSubscription) {
 }
 
 export default function PushNotificationSetup() {
+  const pathname = usePathname()
+  const subscribedRef = useRef(false)
+
   useEffect(() => {
-    subscribeToPush()
-  }, [])
+    // 로그인/회원가입 페이지에서는 실행하지 않음 (인증 없으므로 401 발생)
+    if (pathname === '/manager/login' || pathname === '/manager/signup') {
+      return
+    }
+
+    // 이미 구독 완료된 경우 불필요한 API 호출 방지
+    if (subscribedRef.current) {
+      return
+    }
+
+    subscribeToPush().then(() => {
+      subscribedRef.current = true
+    })
+  }, [pathname]) // 경로 변경 시마다 재시도 → 로그인 후 대시보드 이동 시 구독 실행
 
   return null
 }
