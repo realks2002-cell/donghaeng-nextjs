@@ -146,12 +146,16 @@ export async function POST(request: NextRequest) {
       console.error('Request update error:', updateError)
     }
 
-    // 푸시 알림 발송 (비동기, 실패해도 응답에 영향 없음)
-    sendPushToAllManagers({
-      title: '새 서비스 요청',
-      body: '새로운 서비스 요청이 결제 완료되었습니다.',
-      url: '/manager/dashboard',
-    }).catch((err) => console.error('Push notification error:', err))
+    // 푸시 알림 발송 (await 필수 - Vercel Serverless는 응답 후 즉시 종료됨)
+    try {
+      await sendPushToAllManagers({
+        title: '새 서비스 요청',
+        body: '새로운 서비스 요청이 결제 완료되었습니다.',
+        url: '/manager/dashboard',
+      })
+    } catch (err) {
+      console.error('Push notification error:', err)
+    }
 
     return NextResponse.json({
       ok: true,
