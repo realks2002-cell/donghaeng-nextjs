@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>자주묻는 질문 - 행복안심동행</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding-top: env(safe-area-inset-top); }
+    .app-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 14px 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .back-btn { padding: 8px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+    .header-title { font-size: 18px; font-weight: 700; }
+    .content { padding: 80px 20px 40px; max-width: 640px; margin: 0 auto; }
+    .faq-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .faq-q { font-size: 17px; font-weight: 700; margin-bottom: 10px; color: #111; }
+    .faq-a { font-size: 15px; color: #555; line-height: 1.7; }
+    .contact-box { background: #f9fafb; border-radius: 12px; padding: 20px; margin-top: 32px; }
+    .contact-box h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .contact-box p { font-size: 15px; color: #555; line-height: 1.8; }
+  </style>
+</head>
+<body class="font-sans antialiased bg-white text-gray-900">
+  <div class="app-header">
+    <a href="index.html" class="back-btn" aria-label="뒤로가기">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </a>
+    <span class="header-title">자주묻는 질문</span>
+  </div>
+
+  <div class="content">
+    <div class="faq-card">
+      <p class="faq-q">Q1. 서비스 요청은 어떻게 하나요?</p>
+      <p class="faq-a">회원가입 후 "서비스 요청" 메뉴에서 원하는 서비스 유형, 일시, 위치를 선택하고 상세 정보를 입력한 후 결제를 진행하시면 됩니다.</p>
+    </div>
+    <div class="faq-card">
+      <p class="faq-q">Q2. 매니저는 어떻게 선택되나요?</p>
+      <p class="faq-a">결제 완료 후 매니저들이 지원하고, 고객님이 여러 지원자 중에서 매니저를 선택할 수 있습니다. 매니저의 프로필과 후기를 확인하실 수 있습니다.</p>
+    </div>
+    <div class="faq-card">
+      <p class="faq-q">Q3. 서비스를 취소할 수 있나요?</p>
+      <p class="faq-a">네, 서비스 시작 전까지 취소 가능합니다. "내 예약" 페이지에서 취소할 수 있으며, 환불은 자동으로 처리됩니다.</p>
+    </div>
+    <div class="faq-card">
+      <p class="faq-q">Q4. 결제는 어떻게 하나요?</p>
+      <p class="faq-a">카드 등록 후 안전한 토스페이먼츠를 통해 결제됩니다. 카드 정보는 안전하게 암호화되어 저장됩니다.</p>
+    </div>
+    <div class="faq-card">
+      <p class="faq-q">Q5. 매니저가 되려면 어떻게 해야 하나요?</p>
+      <p class="faq-a">"매니저지원" 메뉴에서 회원가입을 진행하시면 됩니다. 신분증, 계좌 정보 등을 입력하시면 심사 후 활동이 가능합니다.</p>
+    </div>
+    <div class="faq-card">
+      <p class="faq-q">Q6. 서비스 비용은 어떻게 책정되나요?</p>
+      <p class="faq-a">서비스 유형과 시간에 따라 차등 요금제가 적용됩니다. 서비스 요청 시 예상 금액이 표시됩니다.</p>
+    </div>
+    <div class="faq-card">
+      <p class="faq-q">Q7. 문제가 발생하면 어떻게 하나요?</p>
+      <p class="faq-a">서비스 중 문제가 발생하면 즉시 고객센터(1668-5535)로 연락주시거나, "내 예약" 페이지에서 문의하실 수 있습니다.</p>
+    </div>
+    <div class="faq-card">
+      <p class="faq-q">Q8. 환불은 언제 처리되나요?</p>
+      <p class="faq-a">취소 요청 후 3-5일 내에 결제 수단으로 자동 환불 처리됩니다. 환불 내역은 "내 예약" 페이지에서 확인하실 수 있습니다.</p>
+    </div>
+
+    <div class="contact-box">
+      <h2>추가 문의</h2>
+      <p>위의 질문으로 해결되지 않으신 경우, 아래로 문의해주세요.</p>
+      <p style="margin-top:12px;">
+        전화: <a href="tel:1668-5535" style="color:#f97316;font-weight:600;">1668-5535</a><br>
+        운영시간: 평일 09:00 - 18:00
+      </p>
+    </div>
+  </div>
+</body>
+</html>
