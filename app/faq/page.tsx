@@ -61,7 +61,7 @@ export default function FaqPage() {
         </p>
         <p className="text-gray-700">
           이메일: support@hangbok77.com<br />
-          전화: 1588-0000<br />
+          전화: 1668-5535<br />
           운영시간: 평일 09:00 - 18:00
         </p>
       </div>
