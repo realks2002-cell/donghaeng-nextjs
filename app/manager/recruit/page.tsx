@@ -105,7 +105,7 @@ export default function RecruitPage() {
           <h2 className="text-2xl font-semibold mb-4">지원 방법</h2>
           <p className="text-gray-700">
             상단의 &quot;매니저 지원하기&quot; 버튼을 눌러 회원가입을 진행해주세요.
-            신분증, 계좌 정보 등을 입력하시면 심사 후 활동이 가능합니다.
+            필요정보를 입력하시면 심사 후 활동이 가능합니다.
           </p>
         </div>
       </div>
