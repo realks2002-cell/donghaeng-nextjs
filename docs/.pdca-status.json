@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-01T09:41:36.450Z",
+  "lastUpdated": "2026-03-03T02:52:31.169Z",
   "activeFeatures": [
     "recruit",
     "signup",
@@ -78,7 +78,12 @@
     "request",
     "booking",
     "more",
-    "fail"
+    "fail",
+    "test",
+    "android-app",
+    "js",
+    "agency",
+    "agency-applications"
   ],
   "primaryFeature": "recruit",
   "features": {
@@ -91,7 +96,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T14:20:03.168Z",
-        "lastUpdated": "2026-03-01T09:21:49.831Z"
+        "lastUpdated": "2026-03-02T14:04:12.107Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/manager/recruit/page.tsx"
     },
@@ -117,9 +122,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-15T14:55:32.000Z",
-        "lastUpdated": "2026-03-01T09:31:07.227Z"
+        "lastUpdated": "2026-03-03T02:27:09.874Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/PushNotificationSetup.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/types/database.ts"
     },
     "e2e": {
       "phase": "do",
@@ -182,9 +187,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T00:06:47.141Z",
-        "lastUpdated": "2026-02-26T09:40:32.084Z"
+        "lastUpdated": "2026-03-03T02:28:30.705Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/page.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/admin/layout.tsx"
     },
     "[id]": {
       "phase": "do",
@@ -195,9 +200,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T00:11:28.567Z",
-        "lastUpdated": "2026-02-26T10:23:55.049Z"
+        "lastUpdated": "2026-03-03T02:29:20.620Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/applications/[id]/route.ts"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/agency-applications/[id]/route.ts"
     },
     "guest-lookup": {
       "phase": "do",
@@ -338,9 +343,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T03:55:31.712Z",
-        "lastUpdated": "2026-02-26T12:32:50.633Z"
+        "lastUpdated": "2026-03-03T02:28:02.239Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/manager/apply/route.ts"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/agency/apply/route.ts"
     },
     "requests": {
       "phase": "do",
@@ -520,7 +525,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T05:45:26.083Z",
-        "lastUpdated": "2026-02-26T10:33:06.711Z"
+        "lastUpdated": "2026-03-01T14:53:21.246Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/public/sw.js"
     },
@@ -572,9 +577,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T06:37:46.151Z",
-        "lastUpdated": "2026-03-01T09:13:46.867Z"
+        "lastUpdated": "2026-03-03T02:28:20.666Z"
       },
-      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/layout/PublicLayoutWrapper.tsx"
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/components/layout/Header.tsx"
     },
     "auth": {
       "phase": "do",
@@ -715,7 +720,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T23:25:16.904Z",
-        "lastUpdated": "2026-02-16T23:30:52.737Z"
+        "lastUpdated": "2026-03-02T16:01:36.586Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/about/page.tsx"
     },
@@ -728,7 +733,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T23:25:18.147Z",
-        "lastUpdated": "2026-02-16T23:30:53.969Z"
+        "lastUpdated": "2026-03-03T02:52:31.169Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/service-guide/page.tsx"
     },
@@ -741,7 +746,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-16T23:25:19.359Z",
-        "lastUpdated": "2026-02-16T23:30:55.174Z"
+        "lastUpdated": "2026-03-02T16:01:27.585Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/faq/page.tsx"
     },
@@ -897,7 +902,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-26T10:32:41.244Z",
-        "lastUpdated": "2026-03-01T09:31:12.067Z"
+        "lastUpdated": "2026-03-01T10:21:04.488Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/lib/services/push-notification.ts"
     },
@@ -923,7 +928,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-02-26T10:33:20.600Z",
-        "lastUpdated": "2026-02-27T05:10:59.526Z"
+        "lastUpdated": "2026-03-01T14:20:23.097Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/payments/confirm/route.ts"
     },
@@ -1082,6 +1087,71 @@
         "lastUpdated": "2026-03-01T08:34:41.671Z"
       },
       "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/payment/fail/page.tsx"
+    },
+    "test": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-01T14:36:25.992Z",
+        "lastUpdated": "2026-03-01T14:53:29.861Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/push/test/route.ts"
+    },
+    "android-app": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-01T15:26:12.417Z",
+        "lastUpdated": "2026-03-01T16:20:09.515Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/android-app/capacitor.config.ts"
+    },
+    "js": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-01T15:29:38.450Z",
+        "lastUpdated": "2026-03-01T15:29:38.450Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/android-app/www/js/hybrid-router.js"
+    },
+    "agency": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-03T02:27:47.686Z",
+        "lastUpdated": "2026-03-03T02:27:47.686Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/agency/page.tsx"
+    },
+    "agency-applications": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-03T02:29:04.540Z",
+        "lastUpdated": "2026-03-03T02:29:13.956Z"
+      },
+      "lastFile": "/Users/kenny/Desktop/Task/donghaeng/app/api/admin/agency-applications/route.ts"
     }
   },
   "pipeline": {
@@ -1092,7 +1162,7 @@
   "session": {
     "startedAt": "2026-02-15T13:50:57.234Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-01T09:41:36.450Z"
+    "lastActivity": "2026-03-03T02:52:31.169Z"
   },
   "history": [
     {
@@ -5952,6 +6022,264 @@
     {
       "timestamp": "2026-03-01T09:41:36.450Z",
       "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T10:21:04.488Z",
+      "feature": "push-notification.ts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T14:20:23.097Z",
+      "feature": "confirm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T14:28:53.549Z",
+      "feature": "donghaeng",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T14:29:00.093Z",
+      "feature": "donghaeng",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T14:36:25.992Z",
+      "feature": "test",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T14:53:16.402Z",
+      "feature": "public",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T14:53:21.246Z",
+      "feature": "public",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T14:53:29.861Z",
+      "feature": "test",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T15:26:12.417Z",
+      "feature": "android-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T15:29:38.450Z",
+      "feature": "js",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-01T16:20:09.515Z",
+      "feature": "android-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:04:05.540Z",
+      "feature": "faq",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:04:12.107Z",
+      "feature": "recruit",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:04:21.929Z",
+      "feature": "faq",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:04:24.572Z",
+      "feature": "faq",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:04:26.842Z",
+      "feature": "faq",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:04:28.577Z",
+      "feature": "faq",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:04:30.315Z",
+      "feature": "faq",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T14:04:31.963Z",
+      "feature": "faq",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T16:01:27.585Z",
+      "feature": "faq",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T16:01:36.586Z",
+      "feature": "about",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-02T16:01:37.477Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:27:09.874Z",
+      "feature": "donghaeng",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:27:47.686Z",
+      "feature": "agency",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:28:02.239Z",
+      "feature": "apply",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:28:12.791Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:28:20.666Z",
+      "feature": "layout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:28:27.024Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:28:30.705Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:29:04.540Z",
+      "feature": "agency-applications",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:29:13.956Z",
+      "feature": "agency-applications",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:29:20.620Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:31:40.181Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:31:50.429Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:34:34.210Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:34:37.431Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:34:42.676Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:36:07.973Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:38:16.858Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:48:58.013Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:51:44.570Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:51:48.067Z",
+      "feature": "service-guide",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-03T02:52:31.169Z",
+      "feature": "service-guide",
       "phase": "do",
       "action": "updated"
     }

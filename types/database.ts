@@ -276,6 +276,38 @@ export interface Database {
           created_at?: string
         }
       }
+      agency_applications: {
+        Row: {
+          id: string
+          name: string
+          phone: string
+          email: string
+          region: string
+          memo: string | null
+          status: 'pending' | 'reviewed' | 'rejected'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          phone: string
+          email: string
+          region: string
+          memo?: string | null
+          status?: 'pending' | 'reviewed' | 'rejected'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          phone?: string
+          email?: string
+          region?: string
+          memo?: string | null
+          status?: 'pending' | 'reviewed' | 'rejected'
+          created_at?: string
+        }
+      }
       service_prices: {
         Row: {
           service_type: string

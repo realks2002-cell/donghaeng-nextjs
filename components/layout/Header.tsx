@@ -84,6 +84,9 @@ export default function Header({ user }: HeaderProps) {
               <Link href="/manager/recruit" className="text-lg text-gray-900 hover:text-orange-600 font-medium transition-colors">
                 매니저 지원
               </Link>
+              <Link href="/agency" className="text-lg text-gray-900 hover:text-orange-600 font-medium transition-colors">
+                대리점 모집
+              </Link>
               <Link href="/auth/login" className="text-lg px-6 py-2.5 rounded-full font-semibold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 border-2 border-gray-300 text-gray-900 hover:border-gray-400">
                 회원 로그인
               </Link>
@@ -149,6 +152,9 @@ export default function Header({ user }: HeaderProps) {
             <>
               <Link href="/manager/recruit" className="min-h-[44px] flex items-center px-4 py-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100" onClick={() => setMobileMenuOpen(false)}>
                 매니저 지원
+              </Link>
+              <Link href="/agency" className="min-h-[44px] flex items-center px-4 py-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100" onClick={() => setMobileMenuOpen(false)}>
+                대리점 모집
               </Link>
               <Link href="/auth/login" className="min-h-[40px] flex items-center px-4 py-2 text-base font-medium text-gray-900 border-2 border-gray-300 rounded-lg hover:border-gray-400" onClick={() => setMobileMenuOpen(false)}>
                 회원 로그인

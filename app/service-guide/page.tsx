@@ -1,8 +1,44 @@
 import { Metadata } from 'next'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: '서비스 이용 안내 - 행복안심동행',
   description: '행복안심동행 서비스 이용 방법과 절차를 안내합니다.',
+}
+
+const defaultPrices: Record<string, number> = {
+  '병원 동행': 20000,
+  '가사돌봄': 18000,
+  '생활동행': 18000,
+  '노인 돌봄': 22000,
+  '아이 돌봄': 20000,
+}
+
+async function getServicePrices(): Promise<Record<string, number>> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('service_prices')
+      .select('service_type, price_per_hour')
+      .eq('is_active', true)
+
+    if (error) {
+      return defaultPrices
+    }
+
+    const prices: Record<string, number> = { ...defaultPrices }
+    if (data) {
+      data.forEach((item: { service_type: string; price_per_hour: number }) => {
+        if (item.service_type !== '기타' && item.service_type !== 'commission_rate') {
+          prices[item.service_type] = item.price_per_hour
+        }
+      })
+    }
+
+    return prices
+  } catch {
+    return defaultPrices
+  }
 }
 
 const steps = [
@@ -14,7 +50,7 @@ const steps = [
   {
     number: 2,
     title: '결제',
-    description: '카드 등록 후 안전하게 결제를 진행합니다.',
+    description: '서비스 신청 단계에서 안전한 토스페이먼츠를 통해 결제가 처리됩니다.',
   },
   {
     number: 3,
@@ -33,10 +69,37 @@ const steps = [
   },
 ]
 
-export default function ServiceGuidePage() {
+export default async function ServiceGuidePage() {
+  const prices = await getServicePrices()
+  const priceEntries = Object.entries(prices).filter(([name]) => name !== '기타' && name !== 'commission_rate')
+
   return (
     <section className="mx-auto max-w-4xl px-4 pt-44 pb-16 sm:px-6 sm:pb-24">
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-8">서비스 이용 안내</h1>
+
+      <div className="mb-12 not-prose">
+        <h2 className="text-2xl font-semibold mb-6">서비스 요금표</h2>
+        <div className="overflow-x-auto rounded-lg border max-w-[80%]">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-muted/50">
+                <th className="px-6 py-3 text-sm font-semibold">서비스명</th>
+                <th className="px-6 py-3 text-sm font-semibold text-right">시간당 요금</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {priceEntries.map(([name, price]) => (
+                <tr key={name} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-6 py-4">{name}</td>
+                  <td className="px-6 py-4 text-right font-medium">
+                    {price.toLocaleString('ko-KR')}원
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div className="prose prose-lg max-w-none">
         <div className="mb-12">
@@ -65,11 +128,11 @@ export default function ServiceGuidePage() {
             </div>
             <div>
               <h3 className="font-semibold mb-2">결제 방법</h3>
-              <p className="text-gray-700">카드 등록 후 자동 결제 방식으로 진행됩니다. 안전한 토스페이먼츠를 통해 결제가 처리됩니다.</p>
+              <p className="text-gray-700">서비스 신청 단계에서 안전한 토스페이먼츠를 통해 결제가 처리됩니다.</p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">취소 및 환불</h3>
-              <p className="text-gray-700">서비스 시작 전까지 취소 가능하며, 환불은 결제 수단으로 자동 처리됩니다.</p>
+              <p className="text-gray-700">서비스 시작 전까지 취소 가능하며, 서비스 임박한 취소는 내부규정에 따라 위약금이 발생할 수 있습니다.</p>
             </div>
           </div>
         </div>

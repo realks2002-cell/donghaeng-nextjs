@@ -16,6 +16,7 @@ import {
   Calculator,
   DollarSign,
   MapPin,
+  Handshake,
   Settings,
   Menu,
   X,
@@ -35,6 +36,7 @@ const menuItems = [
   { href: '/admin/manager-settlement', label: '매니저 정산', icon: Calculator, dividerAfter: true },
   { href: '/admin/service-prices', label: '서비스 가격 설정', icon: DollarSign },
   { href: '/admin/branches', label: '지점 관리', icon: MapPin },
+  { href: '/admin/agency-applications', label: '대리점 신청', icon: Handshake },
   { href: '/admin/settings', label: '관리자 설정', icon: Settings },
 ]
 
