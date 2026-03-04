@@ -71,8 +71,8 @@ for (let h = 0; h < 24; h++) {
   }
 }
 
-// 시간 옵션 (1시간 ~ 9시간)
-export const DURATION_OPTIONS = Array.from({ length: 9 }, (_, i) => i + 1)
+// 시간 옵션 (2시간 ~ 9시간)
+export const DURATION_OPTIONS = Array.from({ length: 8 }, (_, i) => i + 2)
 
 // 가격 계산 함수는 lib/constants/pricing.ts에서 가져옴
 export { calculatePrice } from '@/lib/constants/pricing'
