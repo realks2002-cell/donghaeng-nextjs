@@ -39,7 +39,7 @@ export async function GET() {
       .single()
     const commissionRate = commissionData?.price_per_hour ?? 0
 
-    // Get service requests with CONFIRMED or MATCHING status
+    // Get service requests with CONFIRMED status (available for matching)
     const { data: requests, error } = await supabase
       .from('service_requests')
       .select(`
@@ -58,7 +58,7 @@ export async function GET() {
         estimated_price,
         created_at
       `)
-      .in('status', ['CONFIRMED', 'MATCHING'])
+      .eq('status', 'CONFIRMED')
       .order('service_date', { ascending: true })
       .order('start_time', { ascending: true }) as { data: ServiceRequestRecord[] | null; error: unknown }
 
@@ -90,14 +90,6 @@ export async function GET() {
       }
     }
 
-    // Get applications by this manager
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: applications } = await (supabase.from('manager_applications') as any)
-      .select('service_request_id')
-      .eq('manager_id', session.managerId) as { data: { service_request_id: string }[] | null }
-
-    const appliedRequestIds = new Set(applications?.map((a) => a.service_request_id) || [])
-
     // Format requests
     const formattedRequests = requests?.map((request) => {
       const customer = request.customer_id ? customerMap[request.customer_id] : null
@@ -106,7 +98,6 @@ export async function GET() {
         ...request,
         customer_name: customer?.name || request.guest_name || '비회원',
         customer_phone: customer?.phone || request.guest_phone || '',
-        is_applied: appliedRequestIds.has(request.id),
         manager_amount: managerAmount,
       }
     }) || []

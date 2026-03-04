@@ -79,7 +79,7 @@ function DashboardContent() {
       const res = await fetch('/api/manager/requests')
       if (res.ok) {
         const data = await res.json()
-        setRequests((data.requests || []).filter((r: ServiceRequest) => !r.is_applied))
+        setRequests(data.requests || [])
       }
     } catch (error) {
       console.error('Failed to fetch requests:', error)
@@ -230,11 +230,11 @@ function DashboardContent() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">근무일시</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">고객</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">지원일</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">근무일시</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">서비스</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">고객</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">지원일</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">상태</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -326,14 +326,14 @@ function DashboardContent() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">근무일시</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">고객</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">위치</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">특기사항</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">소요시간</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">금액</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">근무일시</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">서비스</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">고객</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">위치</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">특기사항</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">소요시간</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">금액</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">상태</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
