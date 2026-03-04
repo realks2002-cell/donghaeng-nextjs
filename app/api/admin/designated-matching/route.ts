@@ -35,7 +35,7 @@ export async function GET() {
       manager_id
     `)
     .not('manager_id', 'is', null)
-    .in('status', ['CONFIRMED', 'MATCHING'])
+    .eq('status', 'CONFIRMED')
     .order('created_at', { ascending: false })
     .limit(100)
 
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '서비스 요청을 찾을 수 없습니다.' }, { status: 404 })
     }
 
-    if (!['CONFIRMED', 'MATCHING'].includes(serviceRequest.status)) {
+    if (serviceRequest.status !== 'CONFIRMED') {
       return NextResponse.json({ error: '처리 가능한 상태가 아닙니다.' }, { status: 400 })
     }
 

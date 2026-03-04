@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { requireAdminAuth } from '@/lib/auth/admin'
 import { updateServiceStatuses } from '@/lib/services/status-updater'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await requireAdminAuth()
   } catch {
@@ -21,11 +21,13 @@ export async function GET() {
   )
 
   const supabase = createServiceClient()
+  const { searchParams } = new URL(request.url)
+  const statusFilter = searchParams.get('status')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const requestsTable = supabase.from('service_requests') as any
 
-  const { data, error } = await requestsTable
+  let query = requestsTable
     .select(`
       id,
       created_at,
@@ -38,6 +40,15 @@ export async function GET() {
       customer_id,
       manager_id
     `)
+
+  if (statusFilter) {
+    query = query.eq('status', statusFilter)
+  } else {
+    // 결제 완료 또는 계좌이체 신청 이후 상태만 표시
+    query = query.in('status', ['PENDING_TRANSFER', 'CONFIRMED', 'MATCHED', 'COMPLETED', 'CANCELLED'])
+  }
+
+  const { data, error } = await query
     .order('created_at', { ascending: false })
     .limit(50)
 

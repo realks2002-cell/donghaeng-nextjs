@@ -17,7 +17,7 @@ export async function GET() {
   const [usersRes, managersRes, requestsRes, paymentsRes, recentRes] = await Promise.all([
     supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'CUSTOMER'),
     supabase.from('managers').select('*', { count: 'exact', head: true }),
-    supabase.from('service_requests').select('*', { count: 'exact', head: true }).in('status', ['PENDING', 'PENDING_PAYMENT', 'CONFIRMED']),
+    supabase.from('service_requests').select('*', { count: 'exact', head: true }).in('status', ['CONFIRMED', 'PENDING_TRANSFER']),
     supabase.from('payments').select('amount, refund_amount').in('status', ['PAID', 'PARTIAL_REFUNDED']),
     supabase
       .from('service_requests')

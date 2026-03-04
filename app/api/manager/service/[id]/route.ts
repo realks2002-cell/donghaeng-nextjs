@@ -2,11 +2,6 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireManagerAuth } from '@/lib/auth/manager'
 
-const ALLOWED_TRANSITIONS: Record<string, string> = {
-  MATCHED: 'IN_PROGRESS',
-  IN_PROGRESS: 'COMPLETED',
-}
-
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -25,7 +20,7 @@ export async function PATCH(
     const { id } = await params
     const { action } = await request.json()
 
-    if (!action || !['start', 'complete'].includes(action)) {
+    if (action !== 'complete') {
       return NextResponse.json(
         { success: false, message: '유효하지 않은 액션입니다.' },
         { status: 400 }
@@ -56,26 +51,17 @@ export async function PATCH(
       )
     }
 
-    const expectedStatus = action === 'start' ? 'MATCHED' : 'IN_PROGRESS'
-    const nextStatus = ALLOWED_TRANSITIONS[expectedStatus]
-
-    if (serviceRequest.status !== expectedStatus || !nextStatus) {
+    if (serviceRequest.status !== 'MATCHED') {
       return NextResponse.json(
         { success: false, message: `현재 상태(${serviceRequest.status})에서는 이 작업을 수행할 수 없습니다.` },
         { status: 400 }
       )
     }
 
-    // 상태 업데이트
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: Record<string, any> = { status: nextStatus }
-    if (nextStatus === 'COMPLETED') {
-      updateData.completed_at = new Date().toISOString()
-    }
-
+    // 상태 업데이트: MATCHED → COMPLETED
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateError } = await (supabase.from('service_requests') as any)
-      .update(updateData)
+      .update({ status: 'COMPLETED', completed_at: new Date().toISOString() })
       .eq('id', id)
 
     if (updateError) {

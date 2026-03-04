@@ -71,7 +71,7 @@ export function BookingDetailScreen({ route, navigation }: Props) {
   if (!request) return null;
 
   const statusInfo = STATUS_DISPLAY[request.status];
-  const canCancel = ['PENDING', 'PENDING_PAYMENT', 'CONFIRMED', 'MATCHING'].includes(request.status);
+  const canCancel = ['PENDING_TRANSFER', 'CONFIRMED', 'MATCHED'].includes(request.status);
   const payment = request.payments?.[0];
 
   return (

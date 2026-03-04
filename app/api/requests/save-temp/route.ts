@@ -20,6 +20,7 @@ interface SaveTempRequest {
   guest_phone?: string
   guest_address?: string
   guest_address_detail?: string
+  payment_method?: 'CARD' | 'BANK_TRANSFER'
 }
 
 export async function POST(request: NextRequest) {
@@ -69,6 +70,15 @@ export async function POST(request: NextRequest) {
     // 서비스 요청 ID 생성
     const requestId = uuidv4()
 
+    // 계좌이체만 save-temp 사용 (카드결제는 결제 성공 후 confirm API에서 직접 생성)
+    if (body.payment_method !== 'BANK_TRANSFER') {
+      return NextResponse.json(
+        { ok: false, error: '카드결제는 이 API를 사용하지 않습니다.' },
+        { status: 400 }
+      )
+    }
+    const status = 'PENDING_TRANSFER'
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const requestsTable = serviceClient.from('service_requests') as any
 
@@ -88,7 +98,7 @@ export async function POST(request: NextRequest) {
       lat: body.lat || null,
       lng: body.lng || null,
       details: body.details || null,
-      status: 'PENDING_PAYMENT',
+      status,
       estimated_price: estimatedPrice,
       manager_id: body.designated_manager_id || null,
     })
@@ -101,10 +111,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // 계좌이체 결제 대기 레코드 생성
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const paymentsTable = serviceClient.from('payments') as any
+    await paymentsTable.insert({
+      service_request_id: requestId,
+      order_id: requestId,
+      amount: estimatedPrice,
+      refund_amount: 0,
+      status: 'PENDING',
+      method: '계좌이체',
+    })
+
     return NextResponse.json({
       ok: true,
       request_id: requestId,
       estimated_price: estimatedPrice,
+      payment_method: body.payment_method || 'CARD',
     })
   } catch (error) {
     console.error('Save temp error:', error)

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!['CONFIRMED', 'MATCHING'].includes(serviceRequest.status)) {
+    if (serviceRequest.status !== 'CONFIRMED') {
       return NextResponse.json(
         { error: '이 요청은 더 이상 지원할 수 없습니다.' },
         { status: 400 }

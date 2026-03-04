@@ -99,7 +99,7 @@ export default function BookingsContent({ isLoggedIn, memberRequests }: Bookings
     return (
       <div className="space-y-4">
         {requests.map((request) => {
-          const status = STATUS_DISPLAY[request.status] || STATUS_DISPLAY.PENDING
+          const status = STATUS_DISPLAY[request.status] || STATUS_DISPLAY.CONFIRMED
           const serviceLabel = SERVICE_LABELS[request.service_type] || request.service_type
           const formattedDate = format(new Date(request.service_date), 'yyyy년 M월 d일 (EEE)', { locale: ko })
           const durationHours = Math.floor(request.duration_minutes / 60)

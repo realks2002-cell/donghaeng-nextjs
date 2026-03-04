@@ -152,14 +152,14 @@ export default function AdminManagerApplicationsPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">지원일시</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">매니저</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">예약일시</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">고객</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">금액</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">처리</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">지원일시</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">매니저</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">서비스</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">예약일시</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">고객</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">금액</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">상태</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">처리</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">

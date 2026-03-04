@@ -14,7 +14,7 @@ type NavigationProp = NativeStackNavigationProp<BookingStackParamList>;
 
 const filterTabs: { label: string; statuses: RequestStatus[] | null }[] = [
   { label: '전체', statuses: null },
-  { label: '진행중', statuses: ['PENDING', 'PENDING_PAYMENT', 'CONFIRMED', 'MATCHING', 'MATCHED', 'IN_PROGRESS'] },
+  { label: '진행중', statuses: ['PENDING_TRANSFER', 'CONFIRMED', 'MATCHED'] },
   { label: '완료', statuses: ['COMPLETED'] },
   { label: '취소', statuses: ['CANCELLED'] },
 ];

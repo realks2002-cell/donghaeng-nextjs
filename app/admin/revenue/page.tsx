@@ -214,13 +214,13 @@ export default function AdminRevenuePage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                       {viewMode === 'daily' ? '날짜' : '월'}
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">건수</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">결제 금액</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">환불 금액</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">순매출</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">건수</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">결제 금액</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">환불 금액</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">순매출</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">

@@ -8,12 +8,9 @@ export type ServiceType =
   | 'other';
 
 export type RequestStatus =
-  | 'PENDING'
-  | 'PENDING_PAYMENT'
+  | 'PENDING_TRANSFER'
   | 'CONFIRMED'
-  | 'MATCHING'
   | 'MATCHED'
-  | 'IN_PROGRESS'
   | 'COMPLETED'
   | 'CANCELLED';
 
@@ -42,14 +39,11 @@ export const SERVICE_TYPE_KEYS: Record<string, ServiceType> = {
 };
 
 export const STATUS_DISPLAY: Record<RequestStatus, { label: string; color: string; emoji: string }> = {
-  PENDING: { label: '접수대기', color: '#6B7280', emoji: '⏳' },
-  PENDING_PAYMENT: { label: '결제대기', color: '#F59E0B', emoji: '💳' },
-  CONFIRMED: { label: '접수완료', color: '#3B82F6', emoji: '✅' },
-  MATCHING: { label: '매칭중', color: '#8B5CF6', emoji: '🔄' },
+  PENDING_TRANSFER: { label: '입금대기', color: '#D97706', emoji: '🏦' },
+  CONFIRMED: { label: '매칭중', color: '#3B82F6', emoji: '✅' },
   MATCHED: { label: '매칭완료', color: '#10B981', emoji: '✅' },
-  IN_PROGRESS: { label: '서비스 중', color: '#F97316', emoji: '🔵' },
   COMPLETED: { label: '서비스 완료', color: '#059669', emoji: '✅' },
-  CANCELLED: { label: '취소됨', color: '#EF4444', emoji: '❌' },
+  CANCELLED: { label: '취소', color: '#EF4444', emoji: '❌' },
 };
 
 export interface ServiceRequestFormData {
@@ -154,6 +148,7 @@ export type HomeStackParamList = {
   Confirm: undefined;
   PaymentWebView: { orderId: string; amount: number; orderName: string; requestId: string };
   Completion: { orderId: string; amount: number };
+  BankTransferCompletion: { orderId: string; amount: number };
 };
 
 export type BookingStackParamList = {

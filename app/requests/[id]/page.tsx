@@ -77,7 +77,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const status = STATUS_DISPLAY[request.status] || STATUS_DISPLAY.PENDING
+  const status = STATUS_DISPLAY[request.status] || STATUS_DISPLAY.CONFIRMED
   const serviceLabel = SERVICE_LABELS[request.service_type] || request.service_type
   const formattedDate = format(new Date(request.service_date), 'yyyy년 M월 d일 (EEEE)', { locale: ko })
   const durationHours = Math.floor(request.duration_minutes / 60)
@@ -179,7 +179,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
         )}
 
         {/* 취소 버튼 */}
-        {(['PENDING', 'CONFIRMED', 'MATCHING', 'MATCHED'].includes(request.status)) && (
+        {(['CONFIRMED', 'MATCHED', 'PENDING_TRANSFER'].includes(request.status)) && (
           <div className="text-center">
             <CancelRequestButton requestId={request.id} />
           </div>

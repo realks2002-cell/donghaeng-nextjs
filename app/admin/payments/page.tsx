@@ -156,15 +156,15 @@ export default function AdminPaymentsPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">요청자</th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">결제일시</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">주문번호</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">결제금액</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">환불금액</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">결제수단</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">환불처리</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">서비스</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">요청자</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">결제일시</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">주문번호</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">결제금액</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">환불금액</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">결제수단</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">상태</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">환불처리</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">

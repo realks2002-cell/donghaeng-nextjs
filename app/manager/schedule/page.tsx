@@ -50,16 +50,15 @@ export default function SchedulePage() {
     setLoading(false)
   }
 
-  const handleServiceAction = async (recordId: string, action: 'start' | 'complete') => {
-    const label = action === 'start' ? '서비스를 시작' : '서비스를 완료'
-    if (!confirm(`${label}하시겠습니까?`)) return
+  const handleServiceAction = async (recordId: string) => {
+    if (!confirm('서비스를 완료하시겠습니까?')) return
 
     setProcessingId(recordId)
     try {
       const res = await fetch(`/api/manager/service/${recordId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action: 'complete' }),
       })
       const result = await res.json()
       if (result.success) {
@@ -78,9 +77,7 @@ export default function SchedulePage() {
     switch (status) {
       case 'COMPLETED':
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">완료</span>
-      case 'IN_PROGRESS':
-        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">진행중</span>
-      case 'UPCOMING':
+      case 'MATCHED':
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">예정</span>
       default:
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">{status}</span>
@@ -88,21 +85,10 @@ export default function SchedulePage() {
   }
 
   const getActionButton = (record: WorkRecord) => {
-    if (record.status === 'MATCHED' || record.status === 'UPCOMING') {
+    if (record.status === 'MATCHED') {
       return (
         <button
-          onClick={() => handleServiceAction(record.id, 'start')}
-          disabled={processingId === record.id}
-          className="min-h-[32px] px-3 text-xs font-bold bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-        >
-          {processingId === record.id ? '처리중...' : '서비스 시작'}
-        </button>
-      )
-    }
-    if (record.status === 'IN_PROGRESS') {
-      return (
-        <button
-          onClick={() => handleServiceAction(record.id, 'complete')}
+          onClick={() => handleServiceAction(record.id)}
           disabled={processingId === record.id}
           className="min-h-[32px] px-3 text-xs font-bold bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50"
         >
@@ -178,14 +164,14 @@ export default function SchedulePage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">근무일시</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">고객</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">위치</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">소요시간</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">금액</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">액션</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">근무일시</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">서비스</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">고객</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">위치</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">소요시간</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">금액</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">상태</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">액션</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">

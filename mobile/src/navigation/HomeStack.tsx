@@ -14,6 +14,7 @@ import { DetailsScreen } from '../screens/request/DetailsScreen';
 import { ConfirmScreen } from '../screens/request/ConfirmScreen';
 import { PaymentWebViewScreen } from '../screens/request/PaymentWebViewScreen';
 import { CompletionScreen } from '../screens/request/CompletionScreen';
+import { BankTransferCompletionScreen } from '../screens/request/BankTransferCompletionScreen';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -64,6 +65,11 @@ function RequestWizardScreens() {
         name="Completion"
         component={CompletionScreen}
         options={{ title: '신청 완료', headerLeft: () => null, gestureEnabled: false }}
+      />
+      <Stack.Screen
+        name="BankTransferCompletion"
+        component={BankTransferCompletionScreen}
+        options={{ title: '신청 접수', headerLeft: () => null, gestureEnabled: false }}
       />
     </>
   );

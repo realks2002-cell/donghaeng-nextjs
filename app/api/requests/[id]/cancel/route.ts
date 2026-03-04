@@ -31,9 +31,9 @@ export async function PATCH(
       )
     }
 
-    if (serviceRequest.status === 'IN_PROGRESS' || serviceRequest.status === 'COMPLETED') {
+    if (serviceRequest.status === 'COMPLETED') {
       return NextResponse.json(
-        { success: false, message: '진행 중이거나 완료된 요청은 취소할 수 없습니다.' },
+        { success: false, message: '완료된 요청은 취소할 수 없습니다.' },
         { status: 400 }
       )
     }

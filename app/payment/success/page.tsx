@@ -40,6 +40,10 @@ function PaymentSuccessContent() {
       }
 
       try {
+        // sessionStorage에서 폼 데이터 읽기
+        const formDataStr = sessionStorage.getItem('service_request_form_data')
+        const formData = formDataStr ? JSON.parse(formDataStr) : null
+
         const response = await fetch('/api/payments/confirm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -47,6 +51,7 @@ function PaymentSuccessContent() {
             paymentKey,
             orderId,
             amount: parseInt(amount, 10),
+            formData,
           }),
         })
 

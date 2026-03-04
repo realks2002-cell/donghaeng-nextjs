@@ -1,11 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { getCustomerFromRequest } from '@/lib/auth/customer'
 import { sendPushToAllManagers } from '@/lib/services/push-notification'
+import { SERVICE_PRICES, ServiceType } from '@/lib/constants/pricing'
 
 interface TossPaymentConfirmRequest {
   paymentKey: string
   orderId: string
   amount: number
+  formData?: {
+    service_type: string
+    service_date: string
+    start_time: string
+    duration_hours: number
+    address: string
+    address_detail?: string
+    phone: string
+    lat?: number
+    lng?: number
+    details?: string
+    designated_manager_id?: string
+    guest_name?: string
+    guest_phone?: string
+    guest_address?: string
+    guest_address_detail?: string
+  }
 }
 
 interface TossPaymentResponse {
@@ -31,11 +50,18 @@ interface TossPaymentResponse {
 export async function POST(request: NextRequest) {
   try {
     const body: TossPaymentConfirmRequest = await request.json()
-    const { paymentKey, orderId, amount } = body
+    const { paymentKey, orderId, amount, formData } = body
 
     if (!paymentKey || !orderId || !amount) {
       return NextResponse.json(
         { ok: false, error: '필수 결제 정보가 누락되었습니다.' },
+        { status: 400 }
+      )
+    }
+
+    if (!formData || !formData.service_type || !formData.service_date || !formData.start_time || !formData.duration_hours) {
+      return NextResponse.json(
+        { ok: false, error: '서비스 요청 정보가 누락되었습니다.' },
         { status: 400 }
       )
     }
@@ -48,44 +74,39 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // DB에서 서비스 요청 조회하여 금액 검증 및 상태 확인
-    const supabase = createServiceClient()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const requestsTable = supabase.from('service_requests') as any
-    const { data: serviceRequest, error: fetchError } = await requestsTable
-      .select('status, estimated_price')
-      .eq('id', orderId)
-      .single()
+    // 서비스 가격 계산 및 금액 검증
+    const serviceType = formData.service_type as ServiceType
+    const pricePerHour = SERVICE_PRICES[serviceType] ?? 20000
+    const estimatedPrice = pricePerHour * formData.duration_hours
 
-    if (fetchError || !serviceRequest) {
-      return NextResponse.json(
-        { ok: false, error: '서비스 요청을 찾을 수 없습니다.' },
-        { status: 404 }
-      )
-    }
-
-    // 이미 결제된 주문 중복 처리 방지
-    if (serviceRequest.status === 'CONFIRMED') {
-      return NextResponse.json(
-        { ok: false, error: '이미 결제가 완료된 주문입니다.' },
-        { status: 409 }
-      )
-    }
-
-    // 결제 대기 상태인지 확인
-    if (serviceRequest.status !== 'PENDING_PAYMENT') {
-      return NextResponse.json(
-        { ok: false, error: `결제할 수 없는 상태입니다. (현재: ${serviceRequest.status})` },
-        { status: 400 }
-      )
-    }
-
-    // 결제 금액과 DB 예상 금액 일치 확인
-    if (serviceRequest.estimated_price !== amount) {
-      console.error('Amount mismatch:', { expected: serviceRequest.estimated_price, received: amount })
+    if (estimatedPrice !== amount) {
+      console.error('Amount mismatch:', { expected: estimatedPrice, received: amount })
       return NextResponse.json(
         { ok: false, error: '결제 금액이 일치하지 않습니다.' },
         { status: 400 }
+      )
+    }
+
+    const supabase = createServiceClient()
+
+    // 중복 처리 방지: 같은 orderId로 이미 생성된 요청이 있는지 확인
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requestsTable = supabase.from('service_requests') as any
+    const { data: existingRequest } = await requestsTable
+      .select('id, status')
+      .eq('id', orderId)
+      .single()
+
+    if (existingRequest) {
+      if (existingRequest.status === 'CONFIRMED') {
+        return NextResponse.json(
+          { ok: false, error: '이미 결제가 완료된 주문입니다.' },
+          { status: 409 }
+        )
+      }
+      return NextResponse.json(
+        { ok: false, error: '이미 처리된 주문입니다.' },
+        { status: 409 }
       )
     }
 
@@ -116,6 +137,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // 현재 로그인한 사용자 확인
+    const customer = await getCustomerFromRequest()
+    const customerId: string | null = customer?.userId || null
+
+    const address = formData.address || formData.guest_address || ''
+    const addressDetail = formData.address_detail || formData.guest_address_detail || ''
+    const phone = formData.phone || formData.guest_phone || ''
+    const durationMinutes = formData.duration_hours * 60
+
+    // 서비스 요청 INSERT (바로 CONFIRMED 상태)
+    const { error: insertError } = await requestsTable.insert({
+      id: orderId,
+      customer_id: customerId,
+      guest_name: formData.guest_name || null,
+      guest_phone: formData.guest_phone || null,
+      service_type: formData.service_type,
+      service_date: formData.service_date,
+      start_time: formData.start_time,
+      duration_minutes: durationMinutes,
+      address: address,
+      address_detail: addressDetail || null,
+      phone: phone,
+      lat: formData.lat || null,
+      lng: formData.lng || null,
+      details: formData.details || null,
+      status: 'CONFIRMED',
+      estimated_price: estimatedPrice,
+      manager_id: formData.designated_manager_id || null,
+      confirmed_at: new Date().toISOString(),
+    })
+
+    if (insertError) {
+      console.error('Service request insert error:', insertError)
+      return NextResponse.json(
+        { ok: false, error: '서비스 요청 저장에 실패했습니다. 결제는 승인되었으니 고객센터에 문의해주세요.' },
+        { status: 500 }
+      )
+    }
+
     // 결제 레코드 생성
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const paymentsTable = supabase.from('payments') as any
@@ -131,19 +191,6 @@ export async function POST(request: NextRequest) {
 
     if (paymentError) {
       console.error('Payment insert error:', paymentError)
-      // 결제는 성공했지만 DB 저장 실패 - 로깅만 하고 진행
-    }
-
-    // 서비스 요청 상태 업데이트
-    const { error: updateError } = await requestsTable
-      .update({
-        status: 'CONFIRMED',
-        confirmed_at: new Date().toISOString(),
-      })
-      .eq('id', orderId)
-
-    if (updateError) {
-      console.error('Request update error:', updateError)
     }
 
     // 푸시 알림 발송 (await 필수 - Vercel Serverless는 응답 후 즉시 종료됨)

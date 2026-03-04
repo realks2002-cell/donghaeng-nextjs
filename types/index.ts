@@ -36,19 +36,17 @@ export const SERVICE_TYPES: Record<ServiceType, { label: string; description: st
 
 // 서비스 요청 상태
 export type RequestStatus =
-  | 'PENDING'      // 대기중
-  | 'MATCHING'     // 매칭중
-  | 'CONFIRMED'    // 확정
-  | 'IN_PROGRESS'  // 진행중
-  | 'COMPLETED'    // 완료
-  | 'CANCELLED'    // 취소
+  | 'PENDING_TRANSFER' // 입금대기 (계좌이체)
+  | 'CONFIRMED'        // 매칭중 (결제완료)
+  | 'MATCHED'          // 매칭완료
+  | 'COMPLETED'        // 서비스 완료
+  | 'CANCELLED'        // 취소
 
 export const REQUEST_STATUS: Record<RequestStatus, { label: string; color: string }> = {
-  PENDING: { label: '대기중', color: 'bg-gray-100 text-gray-800' },
-  MATCHING: { label: '매칭중', color: 'bg-blue-100 text-blue-800' },
-  CONFIRMED: { label: '확정', color: 'bg-green-100 text-green-800' },
-  IN_PROGRESS: { label: '진행중', color: 'bg-yellow-100 text-yellow-800' },
-  COMPLETED: { label: '완료', color: 'bg-gray-100 text-gray-800' },
+  PENDING_TRANSFER: { label: '입금대기', color: 'bg-amber-100 text-amber-800' },
+  CONFIRMED: { label: '매칭중', color: 'bg-blue-100 text-blue-800' },
+  MATCHED: { label: '매칭완료', color: 'bg-indigo-100 text-indigo-800' },
+  COMPLETED: { label: '서비스 완료', color: 'bg-green-100 text-green-800' },
   CANCELLED: { label: '취소', color: 'bg-red-100 text-red-800' },
 }
 

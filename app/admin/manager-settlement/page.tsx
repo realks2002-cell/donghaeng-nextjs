@@ -152,14 +152,14 @@ export default function ManagerSettlementPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">매니저명</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">연락처</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">서비스 건수</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">총 결제액</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">환불액</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">수수료</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">정산액</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">은행정보</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">매니저명</th>
+                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">연락처</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">서비스 건수</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">총 결제액</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">환불액</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">수수료</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">정산액</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">은행정보</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">

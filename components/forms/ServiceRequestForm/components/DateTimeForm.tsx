@@ -53,7 +53,7 @@ export default function DateTimeForm() {
             value={formData.serviceDate}
             onChange={(e) => updateFormData({ serviceDate: e.target.value })}
             min={minDate}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 h-[48px] focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
 
@@ -65,7 +65,7 @@ export default function DateTimeForm() {
             id="start_time"
             value={formData.startTime}
             onChange={(e) => updateFormData({ startTime: e.target.value })}
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="mt-1 block w-full rounded-lg border border-gray-300 px-4 h-[48px] focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">선택</option>
             {TIME_OPTIONS.map((time) => (

@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!['CONFIRMED', 'MATCHING'].includes(serviceRequest.status)) {
+    if (serviceRequest.status !== 'CONFIRMED') {
       return NextResponse.json(
         { success: false, message: `현재 상태(${serviceRequest.status})에서는 수동 매칭이 불가합니다.` },
         { status: 400 }

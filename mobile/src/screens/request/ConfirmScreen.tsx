@@ -12,6 +12,7 @@ import { serviceApi } from '../../api/client';
 import { Button } from '../../components/Button';
 import { Divider } from '../../components/Divider';
 import { StepIndicator } from '../../components/StepIndicator';
+import { BANK_ACCOUNT_INFO } from '../../constants/bank-account';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'Confirm'>;
 
@@ -19,6 +20,7 @@ export function ConfirmScreen({ navigation }: Props) {
   const { formData, updateFormData } = useServiceRequest();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card');
 
   const serviceInfo = formData.serviceType ? SERVICE_TYPES[formData.serviceType] : null;
   const totalPrice = formData.serviceType
@@ -47,16 +49,24 @@ export function ConfirmScreen({ navigation }: Props) {
         details: formData.details,
         estimated_price: totalPrice,
         phone: formData.guestPhone,
+        payment_method: paymentMethod === 'card' ? 'CARD' : 'BANK_TRANSFER',
       };
 
       const result = await serviceApi.saveTempRequest(requestData);
 
-      navigation.navigate('PaymentWebView', {
-        orderId: result.orderId,
-        amount: totalPrice,
-        orderName: serviceInfo?.label || '돌봄 서비스',
-        requestId: result.id,
-      });
+      if (paymentMethod === 'card') {
+        navigation.navigate('PaymentWebView', {
+          orderId: result.orderId,
+          amount: totalPrice,
+          orderName: serviceInfo?.label || '돌봄 서비스',
+          requestId: result.id,
+        });
+      } else {
+        navigation.navigate('BankTransferCompletion', {
+          orderId: result.orderId || result.id,
+          amount: totalPrice,
+        });
+      }
     } catch (error) {
       Alert.alert('오류', '요청 저장에 실패했습니다. 다시 시도해주세요.');
     } finally {
@@ -107,6 +117,60 @@ export function ConfirmScreen({ navigation }: Props) {
 
         <Divider />
 
+        {/* Payment Method Selection */}
+        <Text style={styles.sectionTitle}>결제 방법</Text>
+        <View style={styles.paymentMethodBlock}>
+          <TouchableOpacity
+            style={[styles.paymentOption, paymentMethod === 'card' && styles.paymentOptionSelected]}
+            onPress={() => setPaymentMethod('card')}
+          >
+            <Text style={styles.paymentOptionEmoji}>💳</Text>
+            <Text style={[styles.paymentOptionText, paymentMethod === 'card' && styles.paymentOptionTextSelected]}>
+              카드결제
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.paymentOption, paymentMethod === 'bank_transfer' && styles.paymentOptionSelected]}
+            onPress={() => setPaymentMethod('bank_transfer')}
+          >
+            <Text style={styles.paymentOptionEmoji}>🏦</Text>
+            <Text style={[styles.paymentOptionText, paymentMethod === 'bank_transfer' && styles.paymentOptionTextSelected]}>
+              계좌이체
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Bank Account Info (only when bank_transfer selected) */}
+        {paymentMethod === 'bank_transfer' && (
+          <View style={styles.bankInfoCard}>
+            <Text style={styles.bankInfoTitle}>입금 계좌 안내</Text>
+            <View style={styles.bankInfoRow}>
+              <Text style={styles.bankInfoLabel}>은행</Text>
+              <Text style={styles.bankInfoValue}>{BANK_ACCOUNT_INFO.bankName}</Text>
+            </View>
+            <View style={styles.bankInfoRow}>
+              <Text style={styles.bankInfoLabel}>계좌번호</Text>
+              <Text style={styles.bankInfoValue}>{BANK_ACCOUNT_INFO.accountNumber}</Text>
+            </View>
+            <View style={styles.bankInfoRow}>
+              <Text style={styles.bankInfoLabel}>예금주</Text>
+              <Text style={styles.bankInfoValue}>{BANK_ACCOUNT_INFO.accountHolder}</Text>
+            </View>
+            <View style={[styles.bankInfoRow, styles.bankInfoAmountRow]}>
+              <Text style={styles.bankInfoAmountLabel}>입금금액</Text>
+              <Text style={styles.bankInfoAmountValue}>{formatPrice(totalPrice)}</Text>
+            </View>
+            <Text style={styles.bankInfoNotice}>
+              ※ 입금 확인 후 서비스 요청이 접수됩니다.
+            </Text>
+            <Text style={styles.bankInfoNotice}>
+              ※ 입금자명은 신청자 이름과 동일하게 입금해주세요.
+            </Text>
+          </View>
+        )}
+
+        <Divider />
+
         {/* Terms */}
         <TouchableOpacity
           style={styles.checkbox}
@@ -131,7 +195,7 @@ export function ConfirmScreen({ navigation }: Props) {
 
       <View style={styles.footer}>
         <Button
-          title="결제하기 →"
+          title={paymentMethod === 'card' ? '결제하기 →' : '계좌이체 신청 →'}
           onPress={handlePayment}
           loading={loading}
           disabled={!formData.confirmTerms || !formData.cancelTerms}
@@ -200,6 +264,88 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xxl,
     fontWeight: '700',
     color: Colors.primary,
+  },
+  paymentMethodBlock: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  paymentOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    minHeight: 44,
+  },
+  paymentOptionSelected: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primaryLight || '#EBF5FF',
+  },
+  paymentOptionEmoji: {
+    fontSize: 20,
+  },
+  paymentOptionText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+  paymentOptionTextSelected: {
+    color: Colors.primary,
+  },
+  bankInfoCard: {
+    backgroundColor: '#FFFBEB',
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    gap: Spacing.sm,
+  },
+  bankInfoTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    color: '#92400E',
+    marginBottom: Spacing.xs,
+  },
+  bankInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  bankInfoLabel: {
+    fontSize: FontSize.sm,
+    color: '#B45309',
+  },
+  bankInfoValue: {
+    fontSize: FontSize.sm,
+    color: '#78350F',
+    fontWeight: '500',
+  },
+  bankInfoAmountRow: {
+    borderTopWidth: 1,
+    borderTopColor: '#FDE68A',
+    paddingTop: Spacing.sm,
+    marginTop: Spacing.xs,
+  },
+  bankInfoAmountLabel: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    color: '#92400E',
+  },
+  bankInfoAmountValue: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    color: '#78350F',
+  },
+  bankInfoNotice: {
+    fontSize: FontSize.xs,
+    color: '#B45309',
   },
   checkbox: {
     flexDirection: 'row',
