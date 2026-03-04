@@ -39,6 +39,11 @@ export default function DetailsForm() {
         <p className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
           매니저에게 도움이 되는 정보를 자세히 적어주세요. 예: 환자 상태, 준비물, 특별한 요청사항 등
         </p>
+        <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
+          행복안심동행은 차량 서비스를 제공하고 있지 않습니다.
+          서비스 이동 시 택시 등을 포함한 대중교통을 이용하고 있으며 비용은 고객님 부담입니다.
+          개인적으로 교통수단(개인차량, 요양원 차량, 사설 구급차 등)이 필요한 경우 매니저와 협의 부탁드립니다.
+        </p>
       </div>
 
       <div className="mt-6 flex justify-between">
