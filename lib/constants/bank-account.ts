@@ -1,6 +1,5 @@
-// 계좌이체 입금 계좌 정보 (TODO: 실제 계좌 정보로 변경 필요)
 export const BANK_ACCOUNT_INFO = {
-  bankName: 'OO은행',
-  accountNumber: '000-000000-00000',
-  accountHolder: '행복안심동행',
+  bankName: '농협',
+  accountNumber: '352-2174-7755-73',
+  accountHolder: '임채계 (한국직업능력평생교육원)',
 }
