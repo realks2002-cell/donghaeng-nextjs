@@ -1,23 +1,21 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { subscribePush, unsubscribePush, saveSubscription, urlBase64ToUint8Array } from '@/lib/push-utils'
+import { subscribePush, unsubscribePush, saveSubscription } from '@/lib/push-utils'
 
 export type PushStatus = 'loading' | 'unsupported' | 'prompt' | 'denied' | 'subscribed'
-
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
 
 export function usePushNotification() {
   const [subscription, setSubscription] = useState<PushSubscription | null>(null)
   const [isSupported, setIsSupported] = useState(false)
+  const [subscribeFailed, setSubscribeFailed] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const supported =
       typeof window !== 'undefined' &&
       'serviceWorker' in navigator &&
-      'PushManager' in window &&
-      'Notification' in window
+      'PushManager' in window
 
     setIsSupported(supported)
 
@@ -33,23 +31,10 @@ export function usePushNotification() {
 
         if (existingSub) {
           // Re-save to server to keep DB in sync
-          await saveSubscription(existingSub)
+          await saveSubscription(existingSub).catch(() => {})
           setSubscription(existingSub)
-        } else if (Notification.permission === 'granted' && VAPID_PUBLIC_KEY) {
-          // Permission granted from previous session but no subscription — auto-resubscribe
-          try {
-            const newSub = await registration.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
-            })
-            const saved = await saveSubscription(newSub)
-            if (saved) {
-              setSubscription(newSub)
-            }
-          } catch {
-            // Failed to auto-resubscribe, user can retry manually
-          }
         }
+        // No existing subscription → show prompt banner (user clicks to subscribe)
       } catch {
         // SW not ready or other error
       } finally {
@@ -62,9 +47,15 @@ export function usePushNotification() {
 
   const subscribe = useCallback(async () => {
     setLoading(true)
+    setSubscribeFailed(false)
     try {
       const sub = await subscribePush()
-      setSubscription(sub)
+      if (sub) {
+        setSubscription(sub)
+      } else {
+        // subscribePush returned null → user denied or error
+        setSubscribeFailed(true)
+      }
       return sub
     } finally {
       setLoading(false)
@@ -78,6 +69,7 @@ export function usePushNotification() {
       const ok = await unsubscribePush(subscription)
       if (ok) {
         setSubscription(null)
+        setSubscribeFailed(false)
       }
       return ok
     } finally {
@@ -85,7 +77,6 @@ export function usePushNotification() {
     }
   }, [subscription])
 
-  // retry is same as subscribe — calls requestPermission again
   const retry = subscribe
 
   let status: PushStatus
@@ -95,7 +86,7 @@ export function usePushNotification() {
     status = 'unsupported'
   } else if (subscription) {
     status = 'subscribed'
-  } else if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+  } else if (subscribeFailed) {
     status = 'denied'
   } else {
     status = 'prompt'

@@ -66,12 +66,13 @@ export async function deleteSubscription(endpoint: string): Promise<boolean> {
 }
 
 /**
- * Full push subscription flow: request permission -> subscribe -> save to server.
+ * Full push subscription flow using Next.js official PWA pattern.
+ * pushManager.subscribe() triggers the browser's native permission prompt.
  * Must be called from a user gesture (click/tap) handler for iOS PWA compatibility.
- * Returns PushSubscription on success, null on failure.
+ * Returns PushSubscription on success, null on failure (including denied).
  */
 export async function subscribePush(): Promise<PushSubscription | null> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     return null
   }
 
@@ -81,23 +82,21 @@ export async function subscribePush(): Promise<PushSubscription | null> {
   }
 
   try {
-    const permission = await Notification.requestPermission()
-    if (permission !== 'granted') {
-      return null
-    }
-
     const registration = await navigator.serviceWorker.ready
     let subscription = await registration.pushManager.getSubscription()
 
     if (!subscription) {
+      // pushManager.subscribe() triggers the browser's native permission prompt.
+      // If user denies, this throws — caught below and returns null.
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
       })
     }
 
-    const saved = await saveSubscription(subscription)
-    return saved ? subscription : null
+    // Best-effort server save — return subscription regardless
+    await saveSubscription(subscription).catch(() => {})
+    return subscription
   } catch (error) {
     console.error('Push subscription failed:', error)
     return null
