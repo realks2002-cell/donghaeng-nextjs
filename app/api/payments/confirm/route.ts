@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getCustomerFromRequest } from '@/lib/auth/customer'
-import { sendPushToAllManagers } from '@/lib/services/push-notification'
 import { DEFAULT_SERVICE_PRICES, SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 
 interface TossPaymentConfirmRequest {
@@ -203,20 +202,6 @@ export async function POST(request: NextRequest) {
 
     if (paymentError) {
       console.error('Payment insert error:', paymentError)
-    }
-
-    // 푸시 알림 발송 (await 필수 - Vercel Serverless는 응답 후 즉시 종료됨)
-    try {
-      const serviceLabel = SERVICE_TYPE_LABELS[formData.service_type as ServiceType] || formData.service_type
-      const priceText = estimatedPrice.toLocaleString('ko-KR')
-      const pushResult = await sendPushToAllManagers({
-        title: '새로운 서비스 요청이 접수되었습니다',
-        body: `${serviceLabel} | ${priceText}원 | ${formData.service_date} ${formData.start_time}`,
-        url: '/manager/dashboard',
-      })
-      console.log('[PUSH] Payment confirm push result:', JSON.stringify(pushResult))
-    } catch (err) {
-      console.error('[PUSH] Payment confirm push error:', err)
     }
 
     return NextResponse.json({

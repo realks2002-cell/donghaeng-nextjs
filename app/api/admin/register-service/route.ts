@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
 import { requireAdminAuth } from '@/lib/auth/admin'
 import { createServiceClient } from '@/lib/supabase/server'
-import { sendPushToAllManagers } from '@/lib/services/push-notification'
 import {
   DEFAULT_SERVICE_PRICES,
-  SERVICE_TYPE_LABELS,
   SERVICE_TYPE_KEYS,
   type ServiceType,
 } from '@/lib/constants/pricing'
@@ -131,19 +129,6 @@ export async function POST(request: Request) {
         { error: '서비스 등록에 실패했습니다.' },
         { status: 500 }
       )
-    }
-
-    // Send push notification to managers
-    try {
-      const serviceLabel = SERVICE_TYPE_LABELS[service_type as ServiceType] || service_type
-      const priceText = estimated_price.toLocaleString('ko-KR')
-      const pushResult = await sendPushToAllManagers({
-        title: '새로운 서비스 요청이 접수되었습니다',
-        body: `${serviceLabel} | ${priceText}원 | ${service_date} ${start_time}`,
-      })
-      console.log('[PUSH] Register service push result:', JSON.stringify(pushResult))
-    } catch (err) {
-      console.error('[PUSH] Register service push error:', err)
     }
 
     return NextResponse.json({
