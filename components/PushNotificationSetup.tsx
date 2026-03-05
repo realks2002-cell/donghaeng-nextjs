@@ -1,32 +1,94 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { usePathname } from 'next/navigation'
-import { resubscribeIfGranted } from '@/lib/push-utils'
+import { useEffect } from 'react'
 
-/**
- * Silent push re-subscription component.
- * Only re-subscribes when permission is already 'granted' (from a previous session).
- * Does NOT call Notification.requestPermission() — that must happen via user gesture
- * in NotificationBanner.
- */
-export default function PushNotificationSetup() {
-  const pathname = usePathname()
-  const subscribedRef = useRef(false)
+const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
 
-  useEffect(() => {
-    if (pathname === '/manager/login' || pathname === '/manager/signup') {
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = window.atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i)
+  }
+  return outputArray
+}
+
+async function subscribeToPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return
+  }
+
+  if (!VAPID_PUBLIC_KEY) {
+    console.warn('VAPID public key not configured')
+    return
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.ready
+
+    // Check existing subscription
+    const existingSubscription = await registration.pushManager.getSubscription()
+    if (existingSubscription) {
+      // Already subscribed, send to server to ensure it's saved
+      await saveSubscription(existingSubscription)
       return
     }
 
-    if (subscribedRef.current) {
+    // Request notification permission
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') {
       return
     }
 
-    resubscribeIfGranted().then((ok) => {
-      if (ok) subscribedRef.current = true
+    // Subscribe to push
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
     })
-  }, [pathname])
+
+    await saveSubscription(subscription)
+  } catch (error) {
+    console.error('Push subscription failed:', error)
+  }
+}
+
+async function saveSubscription(subscription: PushSubscription) {
+  const key = subscription.getKey('p256dh')
+  const auth = subscription.getKey('auth')
+
+  if (!key || !auth) {
+    console.error('Missing subscription keys')
+    return
+  }
+
+  try {
+    const response = await fetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        endpoint: subscription.endpoint,
+        p256dh: btoa(Array.from(new Uint8Array(key), (b) => String.fromCharCode(b)).join('')),
+        auth: btoa(Array.from(new Uint8Array(auth), (b) => String.fromCharCode(b)).join('')),
+      }),
+    })
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => '')
+      console.error(`Failed to save push subscription: ${response.status} ${text}`)
+    } else {
+      console.log('Push subscription saved successfully')
+    }
+  } catch (error) {
+    console.error('Failed to save push subscription:', error)
+  }
+}
+
+export default function PushNotificationSetup() {
+  useEffect(() => {
+    subscribeToPush()
+  }, [])
 
   return null
 }
