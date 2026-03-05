@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { subscribePush, unsubscribePush, saveSubscription } from '@/lib/push-utils'
+import { subscribePush, unsubscribePush, saveSubscription, urlBase64ToUint8Array } from '@/lib/push-utils'
 import type { SubscribeResult } from '@/lib/push-utils'
 
 export type PushStatus = 'loading' | 'unsupported' | 'prompt' | 'denied' | 'subscribed'
@@ -37,16 +37,19 @@ export function usePushNotification() {
           setSubscription(existingSub)
         } else {
           // Check if permission is already denied via PushManager API
-          try {
-            const permState = await registration.pushManager.permissionState({
-              userVisibleOnly: true,
-              applicationServerKey: new Uint8Array(0),
-            })
-            if (permState === 'denied') {
-              setDeniedReason('denied')
+          const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+          if (vapidKey) {
+            try {
+              const permState = await registration.pushManager.permissionState({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(vapidKey).buffer as ArrayBuffer,
+              })
+              if (permState === 'denied') {
+                setDeniedReason('denied')
+              }
+            } catch {
+              // permissionState not supported — ignore
             }
-          } catch {
-            // permissionState not supported or applicationServerKey issue — ignore
           }
         }
       } catch {
