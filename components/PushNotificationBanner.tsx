@@ -28,7 +28,7 @@ export default function PushNotificationBanner() {
   }, [])
 
   async function checkPushState() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    if (!('Notification' in window)) {
       setState('unsupported')
       return
     }
@@ -44,9 +44,28 @@ export default function PushNotificationBanner() {
       return
     }
 
+    // permission이 'default'이면 아직 허용 안 한 상태
+    if (permission === 'default') {
+      setState('not-subscribed')
+      return
+    }
+
+    // permission이 'granted'인 경우, 실제 구독 여부 확인
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setState('unsupported')
+      return
+    }
+
     try {
-      const registration = await navigator.serviceWorker.ready
-      const subscription = await registration.pushManager.getSubscription()
+      const swReady = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)),
+      ])
+      if (!swReady) {
+        setState('not-subscribed')
+        return
+      }
+      const subscription = await swReady.pushManager.getSubscription()
       setState(subscription ? 'subscribed' : 'not-subscribed')
     } catch {
       setState('not-subscribed')
