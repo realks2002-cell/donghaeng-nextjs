@@ -135,9 +135,10 @@ export async function POST(request: Request) {
     // Send push notification to managers
     try {
       const serviceLabel = SERVICE_TYPE_LABELS[service_type as ServiceType] || service_type
+      const priceText = estimated_price.toLocaleString('ko-KR')
       await sendPushToAllManagers({
-        title: '새로운 서비스 요청',
-        body: `${serviceLabel} - ${service_date} ${start_time}`,
+        title: '새로운 서비스 요청이 접수되었습니다',
+        body: `${serviceLabel} | ${priceText}원 | ${service_date} ${start_time}`,
       })
     } catch (err) {
       console.error('Push notification failed:', err)

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminAuth } from '@/lib/auth/admin'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPushToAllManagers } from '@/lib/services/push-notification'
+import { SERVICE_TYPE_LABELS, type ServiceType } from '@/lib/constants/pricing'
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // 서비스 요청 확인
     const { data: request_data, error: fetchError } = await requestsTable
-      .select('id, status')
+      .select('id, status, service_type, service_date, start_time, estimated_price')
       .eq('id', service_request_id)
       .single()
 
@@ -64,9 +65,11 @@ export async function POST(request: NextRequest) {
 
     // 푸시 알림 발송
     try {
+      const serviceLabel = SERVICE_TYPE_LABELS[request_data.service_type as ServiceType] || request_data.service_type
+      const priceText = request_data.estimated_price ? Number(request_data.estimated_price).toLocaleString('ko-KR') : '미정'
       await sendPushToAllManagers({
-        title: '새 서비스 요청',
-        body: '새로운 서비스 요청이 입금 확인되었습니다.',
+        title: '새로운 서비스 요청이 접수되었습니다',
+        body: `${serviceLabel} | ${priceText}원 | ${request_data.service_date} ${request_data.start_time}`,
         url: '/manager/dashboard',
       })
     } catch (pushError) {
