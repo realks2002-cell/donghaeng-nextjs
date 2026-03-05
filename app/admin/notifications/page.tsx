@@ -23,7 +23,7 @@ interface PushStatus {
     vapidConfigured: boolean
   }
   health?: {
-    webPushAvailable: boolean
+    webPushImportable: boolean
     vapidConfigured: boolean
     subscriptionCount: number
   }
@@ -165,13 +165,13 @@ export default function AdminNotificationsPage() {
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="text-sm text-gray-500 mb-1">web-push 모듈</div>
           <div className="flex items-center gap-2">
-            {status?.health?.webPushAvailable ? (
+            {status?.health?.webPushImportable ? (
               <CheckCircle2 className="w-5 h-5 text-green-500" />
             ) : (
               <XCircle className="w-5 h-5 text-red-500" />
             )}
             <span className="font-semibold">
-              {status?.health?.webPushAvailable ? '사용 가능' : '사용 불가'}
+              {status?.health?.webPushImportable ? '사용 가능' : '사용 불가'}
             </span>
           </div>
         </div>

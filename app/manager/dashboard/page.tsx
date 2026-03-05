@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { X } from 'lucide-react'
 import { toast } from 'sonner'
+import PushNotificationBanner from '@/components/PushNotificationBanner'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { formatDate, formatDateTime } from '@/lib/utils/format'
 
@@ -159,6 +160,7 @@ function DashboardContent() {
 
   return (
     <>
+      <PushNotificationBanner />
       {/* 탭 네비게이션 */}
       <div className="mb-6 border-b border-gray-200">
         <nav className="flex gap-1">
