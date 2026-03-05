@@ -146,8 +146,6 @@ function DashboardContent() {
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">매칭완료</span>
       case 'REJECTED':
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">취소됨. 먼저 지원한 매니저가 매칭되었습니다.</span>
-      default:
-        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">{status}</span>
     }
   }
 
