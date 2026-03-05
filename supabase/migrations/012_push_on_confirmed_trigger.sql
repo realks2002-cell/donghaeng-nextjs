@@ -1,6 +1,18 @@
 -- Enable pg_net extension for HTTP requests from PostgreSQL
 CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 
+-- Config table for webhook settings
+CREATE TABLE IF NOT EXISTS app_config (
+  key text PRIMARY KEY,
+  value text NOT NULL
+);
+
+-- Insert webhook config
+INSERT INTO app_config (key, value) VALUES
+  ('webhook_url', 'https://donghaeng77.co.kr'),
+  ('webhook_secret', 'ffa31fe5638874719a9bd53acdd6a7e3b177cc8e614e12670e03b1f621187512')
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
+
 -- Trigger function: notify managers when service_request status becomes CONFIRMED
 CREATE OR REPLACE FUNCTION notify_managers_on_confirmed()
 RETURNS trigger
@@ -14,26 +26,24 @@ DECLARE
 BEGIN
   -- Only fire when status is (or becomes) CONFIRMED
   IF TG_OP = 'INSERT' AND NEW.status = 'CONFIRMED' THEN
-    -- new insert with CONFIRMED status
     NULL;
   ELSIF TG_OP = 'UPDATE' AND NEW.status = 'CONFIRMED' AND OLD.status IS DISTINCT FROM 'CONFIRMED' THEN
-    -- status changed to CONFIRMED
     NULL;
   ELSE
     RETURN NEW;
   END IF;
 
-  -- Load config from Supabase SQL settings
-  webhook_url := current_setting('app.webhook_url', true);
-  webhook_secret := current_setting('app.webhook_secret', true);
+  -- Load config from app_config table
+  SELECT value INTO webhook_url FROM app_config WHERE key = 'webhook_url';
+  SELECT value INTO webhook_secret FROM app_config WHERE key = 'webhook_secret';
 
   IF webhook_url IS NULL OR webhook_url = '' THEN
-    RAISE WARNING '[PUSH TRIGGER] app.webhook_url is not set, skipping webhook';
+    RAISE WARNING '[PUSH TRIGGER] webhook_url is not set, skipping';
     RETURN NEW;
   END IF;
 
   IF webhook_secret IS NULL OR webhook_secret = '' THEN
-    RAISE WARNING '[PUSH TRIGGER] app.webhook_secret is not set, skipping webhook';
+    RAISE WARNING '[PUSH TRIGGER] webhook_secret is not set, skipping';
     RETURN NEW;
   END IF;
 
