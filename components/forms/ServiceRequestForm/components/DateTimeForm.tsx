@@ -4,18 +4,18 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useFormContext } from '../context/FormContext'
 import { TIME_OPTIONS, DURATION_OPTIONS, calculatePrice } from '../types'
-import { SERVICE_TYPES, ServiceType } from '@/lib/constants/pricing'
+import { ServiceType } from '@/lib/constants/pricing'
 
 export default function DateTimeForm() {
   const router = useRouter()
-  const { formData, updateFormData } = useFormContext()
+  const { formData, updateFormData, servicePrices } = useFormContext()
 
   // 최소 날짜: 오늘
   const minDate = new Date().toISOString().split('T')[0]
 
-  const estimatedPrice = calculatePrice(formData.serviceType, formData.durationHours)
+  const estimatedPrice = calculatePrice(formData.serviceType, formData.durationHours, servicePrices)
   const pricePerHour = formData.serviceType
-    ? SERVICE_TYPES[formData.serviceType as ServiceType]?.pricePerHour ?? 0
+    ? servicePrices[formData.serviceType as ServiceType] ?? 0
     : 0
 
   const handleNext = () => {

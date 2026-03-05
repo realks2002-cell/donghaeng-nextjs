@@ -23,7 +23,6 @@ const SERVICE_TYPES: ServiceType[] = [
   'life_companion',
   'elderly_care',
   'child_care',
-  'other',
 ]
 
 function getTodayString() {

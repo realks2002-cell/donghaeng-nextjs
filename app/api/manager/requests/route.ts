@@ -39,6 +39,9 @@ export async function GET() {
       .single()
     const commissionRate = commissionData?.price_per_hour ?? 0
 
+    // 오늘 날짜 (KST 기준)
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })
+
     // Get service requests with CONFIRMED status (available for matching)
     const { data: requests, error } = await supabase
       .from('service_requests')
@@ -59,6 +62,7 @@ export async function GET() {
         created_at
       `)
       .eq('status', 'CONFIRMED')
+      .gte('service_date', today)
       .order('service_date', { ascending: true })
       .order('start_time', { ascending: true }) as { data: ServiceRequestRecord[] | null; error: unknown }
 

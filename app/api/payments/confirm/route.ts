@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getCustomerFromRequest } from '@/lib/auth/customer'
 import { sendPushToAllManagers } from '@/lib/services/push-notification'
-import { SERVICE_PRICES, SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { DEFAULT_SERVICE_PRICES, SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 
 interface TossPaymentConfirmRequest {
   paymentKey: string
@@ -74,9 +74,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 서비스 가격 계산 및 금액 검증
+    const supabase = createServiceClient()
+
+    // 서비스 가격 계산 및 금액 검증 (Supabase에서 동적 가격 로드)
     const serviceType = formData.service_type as ServiceType
-    const pricePerHour = SERVICE_PRICES[serviceType] ?? 20000
+    const koreanLabel = SERVICE_TYPE_LABELS[serviceType]
+    let pricePerHour = DEFAULT_SERVICE_PRICES[serviceType] ?? 20000
+    if (koreanLabel) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: priceData } = await (supabase.from('service_prices') as any)
+        .select('price_per_hour')
+        .eq('service_type', koreanLabel)
+        .eq('is_active', true)
+        .single()
+      if (priceData?.price_per_hour) {
+        pricePerHour = priceData.price_per_hour
+      }
+    }
     const estimatedPrice = pricePerHour * formData.duration_hours
 
     if (estimatedPrice !== amount) {
@@ -86,8 +100,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    const supabase = createServiceClient()
 
     // 중복 처리 방지: 같은 orderId로 이미 생성된 요청이 있는지 확인
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -197,13 +209,14 @@ export async function POST(request: NextRequest) {
     try {
       const serviceLabel = SERVICE_TYPE_LABELS[formData.service_type as ServiceType] || formData.service_type
       const priceText = estimatedPrice.toLocaleString('ko-KR')
-      await sendPushToAllManagers({
+      const pushResult = await sendPushToAllManagers({
         title: '새로운 서비스 요청이 접수되었습니다',
         body: `${serviceLabel} | ${priceText}원 | ${formData.service_date} ${formData.start_time}`,
         url: '/manager/dashboard',
       })
+      console.log('[PUSH] Payment confirm push result:', JSON.stringify(pushResult))
     } catch (err) {
-      console.error('Push notification error:', err)
+      console.error('[PUSH] Payment confirm push error:', err)
     }
 
     return NextResponse.json({

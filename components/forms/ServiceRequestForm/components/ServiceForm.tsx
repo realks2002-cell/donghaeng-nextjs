@@ -4,15 +4,12 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useFormContext } from '../context/FormContext'
 import { SERVICE_TYPES, ServiceType } from '../types'
-import { ServiceType as PricingServiceType, DEFAULT_SERVICE_PRICES } from '@/lib/constants/pricing'
+import { ServiceType as PricingServiceType } from '@/lib/constants/pricing'
 
-interface ServiceFormProps {
-  servicePrices?: Record<PricingServiceType, number>
-}
 
-export default function ServiceForm({ servicePrices = DEFAULT_SERVICE_PRICES }: ServiceFormProps) {
+export default function ServiceForm() {
   const router = useRouter()
-  const { formData, updateFormData } = useFormContext()
+  const { formData, updateFormData, servicePrices } = useFormContext()
 
   const handleSelect = (serviceType: ServiceType) => {
     updateFormData({ serviceType })
@@ -40,11 +37,8 @@ export default function ServiceForm({ servicePrices = DEFAULT_SERVICE_PRICES }: 
             ServiceType,
             { label: string; description: string; pricePerHour: number }
           ][]
-        ).map(([key, { label, description }]) => {
-          // 동적 가격 사용
-          const dynamicPrice =
-            servicePrices[key as PricingServiceType] ||
-            DEFAULT_SERVICE_PRICES[key as PricingServiceType]
+        ).filter(([key]) => key !== 'other').map(([key, { label, description }]) => {
+          const dynamicPrice = servicePrices[key as PricingServiceType]
 
           return (
             <label

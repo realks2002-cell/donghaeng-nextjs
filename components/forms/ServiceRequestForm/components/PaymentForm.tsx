@@ -5,22 +5,20 @@ import { toast } from 'sonner'
 import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk'
 import { useFormContext } from '../context/FormContext'
 import { calculatePrice } from '../types'
-import { SERVICE_TYPES, ServiceType, DEFAULT_SERVICE_PRICES } from '@/lib/constants/pricing'
+import { SERVICE_TYPES, ServiceType } from '@/lib/constants/pricing'
 import { BANK_ACCOUNT_INFO } from '@/lib/constants/bank-account'
 import { CreditCard, Building2 } from 'lucide-react'
 
 interface PaymentFormProps {
   user?: { id: string; name: string; email: string } | null
-  servicePrices?: Record<ServiceType, number>
 }
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || ''
 
 export default function PaymentForm({
   user = null,
-  servicePrices = DEFAULT_SERVICE_PRICES,
 }: PaymentFormProps) {
-  const { formData } = useFormContext()
+  const { formData, servicePrices } = useFormContext()
   const [isProcessing, setIsProcessing] = useState(false)
   const [sdkReady, setSdkReady] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card')
@@ -143,7 +141,7 @@ export default function PaymentForm({
         throw new Error(saveResult.error || '서비스 요청 저장에 실패했습니다.')
       }
 
-      window.location.href = `/payment/transfer-pending?orderId=${saveResult.request_id}&amount=${estimatedPrice}`
+      window.location.href = `/payment/transfer-pending?orderId=${saveResult.request_id}&amount=${saveResult.estimated_price}`
     } catch (error) {
       console.error('Bank transfer error:', error)
       toast.error(error instanceof Error ? error.message : '처리 중 오류가 발생했습니다.')

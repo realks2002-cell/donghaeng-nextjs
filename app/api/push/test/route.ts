@@ -13,15 +13,19 @@ export async function POST(request: NextRequest) {
     const title = body.title || '테스트 알림'
     const message = body.body || '푸시 알림이 정상적으로 동작합니다.'
 
-    await sendPushToAllManagers({
+    const pushResult = await sendPushToAllManagers({
       title,
       body: message,
       url: '/manager/dashboard',
     })
 
-    return NextResponse.json({ ok: true, message: '테스트 푸시 전송 완료' })
+    return NextResponse.json({
+      ok: pushResult.success,
+      message: pushResult.success ? '테스트 푸시 전송 완료' : '푸시 전송 실패',
+      details: pushResult,
+    })
   } catch (error) {
-    console.error('Test push error:', error)
+    console.error('[PUSH] Test push error:', error)
     return NextResponse.json({ error: '푸시 전송에 실패했습니다.' }, { status: 500 })
   }
 }

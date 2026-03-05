@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { ServiceRequestFormData, initialFormData } from '../types'
+import { ServiceType, DEFAULT_SERVICE_PRICES, loadServicePrices } from '@/lib/constants/pricing'
 
 const STORAGE_KEY = 'service_request_form_data'
 
@@ -10,6 +11,7 @@ interface FormContextType {
   updateFormData: (data: Partial<ServiceRequestFormData>) => void
   clearFormData: () => void
   isLoading: boolean
+  servicePrices: Record<ServiceType, number>
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined)
@@ -28,6 +30,12 @@ interface FormProviderProps {
 export function FormProvider({ children, initialUser }: FormProviderProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [formData, setFormData] = useState<ServiceRequestFormData>(initialFormData)
+  const [servicePrices, setServicePrices] = useState<Record<ServiceType, number>>(DEFAULT_SERVICE_PRICES)
+
+  // 0. API에서 서비스 가격 로드
+  useEffect(() => {
+    loadServicePrices().then(setServicePrices)
+  }, [])
 
   // 1. 초기 로드: sessionStorage에서 데이터 복원
   useEffect(() => {
@@ -73,7 +81,7 @@ export function FormProvider({ children, initialUser }: FormProviderProps) {
   }
 
   return (
-    <FormContext.Provider value={{ formData, updateFormData, clearFormData, isLoading }}>
+    <FormContext.Provider value={{ formData, updateFormData, clearFormData, isLoading, servicePrices }}>
       {children}
     </FormContext.Provider>
   )

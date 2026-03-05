@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Bell, BellOff, X } from 'lucide-react'
+import { Bell, BellOff, X, AlertTriangle } from 'lucide-react'
 import { useNotificationStatus } from '@/components/hooks/useNotificationStatus'
 import { subscribePush } from '@/lib/push-utils'
 
@@ -9,15 +9,54 @@ export default function NotificationBanner() {
   const { status, recheckStatus } = useNotificationStatus()
   const [loading, setLoading] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const [serverError, setServerError] = useState(false)
 
   const handleEnable = async () => {
     setLoading(true)
+    setServerError(false)
     try {
-      await subscribePush()
+      const result = await subscribePush()
+      if (result === 'error') {
+        // 브라우저 구독은 됐지만 서버 저장 실패
+        setServerError(true)
+        return
+      }
       await recheckStatus()
     } finally {
       setLoading(false)
     }
+  }
+
+  // Server save failed — show error with retry
+  if (serverError) {
+    return (
+      <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-orange-800">알림 설정에 실패했습니다</p>
+            <p className="mt-1 text-sm text-orange-600">
+              서버에 알림 정보를 저장하지 못했습니다. 다시 시도해 주세요.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleEnable}
+              disabled={loading}
+              className="min-h-[44px] inline-flex items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-50"
+            >
+              {loading ? '재시도 중...' : '다시 시도'}
+            </button>
+            <button
+              onClick={() => { setDismissed(true); setServerError(false) }}
+              className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg text-orange-400 hover:text-orange-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // Already subscribed or dismissed — hide banner

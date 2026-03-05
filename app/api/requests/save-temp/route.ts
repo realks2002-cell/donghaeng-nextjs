@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getCustomerFromRequest } from '@/lib/auth/customer'
 import { v4 as uuidv4 } from 'uuid'
-import { SERVICE_PRICES, ServiceType } from '@/lib/constants/pricing'
+import { DEFAULT_SERVICE_PRICES, SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 
 interface SaveTempRequest {
   service_type: string
@@ -49,9 +49,21 @@ export async function POST(request: NextRequest) {
 
     const customerId: string | null = customer?.userId || null
 
-    // 서비스 가격 계산
+    // 서비스 가격 계산 (Supabase에서 동적 가격 조회, 실패 시 기본값 사용)
     const serviceType = body.service_type as ServiceType
-    const pricePerHour = SERVICE_PRICES[serviceType] ?? 20000
+    const koreanLabel = SERVICE_TYPE_LABELS[serviceType]
+    let pricePerHour = DEFAULT_SERVICE_PRICES[serviceType] ?? 20000
+    if (koreanLabel) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: priceData } = await (serviceClient.from('service_prices') as any)
+        .select('price_per_hour')
+        .eq('service_type', koreanLabel)
+        .eq('is_active', true)
+        .single()
+      if (priceData?.price_per_hour) {
+        pricePerHour = priceData.price_per_hour
+      }
+    }
     const estimatedPrice = pricePerHour * body.duration_hours
     const durationMinutes = body.duration_hours * 60
 

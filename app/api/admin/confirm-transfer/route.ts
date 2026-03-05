@@ -67,13 +67,14 @@ export async function POST(request: NextRequest) {
     try {
       const serviceLabel = SERVICE_TYPE_LABELS[request_data.service_type as ServiceType] || request_data.service_type
       const priceText = request_data.estimated_price ? Number(request_data.estimated_price).toLocaleString('ko-KR') : '미정'
-      await sendPushToAllManagers({
+      const pushResult = await sendPushToAllManagers({
         title: '새로운 서비스 요청이 접수되었습니다',
         body: `${serviceLabel} | ${priceText}원 | ${request_data.service_date} ${request_data.start_time}`,
         url: '/manager/dashboard',
       })
+      console.log('[PUSH] Confirm transfer push result:', JSON.stringify(pushResult))
     } catch (pushError) {
-      console.error('Push notification error:', pushError)
+      console.error('[PUSH] Confirm transfer push error:', pushError)
     }
 
     return NextResponse.json({ success: true })

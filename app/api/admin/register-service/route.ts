@@ -89,6 +89,7 @@ export async function POST(request: Request) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: priceRows } = await (supabase.from('service_prices') as any)
       .select('service_type, price_per_hour')
+      .eq('is_active', true)
 
     if (priceRows) {
       const matched = priceRows.find((row: { service_type: string }) => {
@@ -136,12 +137,13 @@ export async function POST(request: Request) {
     try {
       const serviceLabel = SERVICE_TYPE_LABELS[service_type as ServiceType] || service_type
       const priceText = estimated_price.toLocaleString('ko-KR')
-      await sendPushToAllManagers({
+      const pushResult = await sendPushToAllManagers({
         title: '새로운 서비스 요청이 접수되었습니다',
         body: `${serviceLabel} | ${priceText}원 | ${service_date} ${start_time}`,
       })
+      console.log('[PUSH] Register service push result:', JSON.stringify(pushResult))
     } catch (err) {
-      console.error('Push notification failed:', err)
+      console.error('[PUSH] Register service push error:', err)
     }
 
     return NextResponse.json({
