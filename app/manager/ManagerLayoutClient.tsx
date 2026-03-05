@@ -10,7 +10,12 @@ import {
   Menu,
   X,
   LogOut,
+  Bell,
+  BellOff,
+  BellRing,
 } from 'lucide-react'
+import NotificationBanner from '@/components/NotificationBanner'
+import { useNotificationStatus } from '@/components/hooks/useNotificationStatus'
 
 const menuItems = [
   { href: '/manager/dashboard', label: '서비스 요청', icon: Home },
@@ -22,6 +27,7 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { status: notifStatus } = useNotificationStatus()
 
   // 로그인, 회원가입, 완료 페이지는 레이아웃 없이 렌더링
   if (
@@ -47,6 +53,7 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
 
   const handleLogout = async () => {
     try {
+      localStorage.removeItem('manager_token')
       await fetch('/api/manager/logout', { method: 'POST' })
       router.push('/manager/login')
     } catch (error) {
@@ -89,8 +96,26 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
             })}
           </nav>
 
-          {/* 하단 로그아웃 */}
-          <div className="p-4 border-t border-gray-200">
+          {/* 알림 상태 + 로그아웃 */}
+          <div className="p-4 border-t border-gray-200 space-y-2">
+            <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600">
+              {notifStatus === 'subscribed' ? (
+                <>
+                  <BellRing className="w-4 h-4 text-green-500" />
+                  <span className="text-green-700">알림 켜짐</span>
+                </>
+              ) : notifStatus === 'denied' ? (
+                <>
+                  <BellOff className="w-4 h-4 text-red-500" />
+                  <span className="text-red-600">알림 차단됨</span>
+                </>
+              ) : notifStatus !== 'unsupported' ? (
+                <>
+                  <Bell className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-500">알림 꺼짐</span>
+                </>
+              ) : null}
+            </div>
             <button
               onClick={handleLogout}
               className="min-h-[44px] inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
@@ -108,13 +133,28 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
         <header className="sticky top-0 z-30 md:hidden bg-white border-b border-gray-200 px-4 py-3">
           <div className="flex items-center justify-between">
             <span className="text-lg font-bold text-primary">행복안심동행 매니저</span>
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            <div className="flex items-center gap-1">
+              {notifStatus === 'subscribed' ? (
+                <span className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center">
+                  <BellRing className="w-5 h-5 text-green-500" />
+                </span>
+              ) : notifStatus === 'denied' ? (
+                <span className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center">
+                  <BellOff className="w-5 h-5 text-red-500" />
+                </span>
+              ) : notifStatus !== 'unsupported' ? (
+                <span className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center">
+                  <Bell className="w-5 h-5 text-gray-400" />
+                </span>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </header>
 
@@ -155,6 +195,7 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
 
         {/* 콘텐츠 영역 */}
         <main className="flex-1 p-4 md:p-8 bg-gray-50 relative z-0">
+          <NotificationBanner />
           {children}
         </main>
       </div>

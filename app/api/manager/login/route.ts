@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
         name: manager.name,
         phone: manager.phone,
       },
+      token,
     })
   } catch (error) {
     console.error('Login error:', error)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -14,6 +14,40 @@ export default function ManagerLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [recovering, setRecovering] = useState(true)
+
+  // PWA 세션 복구: localStorage에 저장된 토큰으로 쿠키 복원
+  useEffect(() => {
+    const recoverSession = async () => {
+      const savedToken = localStorage.getItem('manager_token')
+      if (!savedToken) {
+        setRecovering(false)
+        return
+      }
+
+      try {
+        const res = await fetch('/api/manager/recover-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: savedToken }),
+        })
+
+        if (res.ok) {
+          router.replace('/manager/dashboard')
+          return
+        }
+
+        // 복구 실패 시 만료된 토큰 삭제
+        localStorage.removeItem('manager_token')
+      } catch {
+        localStorage.removeItem('manager_token')
+      }
+
+      setRecovering(false)
+    }
+
+    recoverSession()
+  }, [router])
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(formatKoreanPhone(e.target.value))
@@ -45,12 +79,22 @@ export default function ManagerLoginPage() {
         return
       }
 
+      // PWA 세션 유지를 위해 localStorage에 토큰 백업
+      if (data.token) {
+        localStorage.setItem('manager_token', data.token)
+      }
+
       router.push('/manager/dashboard')
     } catch (err) {
       console.error('Login error:', err)
       setError('로그인 중 오류가 발생했습니다.')
       setLoading(false)
     }
+  }
+
+  // 세션 복구 중에는 빈 화면 (깜빡임 방지)
+  if (recovering) {
+    return <div className="min-h-screen bg-gray-50" />
   }
 
   return (
