@@ -19,6 +19,7 @@ import {
   MapPin,
   Handshake,
   Settings,
+  Bell,
   Menu,
   X,
   LogOut,
@@ -39,6 +40,7 @@ const menuItems = [
   { href: '/admin/service-prices', label: '서비스 가격 설정', icon: DollarSign },
   { href: '/admin/branches', label: '지점 관리', icon: MapPin },
   { href: '/admin/agency-applications', label: '대리점 신청', icon: Handshake },
+  { href: '/admin/notifications', label: '매니저 알림', icon: Bell },
   { href: '/admin/settings', label: '관리자 설정', icon: Settings },
 ]
 
