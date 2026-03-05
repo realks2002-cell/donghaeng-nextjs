@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import NotificationBanner from '@/components/NotificationBanner'
 import { useNotificationStatus } from '@/components/hooks/useNotificationStatus'
+import { subscribePush, unsubscribePush } from '@/lib/push-utils'
 
 const menuItems = [
   { href: '/manager/dashboard', label: '서비스 요청', icon: Home },
@@ -27,7 +28,29 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { status: notifStatus } = useNotificationStatus()
+  const [notifLoading, setNotifLoading] = useState(false)
+  const { status: notifStatus, recheckStatus } = useNotificationStatus()
+
+  const handleNotifToggle = async () => {
+    if (notifLoading) return
+
+    if (notifStatus === 'denied') {
+      alert('알림이 브라우저에서 차단되었습니다. 브라우저 설정에서 알림을 허용해주세요.')
+      return
+    }
+
+    setNotifLoading(true)
+    try {
+      if (notifStatus === 'subscribed') {
+        await unsubscribePush()
+      } else {
+        await subscribePush()
+      }
+      await recheckStatus()
+    } finally {
+      setNotifLoading(false)
+    }
+  }
 
   // 로그인, 회원가입, 완료 페이지는 레이아웃 없이 렌더링
   if (
@@ -98,24 +121,35 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
 
           {/* 알림 상태 + 로그아웃 */}
           <div className="p-4 border-t border-gray-200 space-y-2">
-            <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600">
-              {notifStatus === 'subscribed' ? (
-                <>
-                  <BellRing className="w-4 h-4 text-green-500" />
-                  <span className="text-green-700">알림 켜짐</span>
-                </>
-              ) : notifStatus === 'denied' ? (
-                <>
-                  <BellOff className="w-4 h-4 text-red-500" />
-                  <span className="text-red-600">알림 차단됨</span>
-                </>
-              ) : notifStatus !== 'unsupported' ? (
-                <>
-                  <Bell className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-500">알림 꺼짐</span>
-                </>
-              ) : null}
-            </div>
+            {notifStatus !== 'unsupported' && (
+              <button
+                onClick={handleNotifToggle}
+                disabled={notifLoading}
+                className="min-h-[44px] flex items-center gap-2 px-4 py-2 text-sm rounded-lg w-full hover:bg-gray-100 transition-colors disabled:opacity-50"
+              >
+                {notifLoading ? (
+                  <>
+                    <Bell className="w-4 h-4 text-gray-400 animate-pulse" />
+                    <span className="text-gray-500">처리 중...</span>
+                  </>
+                ) : notifStatus === 'subscribed' ? (
+                  <>
+                    <BellRing className="w-4 h-4 text-green-500" />
+                    <span className="text-green-700">알림 켜짐</span>
+                  </>
+                ) : notifStatus === 'denied' ? (
+                  <>
+                    <BellOff className="w-4 h-4 text-red-500" />
+                    <span className="text-red-600">알림 차단됨</span>
+                  </>
+                ) : (
+                  <>
+                    <Bell className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-500">알림 꺼짐</span>
+                  </>
+                )}
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="min-h-[44px] inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
@@ -134,19 +168,24 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
           <div className="flex items-center justify-between">
             <span className="text-lg font-bold text-primary">행복안심동행 매니저</span>
             <div className="flex items-center gap-1">
-              {notifStatus === 'subscribed' ? (
-                <span className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center">
-                  <BellRing className="w-5 h-5 text-green-500" />
-                </span>
-              ) : notifStatus === 'denied' ? (
-                <span className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center">
-                  <BellOff className="w-5 h-5 text-red-500" />
-                </span>
-              ) : notifStatus !== 'unsupported' ? (
-                <span className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center">
-                  <Bell className="w-5 h-5 text-gray-400" />
-                </span>
-              ) : null}
+              {notifStatus !== 'unsupported' && (
+                <button
+                  type="button"
+                  onClick={handleNotifToggle}
+                  disabled={notifLoading}
+                  className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+                >
+                  {notifLoading ? (
+                    <Bell className="w-5 h-5 text-gray-400 animate-pulse" />
+                  ) : notifStatus === 'subscribed' ? (
+                    <BellRing className="w-5 h-5 text-green-500" />
+                  ) : notifStatus === 'denied' ? (
+                    <BellOff className="w-5 h-5 text-red-500" />
+                  ) : (
+                    <Bell className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

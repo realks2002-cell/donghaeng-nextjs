@@ -91,6 +91,40 @@ export async function subscribePush(): Promise<'subscribed' | 'denied' | 'unsupp
 }
 
 /**
+ * Unsubscribe from push notifications: browser unsubscribe + server DELETE.
+ * Returns true if successfully unsubscribed.
+ */
+export async function unsubscribePush(): Promise<boolean> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return false
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.ready
+    const subscription = await registration.pushManager.getSubscription()
+
+    if (!subscription) {
+      return true // already unsubscribed
+    }
+
+    const endpoint = subscription.endpoint
+
+    await subscription.unsubscribe()
+
+    await fetch('/api/push/subscribe', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint }),
+    })
+
+    return true
+  } catch (error) {
+    console.error('Push unsubscribe failed:', error)
+    return false
+  }
+}
+
+/**
  * Re-subscribe silently when permission is already granted (e.g. on page reload).
  * Does NOT request permission - safe to call in useEffect.
  */
