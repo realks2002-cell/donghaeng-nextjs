@@ -45,14 +45,17 @@ export default function NotificationBanner() {
 
   const handleRecheck = async () => {
     setLoading(true)
+    setServerError(false)
     try {
-      await recheckStatus()
-      // 권한이 granted로 바뀌었으면 자동으로 구독 시도
-      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      // subscribePush() 내부에서 requestPermission()을 호출하므로
+      // OS 설정에서 허용으로 변경된 경우 즉시 감지하여 구독 완료
+      const result = await subscribePush()
+      if (result === 'subscribed') {
         localStorage.removeItem('notif-denied-dismissed')
-        await subscribePush()
-        await recheckStatus()
+      } else if (result === 'error') {
+        setServerError(true)
       }
+      await recheckStatus()
     } finally {
       setLoading(false)
     }
