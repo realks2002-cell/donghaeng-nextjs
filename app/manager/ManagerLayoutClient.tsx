@@ -32,14 +32,11 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
   const handleNotifToggle = async () => {
     if (notifLoading) return
 
-    if (notifStatus === 'denied') {
-      alert('알림이 브라우저에서 차단되었습니다. 브라우저 설정에서 알림을 허용해주세요.')
-      return
-    }
-
     if (notifStatus === 'subscribed') {
       await unsubscribe()
     } else {
+      // denied든 prompt든 항상 구독 시도. 실패하면 NotificationBanner가 안내.
+      localStorage.removeItem('notif-denied-dismissed')
       await subscribe()
     }
   }

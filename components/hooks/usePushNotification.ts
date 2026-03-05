@@ -2,13 +2,15 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { subscribePush, unsubscribePush, saveSubscription } from '@/lib/push-utils'
+import type { SubscribeResult } from '@/lib/push-utils'
 
 export type PushStatus = 'loading' | 'unsupported' | 'prompt' | 'denied' | 'subscribed'
+export type DeniedReason = 'denied' | 'no-vapid' | 'error' | null
 
 export function usePushNotification() {
   const [subscription, setSubscription] = useState<PushSubscription | null>(null)
   const [isSupported, setIsSupported] = useState(false)
-  const [subscribeFailed, setSubscribeFailed] = useState(false)
+  const [deniedReason, setDeniedReason] = useState<DeniedReason>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,8 +35,20 @@ export function usePushNotification() {
           // Re-save to server to keep DB in sync
           await saveSubscription(existingSub).catch(() => {})
           setSubscription(existingSub)
+        } else {
+          // Check if permission is already denied via PushManager API
+          try {
+            const permState = await registration.pushManager.permissionState({
+              userVisibleOnly: true,
+              applicationServerKey: new Uint8Array(0),
+            })
+            if (permState === 'denied') {
+              setDeniedReason('denied')
+            }
+          } catch {
+            // permissionState not supported or applicationServerKey issue — ignore
+          }
         }
-        // No existing subscription → show prompt banner (user clicks to subscribe)
       } catch {
         // SW not ready or other error
       } finally {
@@ -47,16 +61,21 @@ export function usePushNotification() {
 
   const subscribe = useCallback(async () => {
     setLoading(true)
-    setSubscribeFailed(false)
+    setDeniedReason(null)
     try {
-      const sub = await subscribePush()
-      if (sub) {
-        setSubscription(sub)
+      const result: SubscribeResult = await subscribePush()
+      if (result.ok) {
+        setSubscription(result.subscription)
+        return result.subscription
       } else {
-        // subscribePush returned null → user denied or error
-        setSubscribeFailed(true)
+        // Map failure reason
+        if (result.reason === 'unsupported') {
+          // Should not happen since isSupported is checked, but handle anyway
+        } else {
+          setDeniedReason(result.reason)
+        }
+        return null
       }
-      return sub
     } finally {
       setLoading(false)
     }
@@ -69,7 +88,7 @@ export function usePushNotification() {
       const ok = await unsubscribePush(subscription)
       if (ok) {
         setSubscription(null)
-        setSubscribeFailed(false)
+        setDeniedReason(null)
       }
       return ok
     } finally {
@@ -86,11 +105,11 @@ export function usePushNotification() {
     status = 'unsupported'
   } else if (subscription) {
     status = 'subscribed'
-  } else if (subscribeFailed) {
+  } else if (deniedReason) {
     status = 'denied'
   } else {
     status = 'prompt'
   }
 
-  return { status, subscription, subscribe, unsubscribe, retry, loading }
+  return { status, deniedReason, subscription, subscribe, unsubscribe, retry, loading }
 }

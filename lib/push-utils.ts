@@ -1,5 +1,9 @@
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
 
+export type SubscribeResult =
+  | { ok: true; subscription: PushSubscription }
+  | { ok: false; reason: 'unsupported' | 'no-vapid' | 'denied' | 'error' }
+
 export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
@@ -69,16 +73,16 @@ export async function deleteSubscription(endpoint: string): Promise<boolean> {
  * Full push subscription flow using Next.js official PWA pattern.
  * pushManager.subscribe() triggers the browser's native permission prompt.
  * Must be called from a user gesture (click/tap) handler for iOS PWA compatibility.
- * Returns PushSubscription on success, null on failure (including denied).
+ * Returns SubscribeResult with structured error reason on failure.
  */
-export async function subscribePush(): Promise<PushSubscription | null> {
+export async function subscribePush(): Promise<SubscribeResult> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    return null
+    return { ok: false, reason: 'unsupported' }
   }
 
   if (!VAPID_PUBLIC_KEY) {
     console.warn('VAPID public key not configured')
-    return null
+    return { ok: false, reason: 'no-vapid' }
   }
 
   try {
@@ -87,7 +91,7 @@ export async function subscribePush(): Promise<PushSubscription | null> {
 
     if (!subscription) {
       // pushManager.subscribe() triggers the browser's native permission prompt.
-      // If user denies, this throws — caught below and returns null.
+      // If user denies, this throws DOMException — caught below.
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
@@ -96,10 +100,14 @@ export async function subscribePush(): Promise<PushSubscription | null> {
 
     // Best-effort server save — return subscription regardless
     await saveSubscription(subscription).catch(() => {})
-    return subscription
+    return { ok: true, subscription }
   } catch (error) {
     console.error('Push subscription failed:', error)
-    return null
+    // DOMException with 'denied' or NotAllowedError → user denied permission
+    if (error instanceof DOMException && (error.name === 'NotAllowedError' || error.message.includes('denied'))) {
+      return { ok: false, reason: 'denied' }
+    }
+    return { ok: false, reason: 'error' }
   }
 }
 
