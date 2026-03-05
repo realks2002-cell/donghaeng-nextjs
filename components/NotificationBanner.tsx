@@ -13,7 +13,7 @@ function isPwaMode(): boolean {
 }
 
 export default function NotificationBanner() {
-  const { status, deniedReason, subscribe, retry, loading } = usePushNotification()
+  const { status, deniedReason, errorMessage, subscribe, retry, loading } = usePushNotification()
   const [dismissed, setDismissed] = useState(false)
   const [isPwa, setIsPwa] = useState(false)
 
@@ -32,21 +32,33 @@ export default function NotificationBanner() {
   // Denied — red banner with retry
   if (status === 'denied') {
     const isVapidMissing = deniedReason === 'no-vapid'
+    const isError = deniedReason === 'error'
     return (
       <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
         <div className="flex items-start gap-3">
           <BellOff className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
           <div className="flex-1">
             <p className="text-sm font-medium text-red-800">
-              {isVapidMissing ? '알림 서버 설정 오류' : '알림이 차단되어 있습니다'}
+              {isVapidMissing
+                ? '알림 서버 설정 오류'
+                : isError
+                  ? '알림 설정 중 오류가 발생했습니다'
+                  : '알림이 차단되어 있습니다'}
             </p>
             <p className="mt-1 text-sm text-red-600">
               {isVapidMissing
                 ? '푸시 알림 서버 키가 설정되지 않았습니다. 관리자에게 문의해 주세요.'
-                : isPwa
-                  ? 'Android 설정 > 앱 > 동행매니저 > 알림에서 허용해 주세요.'
-                  : '브라우저 주소창 왼쪽 자물쇠(🔒) 아이콘 > 알림 허용으로 변경해 주세요.'}
+                : isError
+                  ? '아래 오류 정보를 관리자에게 전달해 주세요.'
+                  : isPwa
+                    ? 'Android 설정 > 앱 > 동행매니저 > 알림에서 허용해 주세요.'
+                    : '브라우저 주소창 왼쪽 자물쇠(🔒) 아이콘 > 알림 허용으로 변경해 주세요.'}
             </p>
+            {errorMessage && (
+              <p className="mt-1.5 break-all font-mono text-xs text-red-500">
+                {errorMessage}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {!isVapidMissing && (

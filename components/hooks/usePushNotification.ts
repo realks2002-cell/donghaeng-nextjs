@@ -11,6 +11,7 @@ export function usePushNotification() {
   const [subscription, setSubscription] = useState<PushSubscription | null>(null)
   const [isSupported, setIsSupported] = useState(false)
   const [deniedReason, setDeniedReason] = useState<DeniedReason>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -65,6 +66,7 @@ export function usePushNotification() {
   const subscribe = useCallback(async () => {
     setLoading(true)
     setDeniedReason(null)
+    setErrorMessage(null)
     try {
       const result: SubscribeResult = await subscribePush()
       if (result.ok) {
@@ -76,6 +78,7 @@ export function usePushNotification() {
           // Should not happen since isSupported is checked, but handle anyway
         } else {
           setDeniedReason(result.reason)
+          setErrorMessage(result.message)
         }
         return null
       }
@@ -114,5 +117,5 @@ export function usePushNotification() {
     status = 'prompt'
   }
 
-  return { status, deniedReason, subscription, subscribe, unsubscribe, retry, loading }
+  return { status, deniedReason, errorMessage, subscription, subscribe, unsubscribe, retry, loading }
 }

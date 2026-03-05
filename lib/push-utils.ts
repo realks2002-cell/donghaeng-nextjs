@@ -2,7 +2,7 @@ const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
 
 export type SubscribeResult =
   | { ok: true; subscription: PushSubscription }
-  | { ok: false; reason: 'unsupported' | 'no-vapid' | 'denied' | 'error' }
+  | { ok: false; reason: 'unsupported' | 'no-vapid' | 'denied' | 'error'; message: string }
 
 export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -76,22 +76,25 @@ export async function deleteSubscription(endpoint: string): Promise<boolean> {
  * Returns SubscribeResult with structured error reason on failure.
  */
 export async function subscribePush(): Promise<SubscribeResult> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    return { ok: false, reason: 'unsupported' }
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+    return { ok: false, reason: 'unsupported', message: 'serviceWorker, PushManager 또는 Notification 미지원' }
   }
 
   if (!VAPID_PUBLIC_KEY) {
     console.warn('VAPID public key not configured')
-    return { ok: false, reason: 'no-vapid' }
+    return { ok: false, reason: 'no-vapid', message: 'NEXT_PUBLIC_VAPID_PUBLIC_KEY 환경변수 없음' }
   }
 
   try {
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') {
+      return { ok: false, reason: 'denied', message: `Notification permission: ${permission}` }
+    }
+
     const registration = await navigator.serviceWorker.ready
     let subscription = await registration.pushManager.getSubscription()
 
     if (!subscription) {
-      // pushManager.subscribe() triggers the browser's native permission prompt.
-      // If user denies, this throws DOMException — caught below.
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
@@ -104,10 +107,11 @@ export async function subscribePush(): Promise<SubscribeResult> {
   } catch (error) {
     console.error('Push subscription failed:', error)
     // DOMException with 'denied' or NotAllowedError → user denied permission
+    const errMsg = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
     if (error instanceof DOMException && (error.name === 'NotAllowedError' || error.message.includes('denied'))) {
-      return { ok: false, reason: 'denied' }
+      return { ok: false, reason: 'denied', message: errMsg }
     }
-    return { ok: false, reason: 'error' }
+    return { ok: false, reason: 'error', message: errMsg }
   }
 }
 
