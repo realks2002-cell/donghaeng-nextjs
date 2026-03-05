@@ -1,9 +1,5 @@
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
 
-export type SubscribeResult =
-  | { ok: true; subscription: PushSubscription }
-  | { ok: false; reason: 'unsupported' | 'no-vapid' | 'denied' | 'error'; message: string }
-
 export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
@@ -55,40 +51,25 @@ export async function saveSubscription(subscription: PushSubscription): Promise<
   }
 }
 
-export async function deleteSubscription(endpoint: string): Promise<boolean> {
-  try {
-    await fetch('/api/push/subscribe', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endpoint }),
-    })
-    return true
-  } catch (error) {
-    console.error('Failed to delete push subscription:', error)
-    return false
-  }
-}
-
 /**
- * Full push subscription flow using Next.js official PWA pattern.
- * pushManager.subscribe() triggers the browser's native permission prompt.
+ * Full push subscription flow: request permission -> subscribe -> save to server.
  * Must be called from a user gesture (click/tap) handler for iOS PWA compatibility.
- * Returns SubscribeResult with structured error reason on failure.
+ * Returns 'subscribed' | 'denied' | 'unsupported' | 'error'
  */
-export async function subscribePush(): Promise<SubscribeResult> {
+export async function subscribePush(): Promise<'subscribed' | 'denied' | 'unsupported' | 'error'> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
-    return { ok: false, reason: 'unsupported', message: 'serviceWorker, PushManager 또는 Notification 미지원' }
+    return 'unsupported'
   }
 
   if (!VAPID_PUBLIC_KEY) {
     console.warn('VAPID public key not configured')
-    return { ok: false, reason: 'no-vapid', message: 'NEXT_PUBLIC_VAPID_PUBLIC_KEY 환경변수 없음' }
+    return 'error'
   }
 
   try {
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') {
-      return { ok: false, reason: 'denied', message: `Notification permission: ${permission}` }
+      return 'denied'
     }
 
     const registration = await navigator.serviceWorker.ready
@@ -101,31 +82,46 @@ export async function subscribePush(): Promise<SubscribeResult> {
       })
     }
 
-    // Best-effort server save — return subscription regardless
-    await saveSubscription(subscription).catch(() => {})
-    return { ok: true, subscription }
+    const saved = await saveSubscription(subscription)
+    return saved ? 'subscribed' : 'error'
   } catch (error) {
     console.error('Push subscription failed:', error)
-    // DOMException with 'denied' or NotAllowedError → user denied permission
-    const errMsg = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
-    if (error instanceof DOMException && (error.name === 'NotAllowedError' || error.message.includes('denied'))) {
-      return { ok: false, reason: 'denied', message: errMsg }
-    }
-    return { ok: false, reason: 'error', message: errMsg }
+    return 'error'
   }
 }
 
 /**
- * Unsubscribe from push notifications: browser unsubscribe + server DELETE.
+ * Re-subscribe silently when permission is already granted (e.g. on page reload).
+ * Does NOT request permission - safe to call in useEffect.
  */
-export async function unsubscribePush(subscription: PushSubscription): Promise<boolean> {
+export async function resubscribeIfGranted(): Promise<boolean> {
+  if (
+    !('serviceWorker' in navigator) ||
+    !('PushManager' in window) ||
+    !('Notification' in window) ||
+    !VAPID_PUBLIC_KEY
+  ) {
+    return false
+  }
+
+  if (Notification.permission !== 'granted') {
+    return false
+  }
+
   try {
-    const endpoint = subscription.endpoint
-    await subscription.unsubscribe()
-    await deleteSubscription(endpoint)
-    return true
+    const registration = await navigator.serviceWorker.ready
+    let subscription = await registration.pushManager.getSubscription()
+
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
+      })
+    }
+
+    return await saveSubscription(subscription)
   } catch (error) {
-    console.error('Push unsubscribe failed:', error)
+    console.error('Push re-subscription failed:', error)
     return false
   }
 }
