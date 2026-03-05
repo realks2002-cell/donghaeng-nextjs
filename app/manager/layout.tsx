@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import ManagerLayoutClient from './ManagerLayoutClient'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
-import PushNotificationSetup from '@/components/PushNotificationSetup'
 
 export const metadata: Metadata = {
   manifest: '/manifest.json',
@@ -23,7 +22,6 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
   return (
     <>
       <ServiceWorkerRegistration />
-      <PushNotificationSetup />
       <ManagerLayoutClient>{children}</ManagerLayoutClient>
     </>
   )

@@ -15,8 +15,7 @@ import {
   BellRing,
 } from 'lucide-react'
 import NotificationBanner from '@/components/NotificationBanner'
-import { useNotificationStatus } from '@/components/hooks/useNotificationStatus'
-import { subscribePush, unsubscribePush } from '@/lib/push-utils'
+import { usePushNotification } from '@/components/hooks/usePushNotification'
 
 const menuItems = [
   { href: '/manager/dashboard', label: '서비스 요청', icon: Home },
@@ -28,8 +27,7 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [notifLoading, setNotifLoading] = useState(false)
-  const { status: notifStatus, recheckStatus } = useNotificationStatus()
+  const { status: notifStatus, subscribe, unsubscribe, loading: notifLoading } = usePushNotification()
 
   const handleNotifToggle = async () => {
     if (notifLoading) return
@@ -39,16 +37,10 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
       return
     }
 
-    setNotifLoading(true)
-    try {
-      if (notifStatus === 'subscribed') {
-        await unsubscribePush()
-      } else {
-        await subscribePush()
-      }
-      await recheckStatus()
-    } finally {
-      setNotifLoading(false)
+    if (notifStatus === 'subscribed') {
+      await unsubscribe()
+    } else {
+      await subscribe()
     }
   }
 

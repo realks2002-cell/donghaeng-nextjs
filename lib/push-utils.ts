@@ -51,25 +51,39 @@ export async function saveSubscription(subscription: PushSubscription): Promise<
   }
 }
 
+export async function deleteSubscription(endpoint: string): Promise<boolean> {
+  try {
+    await fetch('/api/push/subscribe', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint }),
+    })
+    return true
+  } catch (error) {
+    console.error('Failed to delete push subscription:', error)
+    return false
+  }
+}
+
 /**
  * Full push subscription flow: request permission -> subscribe -> save to server.
  * Must be called from a user gesture (click/tap) handler for iOS PWA compatibility.
- * Returns 'subscribed' | 'denied' | 'unsupported' | 'error'
+ * Returns PushSubscription on success, null on failure.
  */
-export async function subscribePush(): Promise<'subscribed' | 'denied' | 'unsupported' | 'error'> {
+export async function subscribePush(): Promise<PushSubscription | null> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
-    return 'unsupported'
+    return null
   }
 
   if (!VAPID_PUBLIC_KEY) {
     console.warn('VAPID public key not configured')
-    return 'error'
+    return null
   }
 
   try {
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') {
-      return 'denied'
+      return null
     }
 
     const registration = await navigator.serviceWorker.ready
@@ -83,79 +97,24 @@ export async function subscribePush(): Promise<'subscribed' | 'denied' | 'unsupp
     }
 
     const saved = await saveSubscription(subscription)
-    return saved ? 'subscribed' : 'error'
+    return saved ? subscription : null
   } catch (error) {
     console.error('Push subscription failed:', error)
-    return 'error'
+    return null
   }
 }
 
 /**
  * Unsubscribe from push notifications: browser unsubscribe + server DELETE.
- * Returns true if successfully unsubscribed.
  */
-export async function unsubscribePush(): Promise<boolean> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    return false
-  }
-
+export async function unsubscribePush(subscription: PushSubscription): Promise<boolean> {
   try {
-    const registration = await navigator.serviceWorker.ready
-    const subscription = await registration.pushManager.getSubscription()
-
-    if (!subscription) {
-      return true // already unsubscribed
-    }
-
     const endpoint = subscription.endpoint
-
     await subscription.unsubscribe()
-
-    await fetch('/api/push/subscribe', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endpoint }),
-    })
-
+    await deleteSubscription(endpoint)
     return true
   } catch (error) {
     console.error('Push unsubscribe failed:', error)
-    return false
-  }
-}
-
-/**
- * Re-subscribe silently when permission is already granted (e.g. on page reload).
- * Does NOT request permission - safe to call in useEffect.
- */
-export async function resubscribeIfGranted(): Promise<boolean> {
-  if (
-    !('serviceWorker' in navigator) ||
-    !('PushManager' in window) ||
-    !('Notification' in window) ||
-    !VAPID_PUBLIC_KEY
-  ) {
-    return false
-  }
-
-  if (Notification.permission !== 'granted') {
-    return false
-  }
-
-  try {
-    const registration = await navigator.serviceWorker.ready
-    let subscription = await registration.pushManager.getSubscription()
-
-    if (!subscription) {
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
-      })
-    }
-
-    return await saveSubscription(subscription)
-  } catch (error) {
-    console.error('Push re-subscription failed:', error)
     return false
   }
 }
