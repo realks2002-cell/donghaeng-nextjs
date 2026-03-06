@@ -1,9 +1,9 @@
 import CoolSMS from 'coolsms-node-sdk'
 import { createServiceClient } from '@/lib/supabase/server'
 
-const COOLSMS_API_KEY = process.env.COOLSMS_API_KEY || ''
-const COOLSMS_API_SECRET = process.env.COOLSMS_API_SECRET || ''
-const COOLSMS_SENDER_NUMBER = process.env.COOLSMS_SENDER_NUMBER || ''
+const COOLSMS_API_KEY = (process.env.COOLSMS_API_KEY || '').trim()
+const COOLSMS_API_SECRET = (process.env.COOLSMS_API_SECRET || '').trim()
+const COOLSMS_SENDER_NUMBER = (process.env.COOLSMS_SENDER_NUMBER || '').trim()
 
 interface MatchingSMSParams {
   serviceRequestId: string
