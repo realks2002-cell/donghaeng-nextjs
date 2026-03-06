@@ -11,7 +11,7 @@ interface MatchingSMSParams {
 }
 
 /**
- * 매칭 완료 시 고객에게 SMS 알림을 발송합니다.
+ * 매칭 완료 시 고객과 매니저에게 SMS 알림을 발송합니다.
  * 실패해도 매칭 프로세스를 중단하지 않습니다.
  */
 export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingSMSParams) {
@@ -26,7 +26,7 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
     // 서비스 요청 정보 조회
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: request, error: reqError } = await (supabase.from('service_requests') as any)
-      .select('service_type, service_date, start_time, customer_id, guest_phone')
+      .select('service_type, service_date, start_time, customer_id, guest_phone, guest_name')
       .eq('id', serviceRequestId)
       .single()
 
@@ -35,25 +35,25 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
       return
     }
 
-    // 고객 전화번호 조회
+    // 고객 정보 조회
     let customerPhone: string | null = null
+    let customerName: string | null = null
 
     if (request.customer_id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: user } = await (supabase.from('users') as any)
-        .select('phone')
+        .select('phone, name')
         .eq('id', request.customer_id)
         .single()
       customerPhone = user?.phone || null
+      customerName = user?.name || null
     }
 
     if (!customerPhone) {
       customerPhone = request.guest_phone || null
     }
-
-    if (!customerPhone) {
-      console.warn('[SMS] 고객 전화번호가 없어 SMS를 발송하지 않습니다.')
-      return
+    if (!customerName) {
+      customerName = request.guest_name || null
     }
 
     // 매니저 정보 조회
@@ -68,7 +68,7 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
       return
     }
 
-    // SMS 내용 구성
+    // 공통 정보 구성
     const serviceDate = request.service_date
       ? request.service_date.replace(/-/g, '.')
       : '미정'
@@ -78,26 +78,56 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
     const managerPhone = manager.phone
       ? manager.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
       : ''
+    const customerPhoneFormatted = customerPhone
+      ? customerPhone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
+      : ''
 
-    const message = [
-      '[행복안심동행] 매니저가 배정되었습니다.',
-      `서비스: ${request.service_type || '돌봄 서비스'}`,
-      `일시: ${serviceDate} ${startTime}`,
-      `매니저: ${manager.name} (${managerPhone})`,
-      `문의: ${COOLSMS_SENDER_NUMBER}`,
-    ].join('\n')
-
-    // CoolSMS 발송
     const sms = new CoolSMS(COOLSMS_API_KEY, COOLSMS_API_SECRET)
-    await sms.sendOne({
-      to: customerPhone.replace(/-/g, ''),
-      from: COOLSMS_SENDER_NUMBER.replace(/-/g, ''),
-      text: message,
-      type: 'LMS',
-      autoTypeDetect: false,
-    })
+    const senderNumber = COOLSMS_SENDER_NUMBER.replace(/-/g, '')
 
-    console.log(`[SMS] 매칭 알림 발송 완료 - 요청: ${serviceRequestId}, 수신: ${customerPhone}`)
+    // 1. 고객에게 SMS 발송
+    if (customerPhone) {
+      const customerMessage = [
+        '[행복안심동행] 매니저가 배정되었습니다.',
+        `서비스: ${request.service_type || '돌봄 서비스'}`,
+        `일시: ${serviceDate} ${startTime}`,
+        `매니저: ${manager.name} (${managerPhone})`,
+        `문의: ${COOLSMS_SENDER_NUMBER}`,
+      ].join('\n')
+
+      await sms.sendOne({
+        to: customerPhone.replace(/-/g, ''),
+        from: senderNumber,
+        text: customerMessage,
+        type: 'LMS',
+        autoTypeDetect: false,
+      })
+      console.log(`[SMS] 고객 알림 발송 완료 - 요청: ${serviceRequestId}, 수신: ${customerPhone}`)
+    } else {
+      console.warn('[SMS] 고객 전화번호가 없어 고객 SMS를 발송하지 않습니다.')
+    }
+
+    // 2. 매니저에게 SMS 발송
+    if (manager.phone) {
+      const managerMessage = [
+        '[행복안심동행] 서비스가 배정되었습니다.',
+        `서비스: ${request.service_type || '돌봄 서비스'}`,
+        `일시: ${serviceDate} ${startTime}`,
+        `고객: ${customerName || '고객'} (${customerPhoneFormatted})`,
+        `문의: ${COOLSMS_SENDER_NUMBER}`,
+      ].join('\n')
+
+      await sms.sendOne({
+        to: manager.phone.replace(/-/g, ''),
+        from: senderNumber,
+        text: managerMessage,
+        type: 'LMS',
+        autoTypeDetect: false,
+      })
+      console.log(`[SMS] 매니저 알림 발송 완료 - 요청: ${serviceRequestId}, 수신: ${manager.phone}`)
+    } else {
+      console.warn('[SMS] 매니저 전화번호가 없어 매니저 SMS를 발송하지 않습니다.')
+    }
   } catch (error) {
     console.error('[SMS] 발송 실패:', error)
   }
