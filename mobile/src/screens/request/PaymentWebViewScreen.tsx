@@ -1,82 +1,21 @@
-import React, { useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 import { View, StyleSheet, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../../types';
-import { API_BASE_URL, TOSS_CLIENT_KEY } from '../../constants/config';
+import { API_BASE_URL } from '../../constants/config';
 import { Colors } from '../../constants/colors';
 import { paymentApi } from '../../api/client';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'PaymentWebView'>;
 
 export function PaymentWebViewScreen({ navigation, route }: Props) {
-  const { orderId, amount, orderName, requestId } = route.params;
+  const { orderId, amount, orderName, requestData } = route.params;
   const webViewRef = useRef<WebView>(null);
+  const isConfirmingRef = useRef(false);
 
-  const paymentHTML = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <script src="https://js.tosspayments.com/v2/standard"></script>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-          font-family: -apple-system, sans-serif;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          background: #fff;
-          padding: 20px;
-        }
-        #payment-loading {
-          text-align: center;
-          color: #64748b;
-          font-size: 16px;
-        }
-        .spinner {
-          width: 40px; height: 40px;
-          border: 3px solid #e2e8f0;
-          border-top-color: #3b82f6;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-          margin: 0 auto 16px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      </style>
-    </head>
-    <body>
-      <div id="payment-loading">
-        <div class="spinner"></div>
-        <p>결제 화면을 불러오는 중...</p>
-      </div>
-      <div id="payment-widget"></div>
-      <script>
-        (async function() {
-          try {
-            const tossPayments = TossPayments('${TOSS_CLIENT_KEY}');
-            const payment = tossPayments.payment({ customerKey: 'ANONYMOUS' });
-
-            await payment.requestPayment({
-              method: 'CARD',
-              amount: { currency: 'KRW', value: ${amount} },
-              orderId: '${orderId}',
-              orderName: '${orderName}',
-              successUrl: '${API_BASE_URL}/api/payments/confirm',
-              failUrl: '${API_BASE_URL}/payment/fail',
-            });
-          } catch (error) {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: 'PAYMENT_ERROR',
-              error: error.message || '결제 중 오류가 발생했습니다.'
-            }));
-          }
-        })();
-      </script>
-    </body>
-    </html>
-  `;
+  // 서버의 모바일 결제 페이지 URL
+  const paymentUrl = `${API_BASE_URL}/payment/mobile?orderId=${orderId}&amount=${amount}&orderName=${encodeURIComponent(orderName)}`;
 
   function handleMessage(event: { nativeEvent: { data: string } }) {
     try {
@@ -85,71 +24,111 @@ export function PaymentWebViewScreen({ navigation, route }: Props) {
         Alert.alert('결제 실패', data.error, [
           { text: '확인', onPress: () => navigation.goBack() },
         ]);
-      } else if (data.type === 'PAYMENT_SUCCESS') {
-        navigation.replace('Completion', {
-          orderId: data.orderId,
-          amount: data.amount,
-        });
       }
     } catch {
       // ignore parse errors
     }
   }
 
-  function handleNavigationStateChange(navState: { url: string }) {
-    const url = navState.url;
+  function handleShouldStartLoad(event: { url: string }) {
+    const url = event.url;
 
-    // Intercept success redirect
-    if (url.includes('/api/payments/confirm') || url.includes('paymentKey=')) {
-      const urlParams = new URL(url);
-      const paymentKey = urlParams.searchParams.get('paymentKey');
-      const returnedOrderId = urlParams.searchParams.get('orderId');
-      const returnedAmount = urlParams.searchParams.get('amount');
+    // 결제 성공 URL 인터셉트
+    if (url.includes('/payment/success') && url.includes('paymentKey=')) {
+      try {
+        const urlParams = new URL(url);
+        const paymentKey = urlParams.searchParams.get('paymentKey');
+        const returnedOrderId = urlParams.searchParams.get('orderId');
+        const returnedAmount = urlParams.searchParams.get('amount');
 
-      if (paymentKey && returnedOrderId && returnedAmount) {
-        webViewRef.current?.stopLoading();
-        confirmPayment(paymentKey, returnedOrderId, Number(returnedAmount));
-      }
+        if (paymentKey && returnedOrderId && returnedAmount) {
+          confirmPayment(paymentKey, returnedOrderId, Number(returnedAmount));
+          return false;
+        }
+      } catch {}
     }
 
-    // Intercept failure redirect
+    // 결제 실패 URL 인터셉트
     if (url.includes('/payment/fail')) {
-      const urlParams = new URL(url);
-      const errorMessage = urlParams.searchParams.get('message') || '결제에 실패했습니다.';
-      Alert.alert('결제 실패', errorMessage, [
-        { text: '확인', onPress: () => navigation.goBack() },
-      ]);
+      try {
+        const urlParams = new URL(url);
+        const errorMessage = urlParams.searchParams.get('message') || '결제에 실패했습니다.';
+        Alert.alert('결제 실패', errorMessage, [
+          { text: '확인', onPress: () => navigation.goBack() },
+        ]);
+      } catch {}
+      return false;
     }
+
+    // 그 외 모든 URL은 WebView 내에서 처리
+    return true;
   }
 
   async function confirmPayment(paymentKey: string, confirmedOrderId: string, confirmedAmount: number) {
+    if (isConfirmingRef.current) return;
+    isConfirmingRef.current = true;
+
     try {
       await paymentApi.confirm({
         paymentKey,
         orderId: confirmedOrderId,
         amount: confirmedAmount,
+        formData: requestData,
       });
       navigation.replace('Completion', {
         orderId: confirmedOrderId,
         amount: confirmedAmount,
       });
     } catch {
+      isConfirmingRef.current = false;
       Alert.alert('결제 확인 실패', '결제 확인 중 오류가 발생했습니다.', [
         { text: '확인', onPress: () => navigation.goBack() },
       ]);
     }
   }
 
+  // onShouldStartLoadWithRequest가 리다이렉트를 못 잡는 경우 백업
+  const handleNavigationStateChange = useCallback((navState: { url: string }) => {
+    const url = navState.url;
+    if (url.includes('/payment/success') && url.includes('paymentKey=')) {
+      try {
+        const urlParams = new URL(url);
+        const paymentKey = urlParams.searchParams.get('paymentKey');
+        const returnedOrderId = urlParams.searchParams.get('orderId');
+        const returnedAmount = urlParams.searchParams.get('amount');
+
+        if (paymentKey && returnedOrderId && returnedAmount) {
+          confirmPayment(paymentKey, returnedOrderId, Number(returnedAmount));
+        }
+      } catch {}
+    }
+
+    if (url.includes('/payment/fail') && !isConfirmingRef.current) {
+      try {
+        const urlParams = new URL(url);
+        const errorMessage = urlParams.searchParams.get('message') || '결제에 실패했습니다.';
+        Alert.alert('결제 실패', errorMessage, [
+          { text: '확인', onPress: () => navigation.goBack() },
+        ]);
+      } catch {}
+    }
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <WebView
         ref={webViewRef}
-        source={{ html: paymentHTML }}
+        source={{ uri: paymentUrl }}
         style={styles.webview}
         onMessage={handleMessage}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
         onNavigationStateChange={handleNavigationStateChange}
+        originWhitelist={['*']}
         javaScriptEnabled
         domStorageEnabled
+        thirdPartyCookiesEnabled
+        sharedCookiesEnabled
+        mixedContentMode="compatibility"
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loading}>

@@ -8,8 +8,9 @@ export default function PublicLayoutWrapper({ children }: { children: React.Reac
   const pathname = usePathname()
   const isAdminPage = pathname.startsWith('/admin')
   const isManagerPage = pathname.startsWith('/manager') && !pathname.startsWith('/manager/recruit')
+  const isMobilePayment = pathname === '/payment/mobile'
 
-  if (isAdminPage || isManagerPage) {
+  if (isAdminPage || isManagerPage || isMobilePayment) {
     return <>{children}</>
   }
 
