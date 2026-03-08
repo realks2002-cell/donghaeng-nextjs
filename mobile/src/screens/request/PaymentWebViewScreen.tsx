@@ -14,8 +14,8 @@ export function PaymentWebViewScreen({ navigation, route }: Props) {
   const webViewRef = useRef<WebView>(null);
   const isConfirmingRef = useRef(false);
 
-  // 서버의 모바일 결제 페이지 URL
-  const paymentUrl = `${API_BASE_URL}/payment/mobile?orderId=${orderId}&amount=${amount}&orderName=${encodeURIComponent(orderName)}`;
+  // 서버의 모바일 결제 API (HTML 반환)
+  const paymentUrl = `${API_BASE_URL}/api/payment/mobile?orderId=${orderId}&amount=${amount}&orderName=${encodeURIComponent(orderName)}`;
 
   function handleMessage(event: { nativeEvent: { data: string } }) {
     try {
