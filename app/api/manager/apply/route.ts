@@ -109,10 +109,10 @@ export async function POST(request: NextRequest) {
       .eq('id', request_id)
 
     // 고객에게 매칭 완료 SMS 발송 (실패해도 매칭은 유지)
-    sendMatchingSMS({
+    await sendMatchingSMS({
       serviceRequestId: request_id,
       managerId: session.managerId,
-    }).catch((err) => console.error('[SMS] 비동기 발송 실패:', err))
+    })
 
     return NextResponse.json({
       success: true,

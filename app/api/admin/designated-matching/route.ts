@@ -139,10 +139,10 @@ export async function POST(request: NextRequest) {
 
       // 고객에게 매칭 완료 SMS 발송 (실패해도 매칭은 유지)
       if (serviceRequest.manager_id) {
-        sendMatchingSMS({
+        await sendMatchingSMS({
           serviceRequestId: requestId,
           managerId: serviceRequest.manager_id,
-        }).catch((err) => console.error('[SMS] 비동기 발송 실패:', err))
+        })
       }
 
       // 기존 PENDING 지원 모두 거절

@@ -85,10 +85,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 고객에게 매칭 완료 SMS 발송 (실패해도 매칭은 유지)
-    sendMatchingSMS({
+    await sendMatchingSMS({
       serviceRequestId: service_request_id,
       managerId: manager_id,
-    }).catch((err) => console.error('[SMS] 비동기 발송 실패:', err))
+    })
 
     // 해당 요청의 모든 PENDING 지원을 REJECTED로 변경
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

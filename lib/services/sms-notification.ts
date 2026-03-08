@@ -16,6 +16,8 @@ interface MatchingSMSParams {
  */
 export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingSMSParams) {
   try {
+    console.log(`[SMS] 매칭 SMS 발송 시작 - 요청: ${serviceRequestId}, 매니저: ${managerId}`)
+
     if (!COOLSMS_API_KEY || !COOLSMS_API_SECRET || !COOLSMS_SENDER_NUMBER) {
       console.warn('[SMS] CoolSMS 환경 변수가 설정되지 않아 SMS를 발송하지 않습니다.')
       return
@@ -56,6 +58,8 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
       customerName = request.guest_name || null
     }
 
+    console.log(`[SMS] 고객 정보 - 이름: ${customerName || '없음'}, 전화번호: ${customerPhone ? '있음' : '없음'}`)
+
     // 매니저 정보 조회
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: manager, error: mgrError } = await (supabase.from('managers') as any)
@@ -67,6 +71,8 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
       console.error('[SMS] 매니저 조회 실패:', mgrError)
       return
     }
+
+    console.log(`[SMS] 매니저 정보 - 이름: ${manager.name}, 전화번호: ${manager.phone ? '있음' : '없음'}`)
 
     // 공통 정보 구성
     const serviceDate = request.service_date
@@ -128,7 +134,8 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
     } else {
       console.warn('[SMS] 매니저 전화번호가 없어 매니저 SMS를 발송하지 않습니다.')
     }
+    console.log(`[SMS] 매칭 SMS 발송 완료 - 요청: ${serviceRequestId}`)
   } catch (error) {
-    console.error('[SMS] 발송 실패:', error)
+    console.error(`[SMS] 발송 실패 - 요청: ${serviceRequestId}, 매니저: ${managerId}:`, error)
   }
 }
