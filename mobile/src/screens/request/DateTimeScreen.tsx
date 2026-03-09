@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   priceDetail: {
-    fontSize: FontSize.xs,
+    fontSize: FontSize.lg,
     color: Colors.textTertiary,
     marginTop: Spacing.xs,
   },

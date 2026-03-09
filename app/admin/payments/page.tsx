@@ -52,6 +52,7 @@ export default function AdminPaymentsPage() {
   const [refundModal, setRefundModal] = useState<Payment | null>(null)
   const [refundAmount, setRefundAmount] = useState('')
 
+
   const fetchPayments = async () => {
     const supabase = createClient()
 
@@ -143,7 +144,9 @@ export default function AdminPaymentsPage() {
 
   return (
     <div className="max-w-[1408px]">
-      <h1 className="text-2xl font-bold mb-6">결제 내역 조회</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">결제 내역 조회</h1>
+      </div>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {isLoading ? (
@@ -178,12 +181,12 @@ export default function AdminPaymentsPage() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {payment.service_requests ? (
-                          <div>
+                          <>
                             {payment.service_requests.guest_name && (
                               <div className="font-medium">{payment.service_requests.guest_name}</div>
                             )}
                             <div className="text-gray-500">{formatKoreanPhone(payment.service_requests.guest_phone || payment.service_requests.phone || '')|| '-'}</div>
-                          </div>
+                          </>
                         ) : '-'}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">

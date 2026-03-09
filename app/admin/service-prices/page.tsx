@@ -33,6 +33,9 @@ export default function AdminServicePricesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [vehicleSupportPrice, setVehicleSupportPrice] = useState(20000)
+  const [editingVehicleSupport, setEditingVehicleSupport] = useState(20000)
+  const [savingVehicleSupport, setSavingVehicleSupport] = useState(false)
   const [commissionRate, setCommissionRate] = useState(0)
   const [editingCommission, setEditingCommission] = useState(0)
   const [savingCommission, setSavingCommission] = useState(false)
@@ -71,6 +74,11 @@ export default function AdminServicePricesPage() {
         if (item.service_type === 'commission_rate') {
           setCommissionRate(item.price_per_hour)
           setEditingCommission(item.price_per_hour)
+          return
+        }
+        if (item.service_type === '차량지원') {
+          setVehicleSupportPrice(item.price_per_hour)
+          setEditingVehicleSupport(item.price_per_hour)
           return
         }
         priceMap[item.service_type] = item
@@ -131,6 +139,35 @@ export default function AdminServicePricesPage() {
     }
 
     setSaving(null)
+  }
+
+  const handleSaveVehicleSupport = async () => {
+    if (editingVehicleSupport < 0 || editingVehicleSupport > 100000) {
+      setMessage({ type: 'error', text: '차량지원 가격은 0원 이상 100,000원 이하로 설정해주세요.' })
+      return
+    }
+
+    setSavingVehicleSupport(true)
+    setMessage(null)
+
+    const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('service_prices') as any)
+      .upsert({
+        service_type: '차량지원',
+        price_per_hour: editingVehicleSupport,
+        is_active: true,
+      })
+
+    if (error) {
+      console.error('Error saving vehicle support price:', error)
+      setMessage({ type: 'error', text: '차량지원 가격 저장에 실패했습니다.' })
+    } else {
+      setMessage({ type: 'success', text: `차량지원 가격이 ${editingVehicleSupport.toLocaleString()}원으로 변경되었습니다.` })
+      setVehicleSupportPrice(editingVehicleSupport)
+    }
+
+    setSavingVehicleSupport(false)
   }
 
   const handleSaveCommission = async () => {
@@ -272,6 +309,46 @@ export default function AdminServicePricesPage() {
             </div>
           )
         })}
+      </div>
+
+      {/* 차량지원 가격 설정 */}
+      <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold mb-4">차량지원 가격</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          서비스 신청 시 차량지원 옵션 선택 시 추가되는 고정 금액입니다.
+        </p>
+        <div className="flex items-end gap-4">
+          <div className="flex-1 max-w-xs">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              차량지원 가격 (원)
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                value={editingVehicleSupport}
+                onChange={(e) => setEditingVehicleSupport(Math.max(0, Math.min(100000, parseInt(e.target.value, 10) || 0)))}
+                min="0"
+                max="100000"
+                step="1000"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent pr-12"
+              />
+              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+                원
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              현재: <strong>{vehicleSupportPrice.toLocaleString()}원</strong>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSaveVehicleSupport}
+            disabled={savingVehicleSupport}
+            className="min-h-[44px] px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {savingVehicleSupport ? '저장 중...' : '차량지원 가격 저장'}
+          </button>
+        </div>
       </div>
 
       {/* 매니저 수수료율 설정 */}

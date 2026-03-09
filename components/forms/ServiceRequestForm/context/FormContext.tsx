@@ -12,6 +12,7 @@ interface FormContextType {
   clearFormData: () => void
   isLoading: boolean
   servicePrices: Record<ServiceType, number>
+  rawPrices: Record<string, number>
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined)
@@ -31,10 +32,15 @@ export function FormProvider({ children, initialUser }: FormProviderProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [formData, setFormData] = useState<ServiceRequestFormData>(initialFormData)
   const [servicePrices, setServicePrices] = useState<Record<ServiceType, number>>(DEFAULT_SERVICE_PRICES)
+  const [rawPrices, setRawPrices] = useState<Record<string, number>>({})
 
   // 0. API에서 서비스 가격 로드
   useEffect(() => {
     loadServicePrices().then(setServicePrices)
+    fetch('/api/service-prices')
+      .then(res => res.json())
+      .then(data => { if (data.prices) setRawPrices(data.prices) })
+      .catch(() => {})
   }, [])
 
   // 1. 초기 로드: sessionStorage에서 데이터 복원
@@ -81,7 +87,7 @@ export function FormProvider({ children, initialUser }: FormProviderProps) {
   }
 
   return (
-    <FormContext.Provider value={{ formData, updateFormData, clearFormData, isLoading, servicePrices }}>
+    <FormContext.Provider value={{ formData, updateFormData, clearFormData, isLoading, servicePrices, rawPrices }}>
       {children}
     </FormContext.Provider>
   )

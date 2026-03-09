@@ -8,6 +8,8 @@
  * 여기의 값은 기본값(fallback)으로 사용됩니다.
  */
 
+export const VEHICLE_SUPPORT_DEFAULT_PRICE = 20000
+
 export type ServiceType =
   | 'hospital_companion'      // 병원 동행
   | 'daily_care'              // 가사돌봄

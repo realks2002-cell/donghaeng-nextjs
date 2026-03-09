@@ -41,7 +41,17 @@ class ApiClient {
     }
 
     const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`;
-    const response = await fetch(url, config);
+
+    console.log(`[API] ${method} ${url}`);
+
+    let response: Response;
+    try {
+      response = await fetch(url, config);
+    } catch (fetchError) {
+      throw new Error(
+        `네트워크 연결 실패: ${url}\n${fetchError instanceof Error ? fetchError.message : String(fetchError)}`
+      );
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -90,6 +100,8 @@ export const authApi = {
     api.post('/api/auth/signup', data, { skipAuth: true }),
 
   logout: () => api.post('/api/auth/logout'),
+
+  deleteAccount: () => api.post<{ success: boolean }>('/api/auth/delete-account'),
 };
 
 export const bookingApi = {
@@ -111,18 +123,36 @@ export const serviceApi = {
     api.get<{ prices: Record<string, number> }>('/api/service-prices', { skipAuth: true }),
 
   saveTempRequest: (data: unknown) =>
-    api.post<{ id: string; orderId: string }>('/api/requests/save-temp', data),
+    api.post<{ ok: boolean; request_id: string; estimated_price: number; payment_method: string }>('/api/requests/save-temp', data, { skipAuth: true }),
 
   searchManagers: (query: string) =>
     api.post<{ managers: unknown[] }>('/api/managers/search', { query }, { skipAuth: true }),
 };
 
 export const paymentApi = {
-  confirm: (data: { paymentKey: string; orderId: string; amount: number }) =>
+  confirm: (data: { paymentKey: string; orderId: string; amount: number; formData?: Record<string, unknown> }) =>
     api.post('/api/payments/confirm', data),
 };
 
 export const pushApi = {
   subscribe: (token: string, userId?: string) =>
     api.post('/api/push/subscribe', { token, userId }),
+};
+
+export const addressApi = {
+  search: async (keyword: string) => {
+    const endpoint = `/api/address/search?keyword=${encodeURIComponent(keyword)}`;
+    type AddressResponse = {
+      success: boolean;
+      items?: { address: string; jibunAddress: string; zipCode: string; buildingName: string }[];
+      message?: string;
+    };
+    try {
+      return await api.get<AddressResponse>(endpoint, { skipAuth: true });
+    } catch {
+      const fallbackUrl = `https://donghaeng77.co.kr${endpoint}`;
+      const res = await fetch(fallbackUrl);
+      return res.json() as Promise<AddressResponse>;
+    }
+  },
 };

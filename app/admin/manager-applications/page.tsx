@@ -29,6 +29,7 @@ export default function AdminManagerApplicationsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
 
+
   const fetchApplications = async () => {
     const supabase = createClient()
 
@@ -139,7 +140,9 @@ export default function AdminManagerApplicationsPage() {
 
   return (
     <div className="max-w-[1408px]">
-      <h1 className="text-2xl font-bold mb-6">매니저 지원확인</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">매니저 지원확인</h1>
+      </div>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         {isLoading ? (

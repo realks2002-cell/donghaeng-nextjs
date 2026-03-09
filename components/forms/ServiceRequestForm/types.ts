@@ -23,6 +23,7 @@ export interface ServiceRequestFormData {
   serviceDate: string
   startTime: string
   durationHours: number
+  vehicleSupport: boolean
 
   // Step 3.5: 매니저 지정 (선택)
   designatedManagerId: string | null
@@ -57,6 +58,7 @@ export const initialFormData: ServiceRequestFormData = {
   serviceDate: '',
   startTime: '',
   durationHours: 0,
+  vehicleSupport: false,
   designatedManagerId: null,
   designatedManager: null,
   details: '',

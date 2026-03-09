@@ -36,6 +36,7 @@ export default function AdminAgencyApplicationsPage() {
   const [totalCount, setTotalCount] = useState(0)
   const perPage = 20
 
+
   const fetchApplications = async () => {
     setIsLoading(true)
     const params = new URLSearchParams({
@@ -97,7 +98,9 @@ export default function AdminAgencyApplicationsPage() {
 
   return (
     <div className="max-w-[1408px]">
-      <h1 className="text-2xl font-bold mb-6">대리점 신청 관리</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">대리점 신청 관리</h1>
+      </div>
 
       {/* 검색 */}
       <form onSubmit={handleSearch} className="mb-4 flex gap-2">

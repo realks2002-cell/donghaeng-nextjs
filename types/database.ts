@@ -127,6 +127,7 @@ export interface Database {
           name: string
           phone: string
           password_hash: string
+          password_plain: string | null
           email: string | null
           photo_url: string | null
           gender: string | null
@@ -147,6 +148,7 @@ export interface Database {
           name: string
           phone: string
           password_hash: string
+          password_plain?: string | null
           email?: string | null
           photo_url?: string | null
           gender?: string | null
@@ -167,6 +169,7 @@ export interface Database {
           name?: string
           phone?: string
           password_hash?: string
+          password_plain?: string | null
           email?: string | null
           photo_url?: string | null
           gender?: string | null

@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Search, User, X } from 'lucide-react'
+import { Search, Trash2, User, X } from 'lucide-react'
 import { formatKoreanPhone } from '@/lib/utils/validation'
 import { formatDate } from '@/lib/utils/format'
 import Image from 'next/image'
@@ -20,6 +20,7 @@ interface Manager {
   bank_account: string | null
   specialty: string[] | null
   branch: string | null
+  password_plain: string | null
   approval_status: string | null
   created_at: string
 }
@@ -47,7 +48,9 @@ function AdminManagersContent() {
 
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [updatingBranchId, setUpdatingBranchId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [previewPhoto, setPreviewPhoto] = useState<{ url: string; name: string } | null>(null)
+
 
   const totalPages = Math.ceil(total / perPage)
   const offset = (page - 1) * perPage
@@ -139,6 +142,27 @@ function AdminManagersContent() {
     }
   }
 
+  const handleDelete = async (manager: Manager) => {
+    if (!window.confirm(`"${manager.name}" 매니저를 삭제하시겠습니까?`)) {
+      return
+    }
+    setDeletingId(manager.id)
+    try {
+      const res = await fetch(`/api/admin/managers/${manager.id}`, {
+        method: 'DELETE',
+      })
+      if (res.ok) {
+        await fetchManagers()
+      } else {
+        alert('매니저 삭제에 실패했습니다.')
+      }
+    } catch {
+      alert('서버 오류가 발생했습니다.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const params = new URLSearchParams()
@@ -160,7 +184,7 @@ function AdminManagersContent() {
 
   return (
     <div className="max-w-[1408px]">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold">매니저 관리</h1>
       </div>
 
@@ -230,6 +254,9 @@ function AdminManagersContent() {
                       계좌번호
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                      비밀번호
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                       특기
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
@@ -240,6 +267,9 @@ function AdminManagersContent() {
                     </th>
                     <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                       등록일
+                    </th>
+                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                      관리
                     </th>
                   </tr>
                 </thead>
@@ -279,6 +309,9 @@ function AdminManagersContent() {
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-900">{manager.bank_name || '-'}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">{manager.bank_account || '-'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {manager.password_plain || '-'}
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-900">
                           {manager.specialty?.join(', ') || '-'}
                         </td>
@@ -335,11 +368,20 @@ function AdminManagersContent() {
                         <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">
                           {formatDate(manager.created_at)}
                         </td>
+                        <td className="px-3 py-3 text-sm text-center">
+                          <button
+                            onClick={() => handleDelete(manager)}
+                            disabled={deletingId === manager.id}
+                            className="min-h-[30px] p-1.5 text-red-600 border border-red-300 rounded-md hover:bg-red-50 disabled:opacity-50 inline-flex items-center justify-center"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
+                      <td colSpan={12} className="px-4 py-8 text-center text-gray-500">
                         매니저가 없습니다.
                       </td>
                     </tr>

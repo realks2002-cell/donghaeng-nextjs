@@ -7,15 +7,55 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
       "backgroundColor": "#3B82F6"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.donghaeng.app",
       "infoPlist": {
         "NSCameraUsageDescription": "프로필 사진 촬영에 사용됩니다.",
-        "NSPhotoLibraryUsageDescription": "프로필 사진 선택에 사용됩니다."
+        "NSPhotoLibraryUsageDescription": "프로필 사진 선택에 사용됩니다.",
+        "LSApplicationQueriesSchemes": [
+          "kftc-bankpay",
+          "ispmobile",
+          "itms-apps",
+          "hdcardappcardansimclick",
+          "smhyundaiansimclick",
+          "shinhan-sr-ansimclick",
+          "smshinhanansimclick",
+          "kb-acp",
+          "mpocket.online.ansimclick",
+          "ansimclickscard",
+          "ansimclickipcollect",
+          "vguardstart",
+          "samsungpay",
+          "scardcertiapp",
+          "lottesmartpay",
+          "lotteappcard",
+          "cloudpay",
+          "nhappcardansimclick",
+          "nonghyupcardansimclick",
+          "citispay",
+          "citicardappkr",
+          "citimobileapp",
+          "kakaotalk",
+          "payco",
+          "lpayapp",
+          "hanamopmoasign",
+          "wooripay",
+          "nhallonepayansimclick",
+          "hanawalletmembers",
+          "supertoss"
+        ],
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoadsInWebContent": true,
+          "NSAllowsArbitraryLoads": true
+        }
       }
     },
     "android": {
@@ -23,22 +63,20 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#3B82F6"
       },
+      "versionCode": 1,
       "package": "com.donghaeng.app",
-      "googleServicesFile": "./google-services.json"
+      "softInputMode": "adjustResize"
     },
     "plugins": [
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#3B82F6"
-        }
-      ]
+      "expo-asset",
+      "expo-secure-store",
+      "./plugins/withAndroidQueries"
     ],
     "extra": {
       "eas": {
-        "projectId": ""
+        "projectId": "e6d26927-ac2f-4f80-a335-1f1bd6cd9f52"
       }
-    }
+    },
+    "owner": "kennylee2"
   }
 }

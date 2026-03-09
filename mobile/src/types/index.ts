@@ -4,8 +4,7 @@ export type ServiceType =
   | 'daily_care'
   | 'life_companion'
   | 'elderly_care'
-  | 'child_care'
-  | 'other';
+  | 'child_care';
 
 export type RequestStatus =
   | 'PENDING_TRANSFER'
@@ -26,7 +25,6 @@ export const SERVICE_TYPES: Record<ServiceType, ServiceTypeInfo> = {
   life_companion: { label: '생활동행', description: '외출 및 생활 동행 서비스', emoji: '🚶' },
   elderly_care: { label: '노인돌봄', description: '어르신 돌봄 서비스', emoji: '👴' },
   child_care: { label: '아이돌봄', description: '아이 돌봄 서비스', emoji: '👶' },
-  other: { label: '기타', description: '기타 돌봄 서비스', emoji: '📋' },
 };
 
 export const SERVICE_TYPE_KEYS: Record<string, ServiceType> = {
@@ -35,7 +33,6 @@ export const SERVICE_TYPE_KEYS: Record<string, ServiceType> = {
   '생활 동행': 'life_companion',
   '노인 돌봄': 'elderly_care',
   '아이 돌봄': 'child_care',
-  '기타': 'other',
 };
 
 export const STATUS_DISPLAY: Record<RequestStatus, { label: string; color: string; emoji: string }> = {
@@ -146,9 +143,10 @@ export type HomeStackParamList = {
   ManagerSelect: undefined;
   Details: undefined;
   Confirm: undefined;
-  PaymentWebView: { orderId: string; amount: number; orderName: string; requestId: string };
+  PaymentWebView: { orderId: string; amount: number; orderName: string; customerName?: string; customerPhone?: string; requestData?: Record<string, unknown> };
   Completion: { orderId: string; amount: number };
   BankTransferCompletion: { orderId: string; amount: number };
+  WebViewPage: { url: string; title: string };
 };
 
 export type BookingStackParamList = {

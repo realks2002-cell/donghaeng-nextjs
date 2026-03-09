@@ -15,7 +15,7 @@ type MoreNav = NativeStackNavigationProp<MoreStackParamList>;
 
 export function MyPageScreen() {
   const navigation = useNavigation<MoreNav>();
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
 
   function handleLogout() {
     Alert.alert('로그아웃', '정말 로그아웃하시겠습니까?', [
@@ -26,6 +26,28 @@ export function MyPageScreen() {
         onPress: logout,
       },
     ]);
+  }
+
+  function handleDeleteAccount() {
+    Alert.alert(
+      '회원 탈퇴',
+      '탈퇴 시 모든 개인정보와 서비스 이용 기록이 삭제됩니다. 진행 중인 서비스가 있는 경우 완료 후 탈퇴해 주세요.\n\n정말 탈퇴하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '탈퇴하기',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteAccount();
+              Alert.alert('완료', '회원 탈퇴가 완료되었습니다.');
+            } catch {
+              Alert.alert('오류', '회원 탈퇴 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            }
+          },
+        },
+      ]
+    );
   }
 
   return (
@@ -103,6 +125,12 @@ export function MyPageScreen() {
             variant="ghost"
             textStyle={styles.logoutText}
           />
+          <Button
+            title="회원 탈퇴"
+            onPress={handleDeleteAccount}
+            variant="ghost"
+            textStyle={styles.deleteAccountText}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -161,5 +189,9 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: Colors.error,
+  },
+  deleteAccountText: {
+    color: Colors.textTertiary,
+    fontSize: FontSize.sm,
   },
 });

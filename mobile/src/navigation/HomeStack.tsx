@@ -15,6 +15,7 @@ import { ConfirmScreen } from '../screens/request/ConfirmScreen';
 import { PaymentWebViewScreen } from '../screens/request/PaymentWebViewScreen';
 import { CompletionScreen } from '../screens/request/CompletionScreen';
 import { BankTransferCompletionScreen } from '../screens/request/BankTransferCompletionScreen';
+import { WebViewScreen } from '../screens/more/WebViewScreen';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -92,6 +93,11 @@ export function HomeStack() {
           options={{ headerShown: false }}
         />
         {RequestWizardScreens()}
+        <Stack.Screen
+          name="WebViewPage"
+          component={WebViewScreen}
+          options={({ route }) => ({ title: route.params.title })}
+        />
       </Stack.Navigator>
     </ServiceRequestProvider>
   );

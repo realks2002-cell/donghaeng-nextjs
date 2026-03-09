@@ -23,7 +23,7 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="text-base text-white space-y-1.5">
               <p><span className="text-gray-300">상호 :</span> 한국직업능력평생교육원</p>
-              <p><span className="text-gray-300">대표자명 :</span> 임체계</p>
+              <p><span className="text-gray-300">대표자명 :</span> 임채계</p>
               <p><span className="text-gray-300">사업자등록번호 :</span> 289-05-03250 | <span className="text-gray-300">전화번호 :</span> 1668-5535</p>
               <p><span className="text-gray-300">주소 :</span> 경기도 화성시 동탄대로5길 21, B동 2층 W243호(송동)</p>
               <p><span className="text-gray-300">통신판매업 신고번호 :</span> 제 2026-화성동탄-0213 호</p>

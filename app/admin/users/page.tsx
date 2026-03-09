@@ -37,6 +37,7 @@ function AdminUsersContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchInput, setSearchInput] = useState(search)
 
+
   const totalPages = Math.ceil(total / perPage)
   const offset = (page - 1) * perPage
 
@@ -77,7 +78,7 @@ function AdminUsersContent() {
 
   return (
     <div className="max-w-[1408px]">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold">회원 관리</h1>
       </div>
 
@@ -140,10 +141,10 @@ function AdminUsersContent() {
                         <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">{user.phone ? formatKoreanPhone(user.phone) : '-'}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">
                           {user.address ? (
-                            <div>
+                            <>
                               <div>{user.address}</div>
                               {user.address_detail && <div className="text-xs text-gray-500">{user.address_detail}</div>}
-                            </div>
+                            </>
                           ) : '-'}
                         </td>
                         <td className="px-4 py-3 text-sm">

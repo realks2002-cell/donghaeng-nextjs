@@ -17,7 +17,6 @@ const serviceOrder: ServiceType[] = [
   'life_companion',
   'elderly_care',
   'child_care',
-  'other',
 ];
 
 export function ServiceSelectScreen({ navigation }: Props) {

@@ -41,11 +41,11 @@ export default function RefundPage() {
                 </tr>
                 <tr>
                   <td className="border border-gray-200 px-4 py-2">서비스 시작 1일 전까지</td>
-                  <td className="border border-gray-200 px-4 py-2">결제 금액의 90% 환불 (위약금 10%)</td>
+                  <td className="border border-gray-200 px-4 py-2">결제 금액의 50% 환불 (위약금 50%)</td>
                 </tr>
                 <tr>
                   <td className="border border-gray-200 px-4 py-2">서비스 당일 취소</td>
-                  <td className="border border-gray-200 px-4 py-2">결제 금액의 50% 환불 (위약금 50%)</td>
+                  <td className="border border-gray-200 px-4 py-2">취소 불가 (위약금 100%)</td>
                 </tr>
                 <tr>
                   <td className="border border-gray-200 px-4 py-2">서비스 시작 이후 또는 No-show</td>

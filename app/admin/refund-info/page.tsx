@@ -43,6 +43,7 @@ export default function AdminRefundInfoPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [customerMap, setCustomerMap] = useState<Record<string, string>>({})
 
+
   useEffect(() => {
     const fetchRefunds = async () => {
       const supabase = createClient()
@@ -117,7 +118,9 @@ export default function AdminRefundInfoPage() {
 
   return (
     <div className="max-w-[1408px]">
-      <h1 className="text-2xl font-bold mb-6">취소요청 및 환불</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">취소요청 및 환불</h1>
+      </div>
 
       {/* 요약 카드 */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">

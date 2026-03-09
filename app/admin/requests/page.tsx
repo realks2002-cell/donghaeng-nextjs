@@ -60,6 +60,7 @@ export default function AdminRequestsPage() {
   const [searchMessage, setSearchMessage] = useState('')
   const [isMatching, setIsMatching] = useState(false)
 
+
   const fetchRequests = async () => {
     try {
       const res = await fetch('/api/admin/requests', { cache: 'no-store' })
@@ -199,7 +200,9 @@ export default function AdminRequestsPage() {
 
   return (
     <div className="max-w-[1408px]">
-      <h1 className="text-2xl font-bold mb-6">예약요청 및 매칭 현황</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">예약요청 및 매칭 현황</h1>
+      </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
         {STATUS_FILTERS.map((f) => {

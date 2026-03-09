@@ -26,6 +26,7 @@ export default function ManagerSettlementPage() {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
   })
+
   const [endDate, setEndDate] = useState(() => {
     const now = new Date()
     const last = new Date(now.getFullYear(), now.getMonth() + 1, 0)

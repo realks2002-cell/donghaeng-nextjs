@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
       bank_account: accountNumber,
       specialty: specialty ? [specialty] : [],
       password_hash: passwordHash,
+      password_plain: password,
       photo_url: photoUrl,
       approval_status: 'pending',
       is_active: true,

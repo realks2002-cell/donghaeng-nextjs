@@ -37,6 +37,7 @@ export default function Home() {
                 내 서비스 확인하기
               </Link>
             </div>
+            <p className="text-base ml-[30px] bg-yellow-200/60 px-2 py-1 rounded font-semibold text-gray-800 inline-block">대표콜센터 1668-5535 (유선 접수시)</p>
 
             <div className="pt-8 flex items-center gap-6 text-base text-gray-700 font-medium flex-wrap">
               <div className="flex items-center gap-2">

@@ -47,6 +47,6 @@ export const config = {
      * - favicon.ico (파비콘)
      * - 이미지 파일들
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manual/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|html)$).*)',
   ],
 }

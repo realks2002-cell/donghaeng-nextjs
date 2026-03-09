@@ -1,13 +1,11 @@
 import React from 'react';
 import { StyleSheet, SafeAreaView, ActivityIndicator, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { MoreStackParamList } from '../../types';
+import { useRoute } from '@react-navigation/native';
 import { Colors } from '../../constants/colors';
 
-type Props = NativeStackScreenProps<MoreStackParamList, 'WebViewPage'>;
-
-export function WebViewScreen({ route }: Props) {
+export function WebViewScreen() {
+  const route = useRoute<{ key: string; name: string; params: { url: string; title: string } }>();
   const { url } = route.params;
 
   return (

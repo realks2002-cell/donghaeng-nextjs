@@ -45,7 +45,6 @@ export function getServiceTypeLabel(serviceType: string): string {
     life_companion: '생활동행',
     elderly_care: '노인돌봄',
     child_care: '아이돌봄',
-    other: '기타',
   };
   return labels[serviceType] || serviceType;
 }
@@ -57,7 +56,6 @@ export function getServiceTypeEmoji(serviceType: string): string {
     life_companion: '🚶',
     elderly_care: '👴',
     child_care: '👶',
-    other: '📋',
   };
   return emojis[serviceType] || '📋';
 }

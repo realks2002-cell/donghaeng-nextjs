@@ -3,59 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Humend HR - 사용자 매뉴얼</title>
+<title>행복안심동행 - 사용자 매뉴얼</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
 <style>
   :root {
     --color-public: #f97316;
     --color-public-bg: #fff7ed;
     --color-public-border: #fed7aa;
-    --color-auth: #0d9488;
-    --color-auth-bg: #f0fdfa;
-    --color-auth-border: #99f6e4;
-    --color-admin: #6366f1;
-    --color-admin-bg: #eef2ff;
-    --color-admin-border: #c7d2fe;
+    --color-service: #3b82f6;
+    --color-service-bg: #eff6ff;
+    --color-service-border: #bfdbfe;
+    --color-manager: #0d9488;
+    --color-manager-bg: #f0fdfa;
+    --color-manager-border: #99f6e4;
+    --color-admin: #7c3aed;
+    --color-admin-bg: #f5f3ff;
+    --color-admin-border: #c4b5fd;
     --color-text: #1e293b;
     --color-muted: #64748b;
     --color-bg: #ffffff;
     --color-surface: #f8fafc;
     --color-border: #e2e8f0;
     --radius: 12px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
     color: var(--color-text);
     background: var(--color-bg);
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
   }
 
+  /* Sticky Nav */
+  .sticky-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0 24px;
+    transition: box-shadow 0.2s;
+  }
+  .sticky-nav.scrolled { box-shadow: var(--shadow-md); }
+  .sticky-nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+  }
+  .sticky-nav-brand {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .sticky-nav-links {
+    display: flex;
+    gap: 4px;
+  }
+  .sticky-nav-links a {
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--color-muted);
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .sticky-nav-links a:hover {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+  .sticky-nav-links a.public { color: var(--color-public); }
+  .sticky-nav-links a.service { color: var(--color-service); }
+  .sticky-nav-links a.manager { color: var(--color-manager); }
+  .sticky-nav-links a.admin { color: var(--color-admin); }
+
   /* Header */
   .manual-header {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    margin-top: 52px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
     color: white;
-    padding: 48px 32px;
+    padding: 64px 32px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
   }
+  .manual-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(249,115,22,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(59,130,246,0.08) 0%, transparent 50%);
+    animation: headerGlow 8s ease-in-out infinite alternate;
+  }
+  @keyframes headerGlow {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(-2%,1%); }
+  }
+  .manual-header > * { position: relative; z-index: 1; }
   .manual-header .logo {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    opacity: 0.7;
+    opacity: 0.5;
     margin-bottom: 16px;
   }
   .manual-header h1 {
-    font-size: 36px;
+    font-size: 40px;
     font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .manual-header .subtitle {
+    font-size: 16px;
+    opacity: 0.7;
     margin-bottom: 8px;
   }
   .manual-header .meta {
-    font-size: 14px;
-    opacity: 0.6;
+    font-size: 13px;
+    opacity: 0.4;
   }
 
   /* Container */
@@ -67,15 +151,16 @@
 
   /* TOC */
   .toc {
-    background: var(--color-surface);
+    background: var(--color-bg);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     padding: 32px;
     margin: 32px auto;
     max-width: 1200px;
+    box-shadow: var(--shadow-sm);
   }
   .toc h2 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     margin-bottom: 20px;
     padding-bottom: 12px;
@@ -83,35 +168,57 @@
   }
   .toc-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 16px;
   }
   .toc-section {
-    padding: 16px;
-    border-radius: 8px;
-    border-left: 4px solid;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
   }
-  .toc-section.public { border-color: var(--color-public); background: var(--color-public-bg); }
-  .toc-section.auth { border-color: var(--color-auth); background: var(--color-auth-bg); }
-  .toc-section.admin { border-color: var(--color-admin); background: var(--color-admin-bg); }
+  .toc-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+  }
+  .toc-section.public { background: var(--color-public-bg); border-color: var(--color-public-border); }
+  .toc-section.public::before { background: var(--color-public); }
+  .toc-section.service { background: var(--color-service-bg); border-color: var(--color-service-border); }
+  .toc-section.service::before { background: var(--color-service); }
+  .toc-section.manager { background: var(--color-manager-bg); border-color: var(--color-manager-border); }
+  .toc-section.manager::before { background: var(--color-manager); }
+  .toc-section.admin { background: var(--color-admin-bg); border-color: var(--color-admin-border); }
+  .toc-section.admin::before { background: var(--color-admin); }
+  .toc-section:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
   .toc-section h3 {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    padding-left: 8px;
   }
   .toc-section a {
     display: block;
     color: var(--color-muted);
     text-decoration: none;
     font-size: 13px;
-    padding: 3px 0;
-    transition: color 0.15s;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.15s;
   }
-  .toc-section a:hover { color: var(--color-text); }
+  .toc-section a:hover {
+    color: var(--color-text);
+    background: rgba(255,255,255,0.6);
+  }
 
   /* Section */
   .section {
-    margin: 48px auto;
+    margin: 56px auto;
     max-width: 1200px;
   }
   .section-header {
@@ -128,16 +235,19 @@
     gap: 6px;
     padding: 6px 16px;
     border-radius: 20px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: white;
+    letter-spacing: 0.5px;
   }
   .section-badge.public { background: var(--color-public); }
-  .section-badge.auth { background: var(--color-auth); }
+  .section-badge.service { background: var(--color-service); }
+  .section-badge.manager { background: var(--color-manager); }
   .section-badge.admin { background: var(--color-admin); }
   .section-header h2 {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
+    letter-spacing: -0.3px;
   }
 
   /* Page Card */
@@ -147,29 +257,45 @@
     border-radius: var(--radius);
     margin-bottom: 32px;
     overflow: hidden;
-    transition: box-shadow 0.2s;
+    transition: all 0.25s;
+    box-shadow: var(--shadow-sm);
+    position: relative;
   }
+  .page-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .section.s-public .page-card::before { background: linear-gradient(90deg, var(--color-public), #fbbf24); }
+  .section.s-service .page-card::before { background: linear-gradient(90deg, var(--color-service), #818cf8); }
+  .section.s-manager .page-card::before { background: linear-gradient(90deg, var(--color-manager), #34d399); }
+  .section.s-admin .page-card::before { background: linear-gradient(90deg, var(--color-admin), #a78bfa); }
   .page-card:hover {
-    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
   }
   .page-card-header {
     padding: 24px 28px;
     border-bottom: 1px solid var(--color-border);
   }
   .page-card-header h3 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
   .page-card-header .url {
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
     color: var(--color-muted);
     background: var(--color-surface);
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 4px;
     display: inline-block;
     margin-bottom: 12px;
+    border: 1px solid var(--color-border);
   }
   .page-card-header p {
     font-size: 14px;
@@ -181,7 +307,7 @@
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
   .page-card-header ul li {
     font-size: 12px;
@@ -201,7 +327,7 @@
   }
   .screenshot-panel {
     background: var(--color-surface);
-    padding: 16px;
+    padding: 20px;
     text-align: center;
   }
   .screenshot-panel .label {
@@ -217,35 +343,89 @@
     height: auto;
     border-radius: 8px;
     border: 1px solid var(--color-border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition: transform 0.2s;
   }
+  .screenshot-panel img:hover { transform: scale(1.01); }
+
+  /* Lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+    padding: 40px;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 0 60px rgba(0,0,0,0.3);
+  }
+
+  /* Back to Top */
+  .back-to-top {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-text);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 50;
+    box-shadow: var(--shadow-lg);
+  }
+  .back-to-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .back-to-top:hover { background: #334155; }
 
   /* Footer */
   .manual-footer {
-    background: var(--color-surface);
-    border-top: 1px solid var(--color-border);
-    padding: 32px;
+    background: #0f172a;
+    color: rgba(255,255,255,0.5);
+    padding: 40px 32px;
     text-align: center;
-    color: var(--color-muted);
     font-size: 13px;
     margin-top: 64px;
   }
+  .manual-footer p + p { margin-top: 4px; }
 
   /* Responsive */
   @media (max-width: 768px) {
-    .manual-header h1 { font-size: 24px; }
-    .screenshot-grid {
-      grid-template-columns: 1fr;
-    }
-    .toc-grid {
-      grid-template-columns: 1fr;
-    }
+    .manual-header { padding: 48px 20px; }
+    .manual-header h1 { font-size: 28px; }
+    .screenshot-grid { grid-template-columns: 1fr; }
+    .toc-grid { grid-template-columns: 1fr; }
     .section-header { flex-direction: column; align-items: flex-start; }
+    .sticky-nav-links { display: none; }
+    .back-to-top { bottom: 20px; right: 20px; }
   }
 
   /* Print */
   @media print {
-    .manual-header { padding: 24px; }
+    .sticky-nav, .back-to-top, .lightbox { display: none !important; }
+    .manual-header { margin-top: 0; padding: 24px; }
     .page-card { break-inside: avoid; }
     .screenshot-grid { grid-template-columns: 2fr 1fr; }
     body { font-size: 11pt; }
@@ -254,11 +434,25 @@
 </head>
 <body>
 
+<!-- Sticky Nav -->
+<nav class="sticky-nav" id="stickyNav">
+  <div class="sticky-nav-inner">
+    <a href="#top" class="sticky-nav-brand">사용자 매뉴얼</a>
+    <div class="sticky-nav-links">
+      <a href="#section-public" class="public">공개 페이지</a>
+      <a href="#section-service" class="service">서비스 신청</a>
+      <a href="#section-manager" class="manager">매니저</a>
+      <a href="#section-admin" class="admin">관리자</a>
+    </div>
+  </div>
+</nav>
+
 <!-- Header -->
-<header class="manual-header">
-  <div class="logo">Humend HR</div>
+<header class="manual-header" id="top">
+  <div class="logo">행복안심동행</div>
   <h1>사용자 매뉴얼</h1>
-  <p class="meta">v1.0 &middot; 2026년 2월 21일 &middot; 인력 매칭 플랫폼</p>
+  <p class="subtitle">돌봄 서비스 플랫폼 사용 매뉴얼</p>
+  <p class="meta">v2.1 &middot; 2026년 3월 10일 &middot; 병원동행 &middot; 가사돌봄 &middot; 생활동행 &middot; 노인돌봄 &middot; 아이돌봄</p>
 </header>
 
 <!-- TOC -->
@@ -268,26 +462,46 @@
     <div class="toc-section public">
       <h3>1. 공개 페이지</h3>
       <a href="#homepage">홈페이지</a>
-      <a href="#about">사업소개</a>
-      <a href="#jobs">알바공고</a>
+      <a href="#about">회사소개</a>
+      <a href="#service-guide">서비스이용가이드</a>
+      <a href="#faq">자주 묻는 질문</a>
     </div>
-    <div class="toc-section auth">
-      <h3>2. 회원 인증</h3>
-      <a href="#login">로그인</a>
-      <a href="#signup">회원가입</a>
+    <div class="toc-section service">
+      <h3>2. 서비스 신청</h3>
+      <a href="#user-type">회원/비회원 선택</a>
+      <a href="#info">신청자 정보</a>
+      <a href="#service">서비스 선택</a>
+      <a href="#datetime">날짜/시간 선택</a>
+      <a href="#manager-select">매니저 선택</a>
+      <a href="#details">상세 요청사항</a>
+      <a href="#payment">결제</a>
+    </div>
+    <div class="toc-section manager">
+      <h3>3. 매니저</h3>
+      <a href="#manager-recruit">매니저 모집</a>
+      <a href="#manager-login">로그인</a>
+      <a href="#manager-signup">회원가입</a>
+      <a href="#manager-dashboard">대시보드</a>
+      <a href="#manager-schedule">근무기록</a>
     </div>
     <div class="toc-section admin">
-      <h3>3. 관리자</h3>
-      <a href="#admin-login">관리자 로그인</a>
+      <h3>4. 관리자</h3>
+      <a href="#admin-login">로그인</a>
       <a href="#admin-dashboard">대시보드</a>
-      <a href="#admin-members">회원 관리</a>
-      <a href="#admin-clients">고객사 관리</a>
-      <a href="#admin-jobs">공고 관리</a>
-      <a href="#admin-applications">지원 관리</a>
-      <a href="#admin-payroll">급여 관리</a>
-      <a href="#admin-payments">급여지급 내역</a>
-      <a href="#admin-contracts">계약 관리</a>
-      <a href="#admin-notifications">알림 관리</a>
+      <a href="#admin-users">회원 관리</a>
+      <a href="#admin-managers">매니저 관리</a>
+      <a href="#admin-manager-applications">매니저 지원확인</a>
+      <a href="#admin-requests">예약요청 및 매칭</a>
+      <a href="#admin-register-service">서비스 직접 등록</a>
+      <a href="#admin-designated-matching">지정 매니저 매칭</a>
+      <a href="#admin-payments">결제 내역</a>
+      <a href="#admin-refund-info">취소/환불</a>
+      <a href="#admin-revenue">매출 집계</a>
+      <a href="#admin-manager-settlement">매니저 정산</a>
+      <a href="#admin-service-prices">서비스 가격</a>
+      <a href="#admin-branches">지점 관리</a>
+      <a href="#admin-agency-applications">대리점 신청</a>
+      <a href="#admin-notifications">매니저 알림</a>
       <a href="#admin-settings">관리자 설정</a>
     </div>
   </div>
@@ -296,24 +510,22 @@
 <!-- ============================================ -->
 <!-- Section 1: 공개 페이지 -->
 <!-- ============================================ -->
-<div class="section container">
+<div class="section container s-public" id="section-public">
   <div class="section-header">
     <span class="section-badge public">Section 1</span>
     <h2>공개 페이지</h2>
   </div>
 
-  <!-- 홈페이지 -->
   <div class="page-card" id="homepage">
     <div class="page-card-header">
       <h3>홈페이지</h3>
       <span class="url">/</span>
-      <p>Humend HR 플랫폼의 메인 페이지입니다. 최신 알바공고, 서비스 소개, 통계 정보를 한눈에 확인할 수 있습니다.</p>
+      <p>행복안심동행 플랫폼의 메인 페이지입니다. 돌봄 서비스 소개와 서비스 신청 안내를 제공합니다.</p>
       <ul>
-        <li>히어로 섹션 (캐치프레이즈)</li>
-        <li>직종 태그 슬라이더</li>
-        <li>최근 알바공고 목록</li>
-        <li>플랫폼 통계 (등록회원, 제휴고객사, 매칭완료)</li>
-        <li>서비스 소개 카드</li>
+        <li>히어로 섹션 (서비스 소개)</li>
+        <li>서비스 종류 안내</li>
+        <li>서비스 신청 CTA</li>
+        <li>이용 방법 안내</li>
       </ul>
     </div>
     <div class="screenshot-grid">
@@ -328,407 +540,653 @@
     </div>
   </div>
 
-  <!-- 사업소개 -->
   <div class="page-card" id="about">
     <div class="page-card-header">
-      <h3>사업소개</h3>
+      <h3>회사소개</h3>
       <span class="url">/about</span>
-      <p>Humend HR 플랫폼의 비전과 서비스 프로세스, 핵심 가치를 소개하는 페이지입니다.</p>
+      <p>행복안심동행의 비전, 서비스 프로세스, 핵심 가치를 소개하는 페이지입니다.</p>
       <ul>
-        <li>회사 소개 히어로</li>
-        <li>4단계 서비스 프로세스 (공고등록 → 인력매칭 → 근무확인 → 급여정산)</li>
-        <li>핵심 가치 (신속, 신뢰, 편의)</li>
-        <li>CTA (회원가입 / 채용공고 보기)</li>
+        <li>회사 소개</li>
+        <li>서비스 프로세스 안내</li>
+        <li>핵심 가치</li>
+        <li>서비스 영역</li>
       </ul>
     </div>
     <div class="screenshot-grid">
       <div class="screenshot-panel">
         <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s1-about-desktop.png" alt="사업소개 데스크탑" loading="lazy">
+        <img src="screenshots/s1-about-desktop.png" alt="회사소개 데스크탑" loading="lazy">
       </div>
       <div class="screenshot-panel">
         <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s1-about-mobile.png" alt="사업소개 모바일" loading="lazy">
+        <img src="screenshots/s1-about-mobile.png" alt="회사소개 모바일" loading="lazy">
       </div>
     </div>
   </div>
 
-  <!-- 알바공고 -->
-  <div class="page-card" id="jobs">
+  <div class="page-card" id="service-guide">
     <div class="page-card-header">
-      <h3>알바공고</h3>
-      <span class="url">/jobs</span>
-      <p>현재 모집 중인 알바 공고 목록 페이지입니다. 날짜 필터로 원하는 근무일의 공고를 검색할 수 있습니다.</p>
+      <h3>서비스이용가이드</h3>
+      <span class="url">/service-guide</span>
+      <p>돌봄 서비스 이용 방법을 단계별로 안내하는 페이지입니다.</p>
       <ul>
-        <li>날짜 범위 필터 (시작일/종료일)</li>
-        <li>고객사별 공고 카드 (이미지, 위치, 시급, 모집인원)</li>
-        <li>근무일별 시간대 표시</li>
-        <li>각 일정별 "지원하기" 버튼</li>
+        <li>서비스 이용 절차</li>
+        <li>서비스 종류별 설명</li>
+        <li>가격 안내</li>
+        <li>주의사항</li>
       </ul>
     </div>
     <div class="screenshot-grid">
       <div class="screenshot-panel">
         <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s1-jobs-desktop.png" alt="알바공고 데스크탑" loading="lazy">
+        <img src="screenshots/s1-service-guide-desktop.png" alt="서비스이용가이드 데스크탑" loading="lazy">
       </div>
       <div class="screenshot-panel">
         <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s1-jobs-mobile.png" alt="알바공고 모바일" loading="lazy">
+        <img src="screenshots/s1-service-guide-mobile.png" alt="서비스이용가이드 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="faq">
+    <div class="page-card-header">
+      <h3>자주 묻는 질문</h3>
+      <span class="url">/faq</span>
+      <p>서비스 이용에 관한 자주 묻는 질문과 답변을 확인할 수 있습니다.</p>
+      <ul>
+        <li>카테고리별 FAQ</li>
+        <li>아코디언 펼치기/접기</li>
+        <li>검색 기능</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s1-faq-desktop.png" alt="FAQ 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s1-faq-mobile.png" alt="FAQ 모바일" loading="lazy">
       </div>
     </div>
   </div>
 </div>
 
 <!-- ============================================ -->
-<!-- Section 2: 회원 인증 -->
+<!-- Section 2: 서비스 신청 -->
 <!-- ============================================ -->
-<div class="section container">
+<div class="section container s-service" id="section-service">
   <div class="section-header">
-    <span class="section-badge auth">Section 2</span>
-    <h2>회원 인증</h2>
+    <span class="section-badge service">Section 2</span>
+    <h2>서비스 신청</h2>
   </div>
 
-  <!-- 로그인 -->
-  <div class="page-card" id="login">
+  <div class="page-card" id="user-type">
     <div class="page-card-header">
-      <h3>로그인</h3>
-      <span class="url">/login</span>
-      <p>회원 로그인 페이지입니다. 전화번호와 비밀번호로 간편하게 로그인할 수 있습니다.</p>
+      <h3>회원/비회원 선택</h3>
+      <span class="url">/requests/new/user-type</span>
+      <p>서비스 신청의 첫 단계입니다. 회원 로그인 또는 비회원(게스트)으로 진행할 수 있습니다.</p>
       <ul>
-        <li>전화번호 입력 (010-XXXX-XXXX)</li>
-        <li>비밀번호 입력 (숫자+영어 6자리 이상)</li>
-        <li>비밀번호 보기/숨기기 토글</li>
-        <li>비밀번호 찾기 링크</li>
+        <li>회원 로그인 선택</li>
+        <li>비회원 신청 선택</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s2-user-type-desktop.png" alt="회원/비회원 선택 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s2-user-type-mobile.png" alt="회원/비회원 선택 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="info">
+    <div class="page-card-header">
+      <h3>신청자 정보</h3>
+      <span class="url">/requests/new/info</span>
+      <p>신청자의 이름, 전화번호, 주소 등 기본 정보를 입력합니다.</p>
+      <ul>
+        <li>이름 입력</li>
+        <li>전화번호 입력</li>
+        <li>주소 검색 및 입력</li>
+        <li>상세 주소 입력</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s2-info-desktop.png" alt="신청자 정보 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s2-info-mobile.png" alt="신청자 정보 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="service">
+    <div class="page-card-header">
+      <h3>서비스 선택</h3>
+      <span class="url">/requests/new/service</span>
+      <p>원하는 돌봄 서비스 종류를 선택합니다.</p>
+      <ul>
+        <li>병원동행</li>
+        <li>가사돌봄</li>
+        <li>생활동행</li>
+        <li>노인돌봄</li>
+        <li>아이돌봄</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s2-service-desktop.png" alt="서비스 선택 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s2-service-mobile.png" alt="서비스 선택 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="datetime">
+    <div class="page-card-header">
+      <h3>날짜/시간 선택</h3>
+      <span class="url">/requests/new/datetime</span>
+      <p>서비스 이용 날짜와 시간, 소요시간을 선택합니다.</p>
+      <ul>
+        <li>날짜 선택 (캘린더)</li>
+        <li>시작 시간 선택</li>
+        <li>소요시간 선택</li>
+        <li>예상 금액 표시</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s2-datetime-desktop.png" alt="날짜/시간 선택 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s2-datetime-mobile.png" alt="날짜/시간 선택 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="manager-select">
+    <div class="page-card-header">
+      <h3>매니저 선택</h3>
+      <span class="url">/requests/new/manager</span>
+      <p>지정 매니저를 선택할 수 있습니다 (선택사항).</p>
+      <ul>
+        <li>매니저 목록 표시</li>
+        <li>매니저 프로필 확인</li>
+        <li>지정 매니저 선택/건너뛰기</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s2-manager-desktop.png" alt="매니저 선택 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s2-manager-mobile.png" alt="매니저 선택 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="details">
+    <div class="page-card-header">
+      <h3>상세 요청사항</h3>
+      <span class="url">/requests/new/details</span>
+      <p>서비스에 대한 상세 요청사항을 입력합니다.</p>
+      <ul>
+        <li>요청사항 텍스트 입력</li>
+        <li>추가 안내사항</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s2-details-desktop.png" alt="상세 요청사항 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s2-details-mobile.png" alt="상세 요청사항 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="payment">
+    <div class="page-card-header">
+      <h3>결제</h3>
+      <span class="url">/requests/new/payment</span>
+      <p>토스페이먼츠를 통한 결제 단계입니다. 신청 내용을 확인하고 결제를 진행합니다.</p>
+      <ul>
+        <li>신청 내용 요약</li>
+        <li>결제 금액 확인</li>
+        <li>카드결제 / 퀵계좌이체 / 무통장입금</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s2-payment-desktop.png" alt="결제 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s2-payment-mobile.png" alt="결제 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Section 3: 매니저 -->
+<!-- ============================================ -->
+<div class="section container s-manager" id="section-manager">
+  <div class="section-header">
+    <span class="section-badge manager">Section 3</span>
+    <h2>매니저</h2>
+  </div>
+
+  <div class="page-card" id="manager-recruit">
+    <div class="page-card-header">
+      <h3>매니저 모집</h3>
+      <span class="url">/manager/recruit</span>
+      <p>돌봄 매니저를 모집하는 안내 페이지입니다.</p>
+      <ul>
+        <li>매니저 모집 안내</li>
+        <li>지원 자격</li>
+        <li>근무 조건</li>
+        <li>지원하기 CTA</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s3-recruit-desktop.png" alt="매니저 모집 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s3-recruit-mobile.png" alt="매니저 모집 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="manager-login">
+    <div class="page-card-header">
+      <h3>매니저 로그인</h3>
+      <span class="url">/manager/login</span>
+      <p>매니저 전용 로그인 페이지입니다. 전화번호와 비밀번호로 인증합니다.</p>
+      <ul>
+        <li>전화번호 입력</li>
+        <li>비밀번호 입력</li>
         <li>회원가입 링크</li>
       </ul>
     </div>
     <div class="screenshot-grid">
       <div class="screenshot-panel">
         <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s2-login-desktop.png" alt="로그인 데스크탑" loading="lazy">
+        <img src="screenshots/s3-login-desktop.png" alt="매니저 로그인 데스크탑" loading="lazy">
       </div>
       <div class="screenshot-panel">
         <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s2-login-mobile.png" alt="로그인 모바일" loading="lazy">
+        <img src="screenshots/s3-login-mobile.png" alt="매니저 로그인 모바일" loading="lazy">
       </div>
     </div>
   </div>
 
-  <!-- 회원가입 -->
-  <div class="page-card" id="signup">
+  <div class="page-card" id="manager-signup">
     <div class="page-card-header">
-      <h3>회원가입</h3>
-      <span class="url">/signup</span>
-      <p>신규 회원가입 페이지입니다. 이름, 전화번호, 비밀번호만으로 간편하게 가입할 수 있습니다.</p>
+      <h3>매니저 회원가입</h3>
+      <span class="url">/manager/signup</span>
+      <p>매니저로 가입하는 페이지입니다. 관리자 승인 후 로그인이 가능합니다.</p>
       <ul>
         <li>이름 입력</li>
         <li>전화번호 입력</li>
-        <li>비밀번호 입력 (영문+숫자 6자리 이상)</li>
-        <li>비밀번호 확인</li>
-        <li>로그인 페이지 링크</li>
+        <li>비밀번호 설정</li>
+        <li>승인 대기 안내</li>
       </ul>
     </div>
     <div class="screenshot-grid">
       <div class="screenshot-panel">
         <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s2-signup-desktop.png" alt="회원가입 데스크탑" loading="lazy">
+        <img src="screenshots/s3-signup-desktop.png" alt="매니저 회원가입 데스크탑" loading="lazy">
       </div>
       <div class="screenshot-panel">
         <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s2-signup-mobile.png" alt="회원가입 모바일" loading="lazy">
+        <img src="screenshots/s3-signup-mobile.png" alt="매니저 회원가입 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="manager-dashboard">
+    <div class="page-card-header">
+      <h3>매니저 대시보드</h3>
+      <span class="url">/manager/dashboard</span>
+      <p>매니저의 배정된 서비스, 일정 등을 확인하는 메인 페이지입니다.</p>
+      <ul>
+        <li>배정된 서비스 목록</li>
+        <li>오늘의 일정</li>
+        <li>알림 확인</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s3-dashboard-desktop.png" alt="매니저 대시보드 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s3-dashboard-mobile.png" alt="매니저 대시보드 모바일" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card" id="manager-schedule">
+    <div class="page-card-header">
+      <h3>근무기록</h3>
+      <span class="url">/manager/schedule</span>
+      <p>매니저의 근무 기록과 일정을 관리하는 페이지입니다.</p>
+      <ul>
+        <li>근무 기록 목록</li>
+        <li>날짜별 필터</li>
+        <li>근무 상태 확인</li>
+      </ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel">
+        <div class="label">Desktop (1280px)</div>
+        <img src="screenshots/s3-schedule-desktop.png" alt="근무기록 데스크탑" loading="lazy">
+      </div>
+      <div class="screenshot-panel">
+        <div class="label">Mobile (390px)</div>
+        <img src="screenshots/s3-schedule-mobile.png" alt="근무기록 모바일" loading="lazy">
       </div>
     </div>
   </div>
 </div>
 
 <!-- ============================================ -->
-<!-- Section 3: 관리자 -->
+<!-- Section 4: 관리자 -->
 <!-- ============================================ -->
-<div class="section container">
+<div class="section container s-admin" id="section-admin">
   <div class="section-header">
-    <span class="section-badge admin">Section 3</span>
+    <span class="section-badge admin">Section 4</span>
     <h2>관리자</h2>
   </div>
 
-  <!-- 관리자 로그인 -->
   <div class="page-card" id="admin-login">
     <div class="page-card-header">
       <h3>관리자 로그인</h3>
       <span class="url">/admin/login</span>
       <p>관리자 전용 로그인 페이지입니다. 관리자 아이디와 비밀번호로 인증합니다.</p>
-      <ul>
-        <li>아이디 입력</li>
-        <li>비밀번호 입력</li>
-        <li>사이드바 네비게이션 표시</li>
-      </ul>
+      <ul><li>관리자 ID 입력</li><li>비밀번호 입력</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-login-desktop.png" alt="관리자 로그인 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-login-mobile.png" alt="관리자 로그인 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-login-desktop.png" alt="관리자 로그인 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-login-mobile.png" alt="관리자 로그인 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 대시보드 -->
   <div class="page-card" id="admin-dashboard">
     <div class="page-card-header">
       <h3>대시보드</h3>
       <span class="url">/admin</span>
       <p>관리자 대시보드입니다. 주요 지표와 최근 활동을 한눈에 확인할 수 있습니다.</p>
-      <ul>
-        <li>핵심 지표 카드 (확정근무, 미처리지원, 등록회원, 제휴고객사, 이번달 급여)</li>
-        <li>지원 현황 파이 차트 (대기/승인/거절)</li>
-        <li>월별 급여 추이 바 차트</li>
-        <li>미처리 지원 목록</li>
-        <li>최근 활동 타임라인</li>
-      </ul>
+      <ul><li>핵심 지표 카드</li><li>최근 서비스 요청</li><li>매니저 현황</li><li>매출 요약</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-dashboard-desktop.png" alt="대시보드 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-dashboard-mobile.png" alt="대시보드 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-dashboard-desktop.png" alt="대시보드 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-dashboard-mobile.png" alt="대시보드 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 회원 관리 -->
-  <div class="page-card" id="admin-members">
+  <div class="page-card" id="admin-users">
     <div class="page-card-header">
       <h3>회원 관리</h3>
-      <span class="url">/admin/members</span>
-      <p>등록된 회원을 조회하고 관리하는 페이지입니다.</p>
-      <ul>
-        <li>총 회원 수 표시</li>
-        <li>이름/전화번호 검색</li>
-        <li>회원 테이블 (이름, 전화번호, 지역, 상태, 가입일)</li>
-        <li>회원 상세 정보 팝업</li>
-      </ul>
+      <span class="url">/admin/users</span>
+      <p>등록된 고객(회원)을 조회하고 관리하는 페이지입니다.</p>
+      <ul><li>회원 목록 테이블</li><li>이름/전화번호 검색</li><li>회원 상세 정보</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-members-desktop.png" alt="회원 관리 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-members-mobile.png" alt="회원 관리 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-users-desktop.png" alt="회원 관리 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-users-mobile.png" alt="회원 관리 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 고객사 관리 -->
-  <div class="page-card" id="admin-clients">
+  <div class="page-card" id="admin-managers">
     <div class="page-card-header">
-      <h3>고객사 관리</h3>
-      <span class="url">/admin/clients</span>
-      <p>제휴 고객사를 등록하고 관리하는 페이지입니다. 카드를 드래그하여 순서를 변경할 수 있습니다.</p>
-      <ul>
-        <li>총 고객사 수 표시</li>
-        <li>고객사 등록 버튼</li>
-        <li>고객사 카드 (이미지, 위치, 시급, 담당자, 복장 안내)</li>
-        <li>드래그 앤 드롭 순서 변경</li>
-        <li>수정/삭제 기능</li>
-      </ul>
+      <h3>매니저 관리</h3>
+      <span class="url">/admin/managers</span>
+      <p>등록된 돌봄 매니저를 관리하는 페이지입니다.</p>
+      <ul><li>매니저 목록</li><li>승인 상태 관리</li><li>매니저 상세 정보</li><li>매니저 수정/삭제</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-clients-desktop.png" alt="고객사 관리 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-clients-mobile.png" alt="고객사 관리 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-managers-desktop.png" alt="매니저 관리 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-managers-mobile.png" alt="매니저 관리 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 공고 관리 -->
-  <div class="page-card" id="admin-jobs">
+  <div class="page-card" id="admin-manager-applications">
     <div class="page-card-header">
-      <h3>공고 관리</h3>
-      <span class="url">/admin/jobs</span>
-      <p>채용공고를 등록하고 일정을 관리하는 페이지입니다.</p>
-      <ul>
-        <li>공고 등록 버튼</li>
-        <li>고객사별 공고 카드</li>
-        <li>각 공고별 일정 추가 기능</li>
-        <li>일정별 근무일, 시간, 모집인원, 상태 표시</li>
-        <li>일정 삭제 기능</li>
-      </ul>
+      <h3>매니저 지원확인</h3>
+      <span class="url">/admin/manager-applications</span>
+      <p>매니저 가입 신청을 확인하고 승인/거절하는 페이지입니다.</p>
+      <ul><li>신규 지원 목록</li><li>지원자 정보 확인</li><li>승인/거절 처리</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-jobs-desktop.png" alt="공고 관리 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-jobs-mobile.png" alt="공고 관리 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-manager-applications-desktop.png" alt="매니저 지원확인 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-manager-applications-mobile.png" alt="매니저 지원확인 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 지원 관리 -->
-  <div class="page-card" id="admin-applications">
+  <div class="page-card" id="admin-requests">
     <div class="page-card-header">
-      <h3>지원 관리</h3>
-      <span class="url">/admin/applications</span>
-      <p>지원자를 확인하고 승인 또는 거절하는 페이지입니다.</p>
-      <ul>
-        <li>상태별 탭 필터 (대기중, 승인, 거절, 전체)</li>
-        <li>지원 테이블 (근무일, 근무시간, 이름, 전화번호, 근무지, 시급, 상태)</li>
-        <li>승인/거절 버튼</li>
-        <li>지원자 상세 정보 팝업</li>
-      </ul>
+      <h3>예약요청 및 매칭</h3>
+      <span class="url">/admin/requests</span>
+      <p>고객의 서비스 예약 요청을 관리하고 매니저를 매칭하는 페이지입니다.</p>
+      <ul><li>예약 요청 목록</li><li>상태별 필터 (대기/확정/완료/취소)</li><li>매니저 배정</li><li>요청 상세 정보</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-applications-desktop.png" alt="지원 관리 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-applications-mobile.png" alt="지원 관리 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-requests-desktop.png" alt="예약요청 및 매칭 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-requests-mobile.png" alt="예약요청 및 매칭 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 급여 관리 -->
-  <div class="page-card" id="admin-payroll">
+  <div class="page-card" id="admin-register-service">
     <div class="page-card-header">
-      <h3>급여 관리</h3>
-      <span class="url">/admin/payroll</span>
-      <p>확정된 근무에 대한 급여를 관리하고 지급 처리하는 페이지입니다.</p>
-      <ul>
-        <li>날짜 범위 필터</li>
-        <li>급여 테이블 (근무일, 근무시간, 이름, 근무지, 시급, 근무시간, 예상급여)</li>
-        <li>급여 지급 처리 기능</li>
-        <li>상태별 필터 (미지급, 지급완료)</li>
-      </ul>
+      <h3>서비스 직접 등록</h3>
+      <span class="url">/admin/register-service</span>
+      <p>관리자가 직접 서비스 요청을 등록하는 페이지입니다.</p>
+      <ul><li>고객 정보 입력</li><li>서비스 종류 선택</li><li>일정 설정</li><li>매니저 배정</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-payroll-desktop.png" alt="급여 관리 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-payroll-mobile.png" alt="급여 관리 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-register-service-desktop.png" alt="서비스 직접 등록 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-register-service-mobile.png" alt="서비스 직접 등록 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 급여지급 내역 -->
+  <div class="page-card" id="admin-designated-matching">
+    <div class="page-card-header">
+      <h3>지정 매니저 매칭</h3>
+      <span class="url">/admin/designated-matching</span>
+      <p>고객이 지정 매니저를 요청한 서비스에 대해 매칭을 처리하는 페이지입니다.</p>
+      <ul><li>지정 매니저 요청 목록</li><li>매칭 확인/변경</li><li>매니저 가용 여부 확인</li></ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-designated-matching-desktop.png" alt="지정 매니저 매칭 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-designated-matching-mobile.png" alt="지정 매니저 매칭 모바일" loading="lazy"></div>
+    </div>
+  </div>
+
   <div class="page-card" id="admin-payments">
     <div class="page-card-header">
-      <h3>급여지급 내역</h3>
+      <h3>결제 내역</h3>
       <span class="url">/admin/payments</span>
-      <p>처리된 급여 지급 내역을 조회하는 페이지입니다.</p>
-      <ul>
-        <li>지급 완료 내역 목록</li>
-        <li>지급일, 대상자, 금액, 계좌정보 표시</li>
-        <li>기간별 조회 필터</li>
-      </ul>
+      <p>고객 결제 내역을 조회하는 페이지입니다.</p>
+      <ul><li>결제 내역 목록</li><li>기간별 조회</li><li>결제 상태 확인</li><li>결제 상세 정보</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-payments-desktop.png" alt="급여지급 내역 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-payments-mobile.png" alt="급여지급 내역 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-payments-desktop.png" alt="결제 내역 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-payments-mobile.png" alt="결제 내역 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 계약 관리 -->
-  <div class="page-card" id="admin-contracts">
+  <div class="page-card" id="admin-refund-info">
     <div class="page-card-header">
-      <h3>계약 관리</h3>
-      <span class="url">/admin/contracts</span>
-      <p>고객사와의 계약 정보를 관리하는 페이지입니다.</p>
-      <ul>
-        <li>계약 목록 조회</li>
-        <li>계약 상태 관리</li>
-        <li>계약 상세 정보</li>
-      </ul>
+      <h3>취소/환불</h3>
+      <span class="url">/admin/refund-info</span>
+      <p>서비스 취소 및 환불을 처리하는 페이지입니다.</p>
+      <ul><li>환불 요청 목록</li><li>환불 처리</li><li>환불 정책 안내</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-contracts-desktop.png" alt="계약 관리 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-contracts-mobile.png" alt="계약 관리 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-refund-info-desktop.png" alt="취소/환불 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-refund-info-mobile.png" alt="취소/환불 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 알림 관리 -->
+  <div class="page-card" id="admin-revenue">
+    <div class="page-card-header">
+      <h3>매출 집계</h3>
+      <span class="url">/admin/revenue</span>
+      <p>기간별 매출 현황을 집계하여 확인하는 페이지입니다.</p>
+      <ul><li>기간별 매출 조회</li><li>서비스 종류별 매출</li><li>매출 통계 차트</li></ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-revenue-desktop.png" alt="매출 집계 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-revenue-mobile.png" alt="매출 집계 모바일" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="page-card" id="admin-manager-settlement">
+    <div class="page-card-header">
+      <h3>매니저 정산</h3>
+      <span class="url">/admin/manager-settlement</span>
+      <p>매니저에 대한 급여 정산을 관리하는 페이지입니다.</p>
+      <ul><li>정산 대상 목록</li><li>정산 금액 계산</li><li>정산 처리</li><li>정산 이력 조회</li></ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-manager-settlement-desktop.png" alt="매니저 정산 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-manager-settlement-mobile.png" alt="매니저 정산 모바일" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="page-card" id="admin-service-prices">
+    <div class="page-card-header">
+      <h3>서비스 가격</h3>
+      <span class="url">/admin/service-prices</span>
+      <p>서비스별 시간당 가격을 설정하고 관리하는 페이지입니다.</p>
+      <ul><li>서비스별 가격 목록</li><li>가격 수정</li><li>시간당 요금 설정</li></ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-service-prices-desktop.png" alt="서비스 가격 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-service-prices-mobile.png" alt="서비스 가격 모바일" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="page-card" id="admin-branches">
+    <div class="page-card-header">
+      <h3>지점 관리</h3>
+      <span class="url">/admin/branches</span>
+      <p>지점 정보를 관리하는 페이지입니다.</p>
+      <ul><li>지점 목록</li><li>지점 등록/수정</li><li>지점별 매니저 관리</li></ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-branches-desktop.png" alt="지점 관리 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-branches-mobile.png" alt="지점 관리 모바일" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="page-card" id="admin-agency-applications">
+    <div class="page-card-header">
+      <h3>대리점 신청</h3>
+      <span class="url">/admin/agency-applications</span>
+      <p>대리점 가맹 신청을 관리하는 페이지입니다.</p>
+      <ul><li>신청 목록</li><li>신청 상세 정보</li><li>승인/거절 처리</li></ul>
+    </div>
+    <div class="screenshot-grid">
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-agency-applications-desktop.png" alt="대리점 신청 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-agency-applications-mobile.png" alt="대리점 신청 모바일" loading="lazy"></div>
+    </div>
+  </div>
+
   <div class="page-card" id="admin-notifications">
     <div class="page-card-header">
-      <h3>알림 관리</h3>
+      <h3>매니저 알림</h3>
       <span class="url">/admin/notifications</span>
-      <p>회원에게 발송되는 알림을 관리하는 페이지입니다.</p>
-      <ul>
-        <li>알림 발송 기능</li>
-        <li>알림 이력 조회</li>
-        <li>알림 대상 선택</li>
-      </ul>
+      <p>매니저에게 알림을 발송하고 관리하는 페이지입니다.</p>
+      <ul><li>알림 발송</li><li>발송 이력</li><li>대상 매니저 선택</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-notifications-desktop.png" alt="알림 관리 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-notifications-mobile.png" alt="알림 관리 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-notifications-desktop.png" alt="매니저 알림 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-notifications-mobile.png" alt="매니저 알림 모바일" loading="lazy"></div>
     </div>
   </div>
 
-  <!-- 관리자 설정 -->
   <div class="page-card" id="admin-settings">
     <div class="page-card-header">
       <h3>관리자 설정</h3>
       <span class="url">/admin/settings</span>
       <p>관리자 계정 설정 및 시스템 설정 페이지입니다.</p>
-      <ul>
-        <li>관리자 계정 정보 수정</li>
-        <li>비밀번호 변경</li>
-        <li>시스템 설정</li>
-      </ul>
+      <ul><li>관리자 계정 정보 수정</li><li>비밀번호 변경</li><li>시스템 설정</li></ul>
     </div>
     <div class="screenshot-grid">
-      <div class="screenshot-panel">
-        <div class="label">Desktop (1280px)</div>
-        <img src="screenshots/s5-admin-settings-desktop.png" alt="관리자 설정 데스크탑" loading="lazy">
-      </div>
-      <div class="screenshot-panel">
-        <div class="label">Mobile (390px)</div>
-        <img src="screenshots/s5-admin-settings-mobile.png" alt="관리자 설정 모바일" loading="lazy">
-      </div>
+      <div class="screenshot-panel"><div class="label">Desktop (1280px)</div><img src="screenshots/s4-admin-settings-desktop.png" alt="관리자 설정 데스크탑" loading="lazy"></div>
+      <div class="screenshot-panel"><div class="label">Mobile (390px)</div><img src="screenshots/s4-admin-settings-mobile.png" alt="관리자 설정 모바일" loading="lazy"></div>
     </div>
   </div>
 </div>
 
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <img src="" alt="" id="lightboxImg">
+</div>
+
+<!-- Back to Top -->
+<button class="back-to-top" id="backToTop" title="맨 위로">&uarr;</button>
+
 <!-- Footer -->
 <footer class="manual-footer">
-  <p>&copy; 2026 Humend HR. All rights reserved.</p>
-  <p style="margin-top:4px;">이 매뉴얼은 자동 생성되었습니다. &middot; 최종 갱신: 2026-02-21</p>
+  <p>&copy; 2026 행복안심동행. All rights reserved.</p>
+  <p>이 매뉴얼은 자동 생성되었습니다. &middot; 최종 갱신: 2026-03-10</p>
 </footer>
+
+<script>
+  // Sticky nav scroll effect
+  const nav = document.getElementById('stickyNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 10);
+  });
+
+  // Back to top
+  const btn = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Lightbox
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  document.querySelectorAll('.screenshot-panel img').forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightbox.classList.add('active');
+    });
+  });
+  lightbox.addEventListener('click', () => {
+    lightbox.classList.remove('active');
+  });
+</script>
 
 </body>
 </html>

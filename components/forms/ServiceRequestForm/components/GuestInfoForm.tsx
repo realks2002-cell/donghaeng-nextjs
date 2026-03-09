@@ -230,7 +230,7 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
             <button
               type="button"
               onClick={handleAddressSearch}
-              disabled={isSearching || !formData.guestAddress.trim()}
+              disabled={isSearching || !(formData.guestAddress || '').trim()}
               className="shrink-0 min-h-[44px] rounded-lg bg-primary px-4 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSearching ? '검색 중...' : '주소 검색'}

@@ -5,6 +5,25 @@ const COOLSMS_API_KEY = (process.env.COOLSMS_API_KEY || '').trim()
 const COOLSMS_API_SECRET = (process.env.COOLSMS_API_SECRET || '').trim()
 const COOLSMS_SENDER_NUMBER = (process.env.COOLSMS_SENDER_NUMBER || '').trim()
 
+export async function sendSMS(to: string, text: string) {
+  if (!COOLSMS_API_KEY || !COOLSMS_API_SECRET || !COOLSMS_SENDER_NUMBER) {
+    console.warn('[SMS] CoolSMS 환경 변수가 설정되지 않아 SMS를 발송하지 않습니다.')
+    return
+  }
+
+  const sms = new CoolSMS(COOLSMS_API_KEY, COOLSMS_API_SECRET)
+  const senderNumber = COOLSMS_SENDER_NUMBER.replace(/-/g, '')
+
+  await sms.sendOne({
+    to: to.replace(/-/g, ''),
+    from: senderNumber,
+    text,
+    type: text.length > 90 ? 'LMS' : 'SMS',
+    autoTypeDetect: false,
+  })
+  console.log(`[SMS] 발송 완료 - 수신: ${to}`)
+}
+
 interface MatchingSMSParams {
   serviceRequestId: string
   managerId: string

@@ -14,6 +14,12 @@ import { Divider } from '../../components/Divider';
 import { StepIndicator } from '../../components/StepIndicator';
 import { BANK_ACCOUNT_INFO } from '../../constants/bank-account';
 
+function generateOrderId(): string {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 10);
+  return `order_${timestamp}_${random}`;
+}
+
 type Props = NativeStackScreenProps<HomeStackParamList, 'Confirm'>;
 
 export function ConfirmScreen({ navigation }: Props) {
@@ -36,7 +42,6 @@ export function ConfirmScreen({ navigation }: Props) {
     setLoading(true);
     try {
       const requestData = {
-        customer_id: user?.id || null,
         guest_name: formData.guestName,
         guest_phone: formData.guestPhone,
         address: formData.guestAddress,
@@ -47,28 +52,35 @@ export function ConfirmScreen({ navigation }: Props) {
         duration_hours: formData.durationHours,
         designated_manager_id: formData.designatedManagerId,
         details: formData.details,
-        estimated_price: totalPrice,
         phone: formData.guestPhone,
-        payment_method: paymentMethod === 'card' ? 'CARD' : 'BANK_TRANSFER',
       };
 
-      const result = await serviceApi.saveTempRequest(requestData);
-
       if (paymentMethod === 'card') {
+        const orderId = generateOrderId();
         navigation.navigate('PaymentWebView', {
-          orderId: result.orderId,
+          orderId,
           amount: totalPrice,
           orderName: serviceInfo?.label || '돌봄 서비스',
-          requestId: result.id,
+          customerName: formData.guestName,
+          customerPhone: formData.guestPhone,
+          requestData,
         });
       } else {
+        const result = await serviceApi.saveTempRequest({
+          ...requestData,
+          payment_method: 'BANK_TRANSFER',
+        });
         navigation.navigate('BankTransferCompletion', {
-          orderId: result.orderId || result.id,
+          orderId: result.request_id,
           amount: totalPrice,
         });
       }
     } catch (error) {
-      Alert.alert('오류', '요청 저장에 실패했습니다. 다시 시도해주세요.');
+      console.error('Bank transfer error:', error);
+      const message = error instanceof Error
+        ? error.message
+        : '요청 저장에 실패했습니다. 다시 시도해주세요.';
+      Alert.alert('오류', message);
     } finally {
       setLoading(false);
     }

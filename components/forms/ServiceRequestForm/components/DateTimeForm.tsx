@@ -4,19 +4,23 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useFormContext } from '../context/FormContext'
 import { TIME_OPTIONS, DURATION_OPTIONS, calculatePrice } from '../types'
-import { ServiceType } from '@/lib/constants/pricing'
+import { VEHICLE_SUPPORT_DEFAULT_PRICE } from '@/lib/constants/pricing'
+import { Car } from 'lucide-react'
 
 export default function DateTimeForm() {
   const router = useRouter()
-  const { formData, updateFormData, servicePrices } = useFormContext()
+  const { formData, updateFormData, servicePrices, rawPrices } = useFormContext()
 
-  // 최소 날짜: 오늘
+  // 최소 날짜: 오늘, 최대 날짜: 30일 후
   const minDate = new Date().toISOString().split('T')[0]
+  const maxDateObj = new Date()
+  maxDateObj.setDate(maxDateObj.getDate() + 30)
+  const maxDate = maxDateObj.toISOString().split('T')[0]
 
-  const estimatedPrice = calculatePrice(formData.serviceType, formData.durationHours, servicePrices)
-  const pricePerHour = formData.serviceType
-    ? servicePrices[formData.serviceType as ServiceType] ?? 0
-    : 0
+  const basePrice = calculatePrice(formData.serviceType, formData.durationHours, servicePrices)
+  const vehicleSupportPriceValue = rawPrices['차량지원'] ?? VEHICLE_SUPPORT_DEFAULT_PRICE
+  const vehicleSupportPrice = formData.vehicleSupport ? vehicleSupportPriceValue : 0
+  const estimatedPrice = basePrice + vehicleSupportPrice
 
   const handleNext = () => {
     if (!formData.serviceDate) {
@@ -53,6 +57,7 @@ export default function DateTimeForm() {
             value={formData.serviceDate}
             onChange={(e) => updateFormData({ serviceDate: e.target.value })}
             min={minDate}
+            max={maxDate}
             className="mt-1 block w-full rounded-lg border border-gray-300 px-4 h-[48px] focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
@@ -78,13 +83,13 @@ export default function DateTimeForm() {
 
         <div>
           <span className="block text-sm font-medium text-gray-700">예상 소요 시간</span>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 grid grid-cols-8 gap-1.5">
             {DURATION_OPTIONS.map((hours) => (
               <label
                 key={hours}
-                className={`flex min-h-[44px] cursor-pointer items-center rounded-lg border px-4 transition-all ${
+                className={`flex min-h-[40px] cursor-pointer items-center justify-center rounded-lg border text-sm transition-all ${
                   formData.durationHours === hours
-                    ? 'border-primary ring-2 ring-primary'
+                    ? 'border-primary ring-2 ring-primary font-semibold'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -102,13 +107,33 @@ export default function DateTimeForm() {
           </div>
         </div>
 
+        <div>
+          <span className="block text-sm font-medium text-gray-700">추가 옵션</span>
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={() => updateFormData({ vehicleSupport: !formData.vehicleSupport })}
+              className={`flex min-h-[44px] w-full cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-all ${
+                formData.vehicleSupport
+                  ? 'border-primary ring-2 ring-primary bg-primary/5'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <Car className={`h-5 w-5 ${formData.vehicleSupport ? 'text-primary' : 'text-gray-400'}`} />
+              <span className={`font-medium ${formData.vehicleSupport ? 'text-primary' : 'text-gray-700'}`}>
+                차량지원
+              </span>
+              <span className={`ml-auto text-sm ${formData.vehicleSupport ? 'text-primary' : 'text-gray-500'}`}>
+                +{vehicleSupportPriceValue.toLocaleString()}원
+              </span>
+            </button>
+            <p className="mt-1.5 text-lg text-gray-500">※ 차량지원 필요시 선택</p>
+          </div>
+        </div>
+
         <div className="rounded-lg bg-gray-50 p-4">
           <p className="text-sm font-medium text-gray-700">예상 금액</p>
           <p className="mt-1 text-xl font-bold text-primary">{estimatedPrice.toLocaleString()}원</p>
-          <p className="mt-1 text-xs text-gray-500">
-            선택한 서비스 요금 {pricePerHour.toLocaleString()}원/시간 × {formData.durationHours || 0}
-            시간 · 최종 금액은 실제 소요 시간에 따라 달라질 수 있습니다.
-          </p>
         </div>
       </div>
 

@@ -24,6 +24,7 @@ export default function AdminDesignatedMatchingPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
 
+
   const fetchData = async () => {
     try {
       const res = await fetch('/api/admin/designated-matching', { cache: 'no-store' })
@@ -74,7 +75,9 @@ export default function AdminDesignatedMatchingPage() {
 
   return (
     <div className="max-w-[1408px]">
-      <h1 className="text-2xl font-bold mb-2">지정 매니저 매칭</h1>
+      <div className="mb-2">
+        <h1 className="text-2xl font-bold">지정 매니저 매칭</h1>
+      </div>
       <p className="text-gray-600 mb-6">고객이 지정한 매니저 매칭 요청을 승인 또는 거절하세요.</p>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">

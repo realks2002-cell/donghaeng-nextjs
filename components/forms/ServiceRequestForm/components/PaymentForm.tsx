@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk'
 import { useFormContext } from '../context/FormContext'
 import { calculatePrice } from '../types'
-import { SERVICE_TYPES, ServiceType } from '@/lib/constants/pricing'
+import { SERVICE_TYPES, ServiceType, VEHICLE_SUPPORT_DEFAULT_PRICE } from '@/lib/constants/pricing'
 import { BANK_ACCOUNT_INFO } from '@/lib/constants/bank-account'
 import { CreditCard, Building2 } from 'lucide-react'
 
@@ -18,21 +18,24 @@ const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || ''
 export default function PaymentForm({
   user = null,
 }: PaymentFormProps) {
-  const { formData, servicePrices } = useFormContext()
+  const { formData, servicePrices, rawPrices } = useFormContext()
   const [isProcessing, setIsProcessing] = useState(false)
   const [sdkReady, setSdkReady] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card')
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'transfer' | 'bank_transfer'>('card')
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const paymentRef = useRef<any>(null)
 
-  const estimatedPrice = calculatePrice(formData.serviceType, formData.durationHours, servicePrices)
+  const basePrice = calculatePrice(formData.serviceType, formData.durationHours, servicePrices)
+  const vehicleSupportPriceValue = rawPrices['차량지원'] ?? VEHICLE_SUPPORT_DEFAULT_PRICE
+  const vehicleSupportPrice = formData.vehicleSupport ? vehicleSupportPriceValue : 0
+  const estimatedPrice = basePrice + vehicleSupportPrice
   const serviceLabel = formData.serviceType
     ? SERVICE_TYPES[formData.serviceType as ServiceType]?.label
     : '-'
 
   // SDK 초기화 (카드결제 선택 시에만)
   useEffect(() => {
-    if (paymentMethod !== 'card') return
+    if (paymentMethod === 'bank_transfer') return
 
     async function initSDK() {
       try {
@@ -121,6 +124,80 @@ export default function PaymentForm({
     }
   }, [formData, estimatedPrice, serviceLabel, sdkReady])
 
+  const handleTransfer = useCallback(async () => {
+    if (!sdkReady || !paymentRef.current) {
+      toast.error('결제 시스템이 준비되지 않았습니다. 잠시 후 다시 시도해주세요.')
+      return
+    }
+
+    setIsProcessing(true)
+
+    // 토스 dimmer div 추가를 감지하여 내부에 닫기 버튼 inject
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const node of Array.from(m.addedNodes)) {
+          if (node instanceof HTMLElement && node.id === '__tosspayments_payment-gateway_dimmer__') {
+            if (document.getElementById('toss-transfer-close')) return
+            const closeBtn = document.createElement('button')
+            closeBtn.id = 'toss-transfer-close'
+            closeBtn.innerHTML = '✕'
+            closeBtn.setAttribute('aria-label', '결제 취소')
+            closeBtn.style.cssText = 'position:fixed;top:12px;right:12px;z-index:99999999;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,0.7);color:white;font-size:20px;border:2px solid rgba(255,255,255,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);'
+            closeBtn.onclick = () => {
+              closeBtn.remove()
+              window.location.reload()
+            }
+            node.appendChild(closeBtn)
+            observer.disconnect()
+            return
+          }
+        }
+      }
+    })
+    observer.observe(document.body, { childList: true })
+
+    try {
+      const orderId = crypto.randomUUID()
+      const orderName = `${serviceLabel} ${formData.durationHours}시간`
+
+      sessionStorage.setItem('service_request_form_data', JSON.stringify({
+        ...buildRequestBody(),
+        payment_method: 'TRANSFER',
+      }))
+
+      await paymentRef.current.requestPayment({
+        method: 'TRANSFER',
+        amount: {
+          currency: 'KRW',
+          value: estimatedPrice,
+        },
+        orderId,
+        orderName,
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`,
+        customerName: formData.guestName || undefined,
+        customerMobilePhone: formData.guestPhone?.replace(/-/g, '') || undefined,
+        transfer: {
+          cashReceipt: {
+            type: '소득공제',
+          },
+          useEscrow: false,
+        },
+      })
+    } catch (error) {
+      console.error('Transfer payment error:', error)
+      if (error instanceof Error && error.message.includes('USER_CANCEL')) {
+        toast.error('결제가 취소되었습니다.')
+      } else {
+        toast.error(error instanceof Error ? error.message : '처리 중 오류가 발생했습니다.')
+      }
+    } finally {
+      observer.disconnect()
+      document.getElementById('toss-transfer-close')?.remove()
+      setIsProcessing(false)
+    }
+  }, [formData, estimatedPrice, serviceLabel, sdkReady])
+
   const handleBankTransfer = useCallback(async () => {
     setIsProcessing(true)
 
@@ -180,6 +257,12 @@ export default function PaymentForm({
               {formData.durationHours ? `${formData.durationHours}시간` : '-'}
             </dd>
           </div>
+          {formData.vehicleSupport && (
+            <div className="flex justify-between">
+              <dt className="text-gray-600">차량지원</dt>
+              <dd className="font-medium">+{vehicleSupportPriceValue.toLocaleString()}원</dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt className="text-gray-600">위치</dt>
             <dd className="font-medium text-xs">
@@ -200,7 +283,7 @@ export default function PaymentForm({
       {/* 결제 방법 선택 */}
       <div className="mt-6">
         <h3 className="font-semibold text-sm text-gray-700 mb-3">결제 방법</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <button
             type="button"
             onClick={() => setPaymentMethod('card')}
@@ -215,6 +298,19 @@ export default function PaymentForm({
           </button>
           <button
             type="button"
+            onClick={() => setPaymentMethod('transfer')}
+            className={`relative min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
+              paymentMethod === 'transfer'
+                ? 'border-[#0064FF] bg-[#0064FF]/5 text-[#0064FF]'
+                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+            }`}
+          >
+            <span className="absolute -top-2 -right-2 bg-[#0064FF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">NEW</span>
+            <span className="font-bold text-[#0064FF] text-xs tracking-tight">toss</span>
+            <span className="text-sm">퀵계좌이체</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setPaymentMethod('bank_transfer')}
             className={`min-h-[44px] flex items-center justify-center gap-2 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
               paymentMethod === 'bank_transfer'
@@ -223,13 +319,13 @@ export default function PaymentForm({
             }`}
           >
             <Building2 className="h-5 w-5" />
-            계좌이체
+            무통장입금
           </button>
         </div>
       </div>
 
-      {/* 카드결제: SDK 로딩 상태 */}
-      {paymentMethod === 'card' && !sdkReady && (
+      {/* SDK 로딩 상태 (카드/계좌이체) */}
+      {(paymentMethod === 'card' || paymentMethod === 'transfer') && !sdkReady && (
         <div className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-6">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-primary" />
           <span className="text-sm text-gray-500">결제 시스템을 준비하는 중...</span>
@@ -243,6 +339,17 @@ export default function PaymentForm({
             결제하기 버튼을 누르면 토스페이먼츠 결제창이 열립니다.
             <br />
             결제창에서 원하시는 결제 수단을 선택해주세요.
+          </p>
+        </div>
+      )}
+
+      {/* 계좌이체: 안내 */}
+      {paymentMethod === 'transfer' && sdkReady && (
+        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <p className="text-sm text-blue-800">
+            결제하기 버튼을 누르면 토스페이먼츠 계좌이체 결제창이 열립니다.
+            <br />
+            결제창에서 출금 계좌를 선택하여 결제해주세요.
           </p>
         </div>
       )}
@@ -288,7 +395,7 @@ export default function PaymentForm({
         >
           이전
         </button>
-        {paymentMethod === 'card' ? (
+        {paymentMethod === 'card' && (
           <button
             type="button"
             onClick={handlePayment}
@@ -297,14 +404,25 @@ export default function PaymentForm({
           >
             {isProcessing ? '처리 중...' : `${estimatedPrice.toLocaleString()}원 결제하기`}
           </button>
-        ) : (
+        )}
+        {paymentMethod === 'transfer' && (
+          <button
+            type="button"
+            onClick={handleTransfer}
+            disabled={isProcessing || !sdkReady}
+            className="min-h-[44px] rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isProcessing ? '처리 중...' : `${estimatedPrice.toLocaleString()}원 결제하기`}
+          </button>
+        )}
+        {paymentMethod === 'bank_transfer' && (
           <button
             type="button"
             onClick={handleBankTransfer}
             disabled={isProcessing}
             className="min-h-[44px] rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isProcessing ? '처리 중...' : '계좌이체로 신청하기'}
+            {isProcessing ? '처리 중...' : '무통장입금으로 신청하기'}
           </button>
         )}
       </div>

@@ -6,6 +6,7 @@ import { Colors, FontSize, Spacing, BorderRadius } from '../../constants/colors'
 import { SERVICE_TYPES, ServiceType, HomeStackParamList, RootStackParamList } from '../../types';
 import { getPricePerHour, formatPrice } from '../../constants/pricing';
 import { serviceApi } from '../../api/client';
+import { API_BASE_URL } from '../../constants/config';
 import { setDynamicPrices } from '../../constants/pricing';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/Button';
@@ -19,7 +20,6 @@ const serviceOrder: ServiceType[] = [
   'life_companion',
   'elderly_care',
   'child_care',
-  'other',
 ];
 
 export function HomeScreen() {
@@ -120,30 +120,14 @@ export function HomeScreen() {
         <View style={styles.quickLinks}>
           <TouchableOpacity
             style={styles.quickLink}
-            onPress={() => {
-              const moreNav = navigation.getParent();
-              if (moreNav) {
-                moreNav.navigate('MoreTab', {
-                  screen: 'WebViewPage',
-                  params: { url: '/service-guide', title: '이용 안내' },
-                });
-              }
-            }}
+            onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/service-guide`, title: '이용 안내' })}
           >
             <Text style={styles.quickLinkText}>이용 안내</Text>
           </TouchableOpacity>
           <Text style={styles.quickLinkDivider}>|</Text>
           <TouchableOpacity
             style={styles.quickLink}
-            onPress={() => {
-              const moreNav = navigation.getParent();
-              if (moreNav) {
-                moreNav.navigate('MoreTab', {
-                  screen: 'WebViewPage',
-                  params: { url: '/faq', title: 'FAQ' },
-                });
-              }
-            }}
+            onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/faq`, title: 'FAQ' })}
           >
             <Text style={styles.quickLinkText}>FAQ 바로가기</Text>
           </TouchableOpacity>
