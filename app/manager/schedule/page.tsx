@@ -79,6 +79,14 @@ export default function SchedulePage() {
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">완료</span>
       case 'MATCHED':
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">예정</span>
+      case 'CONFIRMED':
+        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">확정</span>
+      case 'IN_PROGRESS':
+        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">진행중</span>
+      case 'CANCELLED':
+        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">취소됨</span>
+      case 'PENDING_TRANSFER':
+        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">입금대기</span>
       default:
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">{status}</span>
     }
