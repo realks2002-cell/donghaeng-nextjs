@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getCustomerFromRequest } from '@/lib/auth/customer'
 import { v4 as uuidv4 } from 'uuid'
-import { DEFAULT_SERVICE_PRICES, SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
+import { DEFAULT_SERVICE_PRICES, SERVICE_TYPE_LABELS, ServiceType, VEHICLE_SUPPORT_DEFAULT_PRICE } from '@/lib/constants/pricing'
 
 interface SaveTempRequest {
   service_type: string
@@ -20,6 +20,7 @@ interface SaveTempRequest {
   guest_phone?: string
   guest_address?: string
   guest_address_detail?: string
+  vehicle_support?: boolean
   payment_method?: 'CARD' | 'BANK_TRANSFER'
 }
 
@@ -64,7 +65,17 @@ export async function POST(request: NextRequest) {
         pricePerHour = priceData.price_per_hour
       }
     }
-    const estimatedPrice = pricePerHour * body.duration_hours
+    let vehicleSupportPrice = 0
+    if (body.vehicle_support) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: vehicleData } = await (serviceClient.from('service_prices') as any)
+        .select('price_per_hour')
+        .eq('service_type', '차량지원')
+        .eq('is_active', true)
+        .single()
+      vehicleSupportPrice = vehicleData?.price_per_hour ?? VEHICLE_SUPPORT_DEFAULT_PRICE
+    }
+    const estimatedPrice = pricePerHour * body.duration_hours + vehicleSupportPrice
     const durationMinutes = body.duration_hours * 60
 
     // 주소 결정 (입력된 주소 또는 비회원 주소)
@@ -113,6 +124,7 @@ export async function POST(request: NextRequest) {
       status,
       estimated_price: estimatedPrice,
       manager_id: body.designated_manager_id || null,
+      vehicle_support: body.vehicle_support || false,
     })
 
     if (insertError) {
