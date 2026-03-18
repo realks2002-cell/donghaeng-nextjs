@@ -23,6 +23,7 @@ interface ServiceRequest {
   details: string | null
   status: string
   estimated_price: number
+  vehicle_support: boolean
   manager_amount: number
   created_at: string
   is_applied?: boolean
@@ -282,7 +283,12 @@ function DashboardContent() {
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-gray-900">{SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type}</h3>
+                          {request.vehicle_support && (
+                            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">차량지원</span>
+                          )}
+                        </div>
                         <p className="text-sm text-gray-500 mt-1">
                           {formatDate(request.service_date)} {request.start_time.substring(0, 5)}
                         </p>
@@ -348,7 +354,12 @@ function DashboardContent() {
                             <br />
                             <span className="text-gray-500">{request.start_time.substring(0, 5)}</span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type}
+                            {request.vehicle_support && (
+                              <span className="ml-1 px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">차량</span>
+                            )}
+                          </td>
                           <td className="px-4 py-3 text-sm text-gray-900">{request.customer_name}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">
                             {request.address.length > 15 ? request.address.substring(0, 15) + '...' : request.address}
@@ -438,6 +449,10 @@ function DashboardContent() {
                   <div className="col-span-2">
                     <span className="text-gray-500">주소</span>
                     <p className="font-medium">{selectedRequest.address}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-500">차량지원</span>
+                    <p className="font-medium text-gray-700">{selectedRequest.vehicle_support ? 'O (차량지원 필요)' : 'X'}</p>
                   </div>
                   <div className="col-span-2">
                     <span className="text-gray-500">요청사항</span>

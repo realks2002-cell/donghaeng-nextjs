@@ -71,6 +71,7 @@ export interface Database {
           created_at: string
           confirmed_at: string | null
           completed_at: string | null
+          vehicle_support: boolean
         }
         Insert: {
           id?: string
@@ -95,6 +96,7 @@ export interface Database {
           created_at?: string
           confirmed_at?: string | null
           completed_at?: string | null
+          vehicle_support?: boolean
         }
         Update: {
           id?: string
@@ -119,6 +121,7 @@ export interface Database {
           created_at?: string
           confirmed_at?: string | null
           completed_at?: string | null
+          vehicle_support?: boolean
         }
       }
       managers: {

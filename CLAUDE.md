@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-이 파일은 Claude Code (claude.ai/code)가 이 저장소에서 작업할 때 참고하는 가이드입니다.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 프로젝트 개요
 
@@ -10,7 +10,7 @@
 
 ```bash
 npm run dev      # 개발 서버 실행 (localhost:3000)
-npm run build    # 프로덕션 빌드
+npm run build    # 프로덕션 빌드 + 타입 체크
 npm run lint     # ESLint 검사
 npm run start    # 프로덕션 서버 실행
 ```
@@ -22,15 +22,21 @@ npm run start    # 프로덕션 서버 실행
 - **데이터베이스**: Supabase (PostgreSQL)
 - **인증**: Supabase Auth (고객) + 커스텀 JWT (매니저) + bcrypt (관리자)
 - **결제**: 토스페이먼츠 SDK v2
+- **SMS**: CoolSMS SDK (LMS/SMS 자동 감지)
+- **푸시 알림**: web-push (VAPID 키 기반, 매니저 대상)
 - **UI**: Tailwind CSS + shadcn/ui (new-york 스타일) + lucide-react 아이콘
 - **폼**: React Hook Form + Zod 유효성 검사
-- **주소 검색**: 행정안전부 JUSO API (`/api/address/search`를 통해 프록시, `JUSO_API_KEY` 환경변수)
+- **주소 검색**: 브이월드 API (`/api/address/search` 프록시, `VWORLD_API_KEY` 환경변수)
 
 ### 3개의 독립된 인증 시스템
 
-1. **고객** (`/auth/*`): Supabase Auth 사용. 세션 쿠키는 `lib/supabase/middleware.ts`에서 관리. 서버 클라이언트는 `lib/supabase/server.ts`, 브라우저 클라이언트는 `lib/supabase/client.ts`.
-2. **매니저** (`/manager/*`): 커스텀 JWT 인증. `manager_token` 쿠키 사용. 세션 검증은 `lib/auth/manager.ts`. 미들웨어가 미인증 매니저 페이지를 `/manager/login`으로 리다이렉트.
-3. **관리자** (`/admin/*`): 쿠키 기반 세션 + bcrypt 비밀번호 해싱. 미들웨어 보호 없음 - 페이지/API 레벨에서 인증 확인.
+| 시스템 | 라우트 | 쿠키 | 미들웨어 보호 | 관련 파일 |
+|--------|--------|------|-------------|----------|
+| 고객 | `/auth/*` | Supabase 세션 | O (세션 갱신) | `lib/auth/customer.ts`, `lib/supabase/middleware.ts` |
+| 매니저 | `/manager/*` | `manager_token` (JWT) | O (미인증→로그인) | `lib/auth/manager.ts` |
+| 관리자 | `/admin/*` | `admin_session` | O (미인증→로그인) | `lib/auth/admin.ts` |
+
+매니저 공개 경로(미들웨어 제외): `/manager/login`, `/manager/signup`, `/manager/signup-complete`, `/manager/recruit`
 
 ### 라우트 그룹과 레이아웃
 
@@ -55,13 +61,29 @@ npm run start    # 프로덕션 서버 실행
 
 단계 이동은 소수점 숫자(1, 1.5, 2, 3, 3.5, 4, 5)를 사용. 로그인 회원은 Step 1을 건너뛰고 1.5부터 시작. 폼 상태는 `useState`로 관리하며 타입은 `components/forms/ServiceRequestForm/types.ts`의 `ServiceRequestFormData`에 정의.
 
+### 결제 흐름
+
+1. `PaymentForm`에서 토스 SDK 초기화 (`widgets()` 또는 `payment()` 폴백)
+2. 3가지 결제 수단: 카드결제, 토스 퀵계좌이체, 무통장입금
+3. **카드/계좌이체**: 토스 결제 → `/payment/success`로 리다이렉트 → `sessionStorage`의 폼 데이터 + URL 파라미터로 `/api/payments/confirm` POST → 토스 승인 API 호출 → `service_requests` INSERT (CONFIRMED) + `payments` INSERT
+4. **무통장입금**: `/api/requests/save-temp` POST → `service_requests` INSERT (PENDING_TRANSFER) + `payments` INSERT (PENDING) → `/payment/transfer-pending`으로 이동
+5. 금액 검증: 백엔드에서 서비스 가격을 재계산하여 클라이언트 금액과 비교 (mismatch 방지)
+6. 중복 방지: orderId로 기존 요청 존재 여부 확인
+
+### 매니저 매칭 프로세스
+
+- **자동 매칭**: 매니저가 대시보드에서 CONFIRMED 상태 요청에 지원 → `/api/manager/apply` → 선착순으로 즉시 MATCHED
+- **수동 매칭**: 관리자가 `/api/admin/manual-match` → 매니저 검색 후 배정
+- 매칭 완료 시 `sendMatchingSMS()`로 고객+매니저에게 SMS 발송, `sendPushToAllManagers()`로 푸시 알림
+- 상태 전이: PENDING_TRANSFER → (입금확인) → CONFIRMED → (매칭) → MATCHED → (시간경과) → COMPLETED
+
 ### 서비스 가격
 
-가격은 Supabase `service_prices` 테이블에서 `/api/service-prices`를 통해 동적 로드. 기본값(fallback)은 `lib/constants/pricing.ts`에 정의. `service_prices` 테이블은 한글 키(예: "병원 동행")로 저장되며, 코드에서 영문 enum 값으로 매핑.
+가격은 Supabase `service_prices` 테이블에서 `/api/service-prices`를 통해 동적 로드. 기본값(fallback)은 `lib/constants/pricing.ts`에 정의. `service_prices` 테이블은 한글 키(예: "병원 동행")로 저장되며, 코드에서 영문 enum 값으로 매핑. 차량지원 옵션은 `vehicle_support` 필드로 관리.
 
 ### 데이터베이스 스키마
 
-Supabase 주요 테이블: `users`, `service_requests`, `managers`, `applications`, `payments`, `admins`, `service_prices`. 타입 정의는 `types/database.ts`. 마이그레이션은 `supabase/migrations/`.
+Supabase 주요 테이블: `users`, `service_requests`, `managers`, `applications`, `payments`, `admins`, `service_prices`, `agency_applications`, `push_subscriptions`. 타입 정의는 `types/database.ts`. 마이그레이션은 `supabase/migrations/`.
 
 `service_requests` 테이블은 `customer_id`가 nullable이며, 비회원은 `guest_email`/`guest_phone`/`guest_name` 필드를 사용.
 
@@ -71,6 +93,18 @@ Supabase 주요 테이블: `users`, `service_requests`, `managers`, `application
 - **RLS 우회가 필요한 관리 작업**: `lib/supabase/server.ts`의 `createServiceClient()` 사용 (서비스 롤 키)
 - **클라이언트 컴포넌트**: `lib/supabase/client.ts`의 `createClient()` 사용
 
+### 상태 관리 상수
+
+- `lib/constants/status.ts`: 서비스 요청 상태 라벨(`STATUS_LABELS`), 스타일(`STATUS_STYLES`), 유효한 상태 전이 규칙 정의
+- `lib/constants/pricing.ts`: 서비스 타입 enum, 영한/한영 매핑(`SERVICE_TYPE_LABELS`), 가격 계산(`calculatePrice`)
+- `lib/constants/bank-account.ts`: 무통장입금 계좌 정보
+
+### 유틸리티
+
+- `lib/utils/validation.ts`: `validateKoreanPhone()` (010~019, 10~11자리), `formatKoreanPhone()` (하이픈 자동삽입)
+- `lib/utils/format.ts`: `formatDate()` ("2026.12.02"), `formatDateTime()` ("2026.12.02 14:30")
+- `lib/services/status-updater.ts`: MATCHED → COMPLETED 자동 전환 (서비스 종료 시간 경과 시, KST 기준)
+
 ## 환경 변수
 
 필수 변수 (`.env.example` 참조):
@@ -78,7 +112,11 @@ Supabase 주요 테이블: `users`, `service_requests`, `managers`, `application
 - `NEXT_PUBLIC_TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`
 - `VWORLD_API_KEY`
 - `NEXT_PUBLIC_APP_URL`
+
+선택 변수:
 - `MANAGER_JWT_SECRET` (미설정 시 하드코딩된 기본값 사용)
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (푸시 알림)
+- `COOLSMS_API_KEY`, `COOLSMS_API_SECRET`, `COOLSMS_SENDER_NUMBER` (SMS 알림, 미설정 시 스킵)
 
 ## 코딩 규칙
 
@@ -86,3 +124,4 @@ Supabase 주요 테이블: `users`, `service_requests`, `managers`, `application
 - 터치 접근성을 위해 인터랙티브 요소에 `min-h-[44px]` 사용
 - shadcn/ui 컴포넌트는 CSS 변수로 테마 적용 (`globals.css`에 정의, `tailwind.config.ts`에서 설정)
 - 경로 별칭 `@/`는 프로젝트 루트에 매핑
+- Supabase 쿼리에서 타입 캐스팅 시 `as any` 사용 (RLS 타입 이슈 우회)

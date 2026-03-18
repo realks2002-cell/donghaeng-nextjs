@@ -7,7 +7,7 @@ import { useFormContext } from '../context/FormContext'
 import { calculatePrice } from '../types'
 import { SERVICE_TYPES, ServiceType, VEHICLE_SUPPORT_DEFAULT_PRICE } from '@/lib/constants/pricing'
 import { BANK_ACCOUNT_INFO } from '@/lib/constants/bank-account'
-import { CreditCard, Building2 } from 'lucide-react'
+import { CreditCard, Building2, ArrowRightLeft, X } from 'lucide-react'
 
 interface PaymentFormProps {
   user?: { id: string; name: string; email: string } | null
@@ -20,10 +20,18 @@ export default function PaymentForm({
 }: PaymentFormProps) {
   const { formData, servicePrices, rawPrices } = useFormContext()
   const [isProcessing, setIsProcessing] = useState(false)
+  const [sdkMode, setSdkMode] = useState<'widget' | 'payment' | null>(null)
   const [sdkReady, setSdkReady] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'transfer' | 'bank_transfer'>('card')
+  const [paymentMethod, setPaymentMethod] = useState<'CARD' | 'TRANSFER' | 'BANK_TRANSFER'>('CARD')
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const paymentRef = useRef<any>(null)
+  const widgetsRef = useRef<any>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const paymentInstanceRef = useRef<any>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const paymentMethodWidgetRef = useRef<any>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const agreementWidgetRef = useRef<any>(null)
+  const widgetRenderedRef = useRef(false)
 
   const basePrice = calculatePrice(formData.serviceType, formData.durationHours, servicePrices)
   const vehicleSupportPriceValue = rawPrices['차량지원'] ?? VEHICLE_SUPPORT_DEFAULT_PRICE
@@ -33,9 +41,10 @@ export default function PaymentForm({
     ? SERVICE_TYPES[formData.serviceType as ServiceType]?.label
     : '-'
 
-  // SDK 초기화 (카드결제 선택 시에만)
   useEffect(() => {
-    if (paymentMethod === 'bank_transfer') return
+    if (paymentMethod === 'BANK_TRANSFER') return
+
+    let cancelled = false
 
     async function initSDK() {
       try {
@@ -43,19 +52,90 @@ export default function PaymentForm({
           console.error('TossPayments client key is not set')
           return
         }
+        if (widgetsRef.current || paymentInstanceRef.current) return
+
         const tossPayments = await loadTossPayments(clientKey)
         const customerKey = user?.id || ANONYMOUS
-        const payment = tossPayments.payment({ customerKey })
-        paymentRef.current = payment
-        setSdkReady(true)
+
+        try {
+          const widgets = tossPayments.widgets({ customerKey })
+          if (cancelled) return
+          widgetsRef.current = widgets
+          setSdkMode('widget')
+        } catch {
+          console.warn('widgets() 초기화 실패, payment() 폴백으로 전환')
+          const payment = tossPayments.payment({ customerKey })
+          if (cancelled) return
+          paymentInstanceRef.current = payment
+          setSdkMode('payment')
+        }
+
+        if (!cancelled) setSdkReady(true)
       } catch (error) {
         console.error('TossPayments SDK init error:', error)
+        if (!cancelled) setSdkMode(null)
         toast.error('결제 시스템 초기화에 실패했습니다.')
       }
     }
 
     initSDK()
+
+    return () => { cancelled = true }
   }, [user, paymentMethod])
+
+  useEffect(() => {
+    if (!sdkReady || sdkMode !== 'widget' || !widgetsRef.current || paymentMethod === 'BANK_TRANSFER') return
+    if (widgetRenderedRef.current) return
+
+    let cancelled = false
+
+    async function renderWidgets() {
+      const widgets = widgetsRef.current
+      try {
+        await widgets.setAmount({
+          currency: 'KRW',
+          value: estimatedPrice,
+        })
+
+        if (cancelled) return
+
+        const [pmWidget, agWidget] = await Promise.all([
+          widgets.renderPaymentMethods({
+            selector: '#payment-method',
+          }),
+          widgets.renderAgreement({
+            selector: '#agreement',
+            variantKey: 'AGREEMENT',
+          }),
+        ])
+        paymentMethodWidgetRef.current = pmWidget
+        agreementWidgetRef.current = agWidget
+
+        if (!cancelled) {
+          widgetRenderedRef.current = true
+        }
+      } catch (error) {
+        console.error('Widget render error:', error)
+      }
+    }
+
+    const timer = setTimeout(renderWidgets, 50)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [sdkReady, paymentMethod, estimatedPrice])
+
+  useEffect(() => {
+    if (!widgetRenderedRef.current || !widgetsRef.current) return
+
+    widgetsRef.current.setAmount({
+      currency: 'KRW',
+      value: estimatedPrice,
+    }).catch((err: unknown) => {
+      console.error('setAmount error:', err)
+    })
+  }, [estimatedPrice])
 
   const buildRequestBody = () => ({
     service_type: formData.serviceType,
@@ -73,10 +153,11 @@ export default function PaymentForm({
     guest_phone: formData.guestPhone,
     guest_address: formData.guestAddress,
     guest_address_detail: formData.guestAddressDetail,
+    vehicle_support: formData.vehicleSupport || false,
   })
 
-  const handlePayment = useCallback(async () => {
-    if (!sdkReady || !paymentRef.current) {
+  const handleWidgetPayment = useCallback(async () => {
+    if (!sdkReady || !widgetsRef.current) {
       toast.error('결제 시스템이 준비되지 않았습니다. 잠시 후 다시 시도해주세요.')
       return
     }
@@ -84,33 +165,21 @@ export default function PaymentForm({
     setIsProcessing(true)
 
     try {
-      // 클라이언트에서 UUID 생성, 폼 데이터를 sessionStorage에 저장
       const orderId = crypto.randomUUID()
       const orderName = `${serviceLabel} ${formData.durationHours}시간`
 
-      sessionStorage.setItem('service_request_form_data', JSON.stringify({
+      sessionStorage.setItem('payment_request_data', JSON.stringify({
         ...buildRequestBody(),
-        payment_method: 'CARD',
+        payment_method: paymentMethod,
       }))
 
-      await paymentRef.current.requestPayment({
-        method: 'CARD',
-        amount: {
-          currency: 'KRW',
-          value: estimatedPrice,
-        },
+      await widgetsRef.current.requestPayment({
         orderId,
         orderName,
         successUrl: `${window.location.origin}/payment/success`,
         failUrl: `${window.location.origin}/payment/fail`,
         customerName: formData.guestName || undefined,
         customerMobilePhone: formData.guestPhone?.replace(/-/g, '') || undefined,
-        card: {
-          useEscrow: false,
-          flowMode: 'DEFAULT',
-          useCardPoint: false,
-          useAppCardOnly: false,
-        },
       })
     } catch (error) {
       console.error('Payment error:', error)
@@ -122,81 +191,57 @@ export default function PaymentForm({
     } finally {
       setIsProcessing(false)
     }
-  }, [formData, estimatedPrice, serviceLabel, sdkReady])
+  }, [formData, estimatedPrice, serviceLabel, sdkReady, paymentMethod])
 
-  const handleTransfer = useCallback(async () => {
-    if (!sdkReady || !paymentRef.current) {
+  const handlePaymentFallback = useCallback(async () => {
+    if (!sdkReady || !paymentInstanceRef.current) {
       toast.error('결제 시스템이 준비되지 않았습니다. 잠시 후 다시 시도해주세요.')
       return
     }
 
     setIsProcessing(true)
 
-    // 토스 dimmer div 추가를 감지하여 내부에 닫기 버튼 inject
-    const observer = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        for (const node of Array.from(m.addedNodes)) {
-          if (node instanceof HTMLElement && node.id === '__tosspayments_payment-gateway_dimmer__') {
-            if (document.getElementById('toss-transfer-close')) return
-            const closeBtn = document.createElement('button')
-            closeBtn.id = 'toss-transfer-close'
-            closeBtn.innerHTML = '✕'
-            closeBtn.setAttribute('aria-label', '결제 취소')
-            closeBtn.style.cssText = 'position:fixed;top:12px;right:12px;z-index:99999999;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,0.7);color:white;font-size:20px;border:2px solid rgba(255,255,255,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);'
-            closeBtn.onclick = () => {
-              closeBtn.remove()
-              window.location.reload()
-            }
-            node.appendChild(closeBtn)
-            observer.disconnect()
-            return
-          }
-        }
-      }
-    })
-    observer.observe(document.body, { childList: true })
-
     try {
       const orderId = crypto.randomUUID()
       const orderName = `${serviceLabel} ${formData.durationHours}시간`
 
-      sessionStorage.setItem('service_request_form_data', JSON.stringify({
+      const method = paymentMethod as 'CARD' | 'TRANSFER'
+      sessionStorage.setItem('payment_request_data', JSON.stringify({
         ...buildRequestBody(),
-        payment_method: 'TRANSFER',
+        payment_method: method,
       }))
 
-      await paymentRef.current.requestPayment({
-        method: 'TRANSFER',
-        amount: {
-          currency: 'KRW',
-          value: estimatedPrice,
-        },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const requestParams: any = {
+        method,
+        amount: { currency: 'KRW', value: estimatedPrice },
         orderId,
         orderName,
         successUrl: `${window.location.origin}/payment/success`,
         failUrl: `${window.location.origin}/payment/fail`,
         customerName: formData.guestName || undefined,
         customerMobilePhone: formData.guestPhone?.replace(/-/g, '') || undefined,
-        transfer: {
-          cashReceipt: {
-            type: '소득공제',
-          },
+      }
+
+      if (method === 'TRANSFER') {
+        requestParams.transfer = {
+          cashReceipt: { type: '소득공제' },
           useEscrow: false,
-        },
-      })
+        }
+      }
+
+      await paymentInstanceRef.current.requestPayment(requestParams)
     } catch (error) {
-      console.error('Transfer payment error:', error)
+      console.error('Payment fallback error:', error)
       if (error instanceof Error && error.message.includes('USER_CANCEL')) {
         toast.error('결제가 취소되었습니다.')
       } else {
         toast.error(error instanceof Error ? error.message : '처리 중 오류가 발생했습니다.')
       }
     } finally {
-      observer.disconnect()
-      document.getElementById('toss-transfer-close')?.remove()
       setIsProcessing(false)
     }
-  }, [formData, estimatedPrice, serviceLabel, sdkReady])
+  }, [formData, estimatedPrice, serviceLabel, sdkReady, paymentMethod])
 
   const handleBankTransfer = useCallback(async () => {
     setIsProcessing(true)
@@ -230,6 +275,7 @@ export default function PaymentForm({
   const handlePrev = () => {
     window.history.back()
   }
+
 
   return (
     <div className="rounded-lg border bg-white p-6">
@@ -280,82 +326,101 @@ export default function PaymentForm({
         </p>
       </div>
 
-      {/* 결제 방법 선택 */}
-      <div className="mt-6">
-        <h3 className="font-semibold text-sm text-gray-700 mb-3">결제 방법</h3>
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            type="button"
-            onClick={() => setPaymentMethod('card')}
-            className={`min-h-[44px] flex items-center justify-center gap-2 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
-              paymentMethod === 'card'
-                ? 'border-primary bg-primary/5 text-primary'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-            }`}
-          >
-            <CreditCard className="h-5 w-5" />
-            카드결제
-          </button>
-          <button
-            type="button"
-            onClick={() => setPaymentMethod('transfer')}
-            className={`relative min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
-              paymentMethod === 'transfer'
-                ? 'border-[#0064FF] bg-[#0064FF]/5 text-[#0064FF]'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-            }`}
-          >
-            <span className="absolute -top-2 -right-2 bg-[#0064FF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">NEW</span>
-            <span className="font-bold text-[#0064FF] text-xs tracking-tight">toss</span>
-            <span className="text-sm">퀵계좌이체</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setPaymentMethod('bank_transfer')}
-            className={`min-h-[44px] flex items-center justify-center gap-2 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
-              paymentMethod === 'bank_transfer'
-                ? 'border-primary bg-primary/5 text-primary'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-            }`}
-          >
-            <Building2 className="h-5 w-5" />
-            무통장입금
-          </button>
-        </div>
-      </div>
-
-      {/* SDK 로딩 상태 (카드/계좌이체) */}
-      {(paymentMethod === 'card' || paymentMethod === 'transfer') && !sdkReady && (
+      {/* SDK 로딩 상태 */}
+      {!sdkReady && paymentMethod !== 'BANK_TRANSFER' && clientKey && (
         <div className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-6">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-primary" />
           <span className="text-sm text-gray-500">결제 시스템을 준비하는 중...</span>
         </div>
       )}
-
-      {/* 카드결제: 안내 */}
-      {paymentMethod === 'card' && sdkReady && (
-        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <p className="text-sm text-blue-800">
-            결제하기 버튼을 누르면 토스페이먼츠 결제창이 열립니다.
-            <br />
-            결제창에서 원하시는 결제 수단을 선택해주세요.
-          </p>
+      {sdkReady && sdkMode === null && (
+        <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-center">
+          <p className="text-sm text-red-800">결제 시스템 초기화에 실패했습니다.</p>
+          <p className="mt-1 text-xs text-red-600">잠시 후 다시 시도하거나, 무통장입금을 이용해주세요.</p>
         </div>
       )}
 
-      {/* 계좌이체: 안내 */}
-      {paymentMethod === 'transfer' && sdkReady && (
-        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <p className="text-sm text-blue-800">
-            결제하기 버튼을 누르면 토스페이먼츠 계좌이체 결제창이 열립니다.
-            <br />
-            결제창에서 출금 계좌를 선택하여 결제해주세요.
-          </p>
+      {/* 결제 방법 선택 - 항상 3개 버튼 */}
+      {sdkReady && sdkMode && (
+        <div className="mt-6">
+          <h3 className="font-semibold text-sm text-gray-700 mb-3">결제 방법</h3>
+          <div className="grid grid-cols-3 gap-3">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('CARD')}
+              className={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
+                paymentMethod === 'CARD'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              <CreditCard className="h-4 w-4" />
+              카드결제
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('TRANSFER')}
+              className={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
+                paymentMethod === 'TRANSFER'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              <ArrowRightLeft className="h-4 w-4" />
+              토스 퀵계좌이체
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('BANK_TRANSFER')}
+              className={`min-h-[44px] flex items-center justify-center gap-1.5 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
+                paymentMethod === 'BANK_TRANSFER'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              <Building2 className="h-4 w-4" />
+              무통장입금
+            </button>
+          </div>
+          {/* 폴백 모드: 안내 텍스트 */}
+          {sdkMode === 'payment' && (paymentMethod === 'CARD' || paymentMethod === 'TRANSFER') && (
+            <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-center">
+              <p className="text-sm text-blue-800">
+                {paymentMethod === 'CARD'
+                  ? '결제하기 버튼을 누르면 카드 결제창이 열립니다.'
+                  : '결제하기 버튼을 누르면 계좌이체 결제창이 열립니다.'}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* 계좌이체: 입금 계좌 안내 */}
-      {paymentMethod === 'bank_transfer' && (
+      {/* 토스 결제 모달 위 취소 버튼 - 결제 진행 중일 때 iframe 위에 표시 */}
+      {isProcessing && (paymentMethod === 'CARD' || paymentMethod === 'TRANSFER') && (
+        <div className="fixed top-4 right-4 z-[10000000]">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-sm shadow-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-white active:bg-gray-100 transition-colors"
+          >
+            <X className="h-4 w-4" />
+            결제 취소
+          </button>
+        </div>
+      )}
+
+      {/* 위젯 렌더링 영역 */}
+      <div style={{ display: sdkMode === 'widget' && (paymentMethod === 'CARD' || paymentMethod === 'TRANSFER') ? 'block' : 'none' }}>
+        {sdkMode === 'widget' && (
+          <>
+            <div id="payment-method" className="mt-6" />
+            <div id="agreement" />
+          </>
+        )}
+      </div>
+
+      {/* 무통장입금: 입금 계좌 안내 */}
+      {paymentMethod === 'BANK_TRANSFER' && (
         <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
           <h4 className="font-semibold text-sm text-amber-900 mb-3">입금 계좌 안내</h4>
           <dl className="space-y-2 text-sm">
@@ -395,27 +460,17 @@ export default function PaymentForm({
         >
           이전
         </button>
-        {paymentMethod === 'card' && (
+        {(paymentMethod === 'CARD' || paymentMethod === 'TRANSFER') && (
           <button
             type="button"
-            onClick={handlePayment}
+            onClick={sdkMode === 'widget' ? handleWidgetPayment : handlePaymentFallback}
             disabled={isProcessing || !sdkReady}
             className="min-h-[44px] rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing ? '처리 중...' : `${estimatedPrice.toLocaleString()}원 결제하기`}
           </button>
         )}
-        {paymentMethod === 'transfer' && (
-          <button
-            type="button"
-            onClick={handleTransfer}
-            disabled={isProcessing || !sdkReady}
-            className="min-h-[44px] rounded-lg bg-primary px-6 font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isProcessing ? '처리 중...' : `${estimatedPrice.toLocaleString()}원 결제하기`}
-          </button>
-        )}
-        {paymentMethod === 'bank_transfer' && (
+        {paymentMethod === 'BANK_TRANSFER' && (
           <button
             type="button"
             onClick={handleBankTransfer}

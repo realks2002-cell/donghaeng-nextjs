@@ -55,7 +55,7 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold mb-4">연락처</h2>
           <p className="text-gray-700">
             문의사항이 있으시면 언제든지 연락주세요.<br />
-            이메일: support@hangbok77.com<br />
+            이메일: yimck@naver.com<br />
             전화: 1668-5535
           </p>
         </div>

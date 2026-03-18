@@ -16,6 +16,7 @@ interface ServiceRequestRecord {
   details: string | null
   status: string
   estimated_price: number
+  vehicle_support: boolean
   created_at: string
 }
 
@@ -59,6 +60,7 @@ export async function GET() {
         details,
         status,
         estimated_price,
+        vehicle_support,
         created_at
       `)
       .eq('status', 'CONFIRMED')

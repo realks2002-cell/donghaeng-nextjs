@@ -1,5 +1,7 @@
 import CoolSMS from 'coolsms-node-sdk'
 import { createServiceClient } from '@/lib/supabase/server'
+import { SERVICE_TYPE_LABELS } from '@/lib/constants/pricing'
+import type { ServiceType } from '@/lib/constants/pricing'
 
 const COOLSMS_API_KEY = (process.env.COOLSMS_API_KEY || '').trim()
 const COOLSMS_API_SECRET = (process.env.COOLSMS_API_SECRET || '').trim()
@@ -47,7 +49,7 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
     // 서비스 요청 정보 조회
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: request, error: reqError } = await (supabase.from('service_requests') as any)
-      .select('service_type, service_date, start_time, customer_id, guest_phone, guest_name')
+      .select('service_type, service_date, start_time, customer_id, guest_phone, guest_name, vehicle_support')
       .eq('id', serviceRequestId)
       .single()
 
@@ -114,7 +116,7 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
     if (customerPhone) {
       const customerMessage = [
         '[행복안심동행] 매니저가 배정되었습니다.',
-        `서비스: ${request.service_type || '돌봄 서비스'}`,
+        `서비스: ${SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type || '돌봄 서비스'}`,
         `일시: ${serviceDate} ${startTime}`,
         `매니저: ${manager.name} (${managerPhone})`,
         `문의: ${COOLSMS_SENDER_NUMBER}`,
@@ -136,8 +138,9 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
     if (manager.phone) {
       const managerMessage = [
         '[행복안심동행] 서비스가 배정되었습니다.',
-        `서비스: ${request.service_type || '돌봄 서비스'}`,
+        `서비스: ${SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type || '돌봄 서비스'}`,
         `일시: ${serviceDate} ${startTime}`,
+        `차량지원: ${request.vehicle_support ? 'O' : 'X'}`,
         `고객: ${customerName || '고객'} (${customerPhoneFormatted})`,
         `문의: ${COOLSMS_SENDER_NUMBER}`,
       ].join('\n')

@@ -38,7 +38,8 @@ export async function GET(request: NextRequest) {
       status,
       estimated_price,
       customer_id,
-      manager_id
+      manager_id,
+      vehicle_support
     `)
 
   if (statusFilter) {
@@ -98,6 +99,7 @@ export async function GET(request: NextRequest) {
     estimated_price: req.estimated_price || 0,
     manager_name: (req.manager_id && managersMap[req.manager_id]?.name) || null,
     manager_phone: (req.manager_id && managersMap[req.manager_id]?.phone) || null,
+    vehicle_support: req.vehicle_support || false,
     is_designated: !!req.manager_id,
   }))
 

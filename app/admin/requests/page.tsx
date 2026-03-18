@@ -24,6 +24,7 @@ interface ServiceRequest {
   estimated_price: number
   manager_name: string | null
   manager_phone: string | null
+  vehicle_support: boolean
   is_designated: boolean
 }
 
@@ -256,6 +257,7 @@ export default function AdminRequestsPage() {
                   <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">매니저 전화번호</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">상태</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">금액</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">차량</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">구분</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">액션</th>
                 </tr>
@@ -289,6 +291,13 @@ export default function AdminRequestsPage() {
                       </td>
                       <td className="px-4 py-3 text-sm text-center text-gray-900">
                         {req.estimated_price.toLocaleString()}원
+                      </td>
+                      <td className="px-3 py-3 text-sm text-center">
+                        {req.vehicle_support ? (
+                          <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">O</span>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-sm text-center">
                         {req.is_designated ? (
@@ -336,7 +345,7 @@ export default function AdminRequestsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
                       요청이 없습니다.
                     </td>
                   </tr>

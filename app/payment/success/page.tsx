@@ -41,7 +41,7 @@ function PaymentSuccessContent() {
 
       try {
         // sessionStorage에서 폼 데이터 읽기
-        const formDataStr = sessionStorage.getItem('service_request_form_data')
+        const formDataStr = sessionStorage.getItem('payment_request_data')
         const formData = formDataStr ? JSON.parse(formDataStr) : null
 
         const response = await fetch('/api/payments/confirm', {
@@ -60,7 +60,7 @@ function PaymentSuccessContent() {
 
         // 결제 성공 시 폼 데이터 정리
         if (data.ok) {
-          sessionStorage.removeItem('service_request_form_data')
+          sessionStorage.removeItem('payment_request_data')
         }
       } catch (error) {
         console.error('Payment confirm error:', error)
