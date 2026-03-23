@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   size_lg: {
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.xxl,
+    paddingVertical: 11,
+    paddingHorizontal: Spacing.lg,
   },
   textSize_sm: {
     fontSize: FontSize.sm,
@@ -131,6 +131,6 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
   },
   textSize_lg: {
-    fontSize: FontSize.lg,
+    fontSize: 15,
   },
 });

@@ -83,8 +83,69 @@ export async function sendPushToAllManagers(payload: PushPayload): Promise<PushR
   let removed = 0
   const errors: string[] = []
 
+  // Expo Push 토큰과 Web Push 구독 분리
+  const expoSubs = subscriptions.filter((s: { auth: string }) => s.auth === 'expo')
+  const webSubs = subscriptions.filter((s: { auth: string }) => s.auth !== 'expo')
+
+  // Expo Push 발송 (100개 단위 청킹)
+  if (expoSubs.length > 0) {
+    const chunks: typeof expoSubs[] = []
+    for (let i = 0; i < expoSubs.length; i += 100) {
+      chunks.push(expoSubs.slice(i, i + 100))
+    }
+
+    for (const chunk of chunks) {
+      try {
+        const messages = chunk.map((sub: { endpoint: string }) => ({
+          to: sub.endpoint,
+          sound: 'default' as const,
+          title: payload.title,
+          body: payload.body,
+          data: { url: payload.url },
+        }))
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 15000)
+        try {
+          const expoRes = await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(messages),
+            signal: controller.signal,
+          })
+          if (expoRes.ok) {
+            const result = await expoRes.json()
+            const tickets = result.data || []
+            for (let i = 0; i < tickets.length; i++) {
+              if (tickets[i].status === 'ok') {
+                sent++
+              } else {
+                failed++
+                if (tickets[i].details?.error === 'DeviceNotRegistered') {
+                  await subscriptionsTable.delete().eq('id', chunk[i].id)
+                  removed++
+                }
+              }
+            }
+            console.log(`[PUSH] Expo: sent ${tickets.filter((t: { status: string }) => t.status === 'ok').length}/${chunk.length}`)
+          } else {
+            failed += chunk.length
+            errors.push(`expo: HTTP ${expoRes.status}`)
+            console.error(`[PUSH] Expo API error: HTTP ${expoRes.status}`)
+          }
+        } finally {
+          clearTimeout(timeout)
+        }
+      } catch (err) {
+        failed += chunk.length
+        console.error('[PUSH] Expo send error:', err)
+        errors.push(`expo: ${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
+  }
+
+  // Web Push 발송
   const results = await Promise.allSettled(
-    subscriptions.map(async (sub: { id: string; endpoint: string; p256dh: string; auth: string }) => {
+    webSubs.map(async (sub: { id: string; endpoint: string; p256dh: string; auth: string }) => {
       try {
         await webpush.sendNotification(
           {
@@ -98,7 +159,6 @@ export async function sendPushToAllManagers(payload: PushPayload): Promise<PushR
         )
       } catch (err: unknown) {
         const statusCode = (err as { statusCode?: number }).statusCode
-        // 410 Gone or 404 Not Found = subscription expired
         if (statusCode === 410 || statusCode === 404) {
           await subscriptionsTable.delete().eq('id', sub.id)
           console.log(`[PUSH] Removed expired subscription: ${sub.id}`)
@@ -111,8 +171,8 @@ export async function sendPushToAllManagers(payload: PushPayload): Promise<PushR
     })
   )
 
-  sent = results.filter((r) => r.status === 'fulfilled').length
-  failed = results.filter((r) => r.status === 'rejected').length
+  sent += results.filter((r) => r.status === 'fulfilled').length
+  failed += results.filter((r) => r.status === 'rejected').length
   const success = sent > 0 || (sent === 0 && failed === 0)
 
   console.log(`[PUSH] Results: sent=${sent} failed=${failed} removed=${removed}`)

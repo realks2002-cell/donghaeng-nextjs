@@ -22,6 +22,14 @@ const serviceOrder: ServiceType[] = [
   'child_care',
 ];
 
+const SERVICE_CARD_COLORS: Record<ServiceType, string> = {
+  hospital_companion: '#FDECEC',
+  daily_care:         '#FFF5E0',
+  life_companion:     '#E8F8EF',
+  elderly_care:       '#F3E8FA',
+  child_care:         '#E8F4FD',
+};
+
 export function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const rootNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -88,19 +96,16 @@ export function HomeScreen() {
           <View style={styles.serviceGrid}>
             {serviceOrder.map((type) => {
               const info = SERVICE_TYPES[type];
+              const bg = SERVICE_CARD_COLORS[type];
               const price = getPricePerHour(type);
               return (
                 <TouchableOpacity
                   key={type}
-                  style={styles.serviceCard}
+                  style={[styles.serviceCard, { backgroundColor: bg, borderColor: bg }]}
                   onPress={() => handleServicePress(type)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.serviceEmoji}>{info.emoji}</Text>
                   <Text style={styles.serviceLabel}>{info.label}</Text>
-                  <Text style={styles.servicePrice}>
-                    {formatPrice(price)}/h
-                  </Text>
                 </TouchableOpacity>
               );
             })}
@@ -156,7 +161,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: FontSize.xl,
     fontWeight: '700',
-    color: Colors.text,
+    color: '#F97316',
   },
   notificationButton: {
     padding: Spacing.sm,
@@ -216,19 +221,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.borderLight,
   },
-  serviceEmoji: {
-    fontSize: 28,
-    marginBottom: Spacing.sm,
-  },
   serviceLabel: {
     fontSize: FontSize.sm,
     fontWeight: '600',
     color: Colors.text,
     marginBottom: 2,
-  },
-  servicePrice: {
-    fontSize: FontSize.xs,
-    color: Colors.textSecondary,
   },
   ctaSection: {
     paddingHorizontal: Spacing.xl,

@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.MANAGER_JWT_SECRET || 'manager-jwt-secret-key'
@@ -12,7 +12,16 @@ interface ManagerPayload {
 export async function getManagerSession(): Promise<ManagerPayload | null> {
   try {
     const cookieStore = await cookies()
-    const token = cookieStore.get('manager_token')?.value
+    let token = cookieStore.get('manager_token')?.value
+
+    // 앱에서 Authorization Bearer 헤더로 토큰 전송 지원
+    if (!token) {
+      const headersList = await headers()
+      const authHeader = headersList.get('authorization')
+      if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.slice(7)
+      }
+    }
 
     if (!token) {
       return null

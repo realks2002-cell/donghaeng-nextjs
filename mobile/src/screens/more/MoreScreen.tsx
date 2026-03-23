@@ -35,25 +35,6 @@ export function MoreScreen() {
         <Divider />
 
         <MenuItem
-          title="서비스 안내"
-          onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/service-guide`, title: '서비스 안내' })}
-        />
-        <MenuItem
-          title="자주 묻는 질문 (FAQ)"
-          onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/faq`, title: 'FAQ' })}
-        />
-        <MenuItem
-          title="회사 소개"
-          onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/about`, title: '회사 소개' })}
-        />
-        <MenuItem
-          title="매니저 지원 안내"
-          onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/manager/recruit`, title: '매니저 지원' })}
-        />
-
-        <Divider />
-
-        <MenuItem
           title="이용약관"
           onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/terms`, title: '이용약관' })}
         />

@@ -17,8 +17,8 @@ export const Colors = {
   info: '#3B82F6',
   white: '#FFFFFF',
   black: '#000000',
-  tabBarActive: '#3B82F6',
-  tabBarInactive: '#94A3B8',
+  tabBarActive: '#1E4178',
+  tabBarInactive: '#4A5264',
   overlay: 'rgba(0, 0, 0, 0.5)',
 };
 

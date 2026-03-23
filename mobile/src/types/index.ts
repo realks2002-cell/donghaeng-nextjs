@@ -131,6 +131,7 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   HomeTab: undefined;
   BookingTab: undefined;
+  CallTab: undefined;
   MoreTab: undefined;
 };
 
