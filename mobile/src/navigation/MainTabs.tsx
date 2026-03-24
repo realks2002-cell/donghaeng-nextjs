@@ -1,35 +1,41 @@
 import React from 'react';
-import { StyleSheet, Linking, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import type { MainTabParamList } from '../types';
 import { Colors, FontSize } from '../constants/colors';
-import { useAuth } from '../contexts/AuthContext';
 
 import { HomeStack } from './HomeStack';
 import { BookingStack } from './BookingStack';
+import { GuideStack } from './GuideStack';
 import { MoreStack } from './MoreStack';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-function DummyScreen() {
-  return <View />;
-}
-
 function TabIcon({ name, focused }: { name: keyof typeof Ionicons.glyphMap; focused: boolean }) {
-  return <Ionicons name={name} size={20} color={focused ? Colors.tabBarActive : Colors.tabBarInactive} />;
+  if (focused) {
+    return (
+      <View style={styles.activeIconWrap}>
+        <Ionicons name={name} size={20} color={Colors.white} />
+      </View>
+    );
+  }
+  return (
+    <View style={styles.inactiveIconWrap}>
+      <Ionicons name={name} size={20} color={Colors.tabBarInactive} />
+    </View>
+  );
 }
 
 export function MainTabs() {
-  const { isLoggedIn } = useAuth();
   const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.tabBarActive,
+        tabBarActiveTintColor: Colors.brandTeal,
         tabBarInactiveTintColor: Colors.tabBarInactive,
         tabBarStyle: {
           ...styles.tabBar,
@@ -51,29 +57,23 @@ export function MainTabs() {
         name="BookingTab"
         component={BookingStack}
         options={{
-          tabBarLabel: isLoggedIn ? '내 예약' : '예약조회',
+          tabBarLabel: '내 예약 확인',
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'calendar' : 'calendar-outline'} focused={focused} />,
         }}
       />
       <Tab.Screen
-        name="CallTab"
-        component={DummyScreen}
+        name="GuideTab"
+        component={GuideStack}
         options={{
-          tabBarLabel: '상담/예약',
-          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'call' : 'call-outline'} focused={focused} />,
-        }}
-        listeners={{
-          tabPress: (e) => {
-            e.preventDefault();
-            Linking.openURL('tel:1668-5535');
-          },
+          tabBarLabel: '이용안내',
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'book' : 'book-outline'} focused={focused} />,
         }}
       />
       <Tab.Screen
-        name="MoreTab"
+        name="ProfileTab"
         component={MoreStack}
         options={{
-          tabBarLabel: isLoggedIn ? '마이페이지' : '더보기',
+          tabBarLabel: '로그인',
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} />,
         }}
       />
@@ -91,5 +91,21 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 10,
     fontWeight: '500',
+  },
+  activeIconWrap: {
+    backgroundColor: Colors.brandTeal,
+    borderRadius: 17,
+    width: 33,
+    height: 33,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -14,
+  },
+  inactiveIconWrap: {
+    width: 33,
+    height: 33,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -14,
   },
 });

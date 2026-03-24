@@ -131,8 +131,13 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   HomeTab: undefined;
   BookingTab: undefined;
-  CallTab: undefined;
-  MoreTab: undefined;
+  GuideTab: undefined;
+  ProfileTab: undefined;
+};
+
+export type GuideStackParamList = {
+  Guide: { url: string; title: string };
+  WebViewPage: { url: string; title: string };
 };
 
 export type HomeStackParamList = {

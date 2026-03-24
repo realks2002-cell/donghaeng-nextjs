@@ -20,6 +20,12 @@ export const Colors = {
   tabBarActive: '#1E4178',
   tabBarInactive: '#4A5264',
   overlay: 'rgba(0, 0, 0, 0.5)',
+  brandTeal: '#1A6B5A',
+  brandTealDark: '#145A4A',
+  ctaDark: '#1E4178',
+  heroBg: '#F0F4F8',
+  consultBg: '#F5EDE5',
+  consultAccent: '#8B6F47',
 };
 
 export const Spacing = {
