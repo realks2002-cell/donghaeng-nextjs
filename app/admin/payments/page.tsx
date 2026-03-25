@@ -51,6 +51,7 @@ export default function AdminPaymentsPage() {
   // 부분환불 모달
   const [refundModal, setRefundModal] = useState<Payment | null>(null)
   const [refundAmount, setRefundAmount] = useState('')
+  const [cancelReason, setCancelReason] = useState('')
 
 
   const fetchPayments = async () => {
@@ -77,16 +78,15 @@ export default function AdminPaymentsPage() {
   }, [])
 
   const handleFullRefund = async (payment: Payment) => {
-    if (!confirm(`주문 ${payment.order_id.slice(0, 8)}...\n${payment.amount.toLocaleString()}원 전액 환불하시겠습니까?`)) {
-      return
-    }
+    const reason = prompt(`주문 ${payment.order_id.slice(0, 8)}...\n${payment.amount.toLocaleString()}원 전액 환불\n\n환불 사유를 입력하세요:`)
+    if (reason === null) return
 
     setProcessingId(payment.id)
     try {
       const res = await fetch(`/api/admin/payments/${payment.id}/refund`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'full' }),
+        body: JSON.stringify({ type: 'full', cancelReason: reason || '관리자 환불 처리' }),
       })
       const result = await res.json()
       if (result.success) {
@@ -121,7 +121,7 @@ export default function AdminPaymentsPage() {
       const res = await fetch(`/api/admin/payments/${refundModal.id}/refund`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'partial', refundAmount: amount }),
+        body: JSON.stringify({ type: 'partial', refundAmount: amount, cancelReason: cancelReason || '관리자 부분 환불 처리' }),
       })
       const result = await res.json()
       if (result.success) {
@@ -141,6 +141,7 @@ export default function AdminPaymentsPage() {
   const canRefund = (payment: Payment) => {
     return payment.status === 'PAID' || payment.status === 'PARTIAL_REFUNDED'
   }
+
 
   return (
     <div className="max-w-[1408px]">
@@ -284,17 +285,29 @@ export default function AdminPaymentsPage() {
               </div>
             </div>
 
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">환불 금액 (원)</label>
-              <input
-                type="number"
-                value={refundAmount}
-                onChange={(e) => setRefundAmount(e.target.value)}
-                placeholder="환불할 금액을 입력하세요"
-                max={refundModal.amount - (refundModal.refund_amount || 0)}
-                min={1}
-                className="w-full min-h-[44px] px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">환불 금액 (원)</label>
+                <input
+                  type="number"
+                  value={refundAmount}
+                  onChange={(e) => setRefundAmount(e.target.value)}
+                  placeholder="환불할 금액을 입력하세요"
+                  max={refundModal.amount - (refundModal.refund_amount || 0)}
+                  min={1}
+                  className="w-full min-h-[44px] px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">환불 사유</label>
+                <input
+                  type="text"
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder="환불 사유를 입력하세요"
+                  className="w-full min-h-[44px] px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
             </div>
 
             <div className="mt-6 flex gap-3">
@@ -303,6 +316,7 @@ export default function AdminPaymentsPage() {
                 onClick={() => {
                   setRefundModal(null)
                   setRefundAmount('')
+                  setCancelReason('')
                 }}
                 className="flex-1 min-h-[44px] rounded-lg border border-gray-300 bg-white font-medium text-gray-700 hover:bg-gray-50"
               >

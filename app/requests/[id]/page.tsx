@@ -5,7 +5,6 @@ import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ArrowLeft, MapPin, Clock, Calendar, Phone, User } from 'lucide-react'
 import { formatKoreanPhone } from '@/lib/utils/validation'
-import CancelRequestButton from '@/components/CancelRequestButton'
 
 import { STATUS_DISPLAY } from '@/lib/constants/status'
 
@@ -178,12 +177,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
           </div>
         )}
 
-        {/* 취소 버튼 */}
-        {(['CONFIRMED', 'MATCHED', 'PENDING_TRANSFER'].includes(request.status)) && (
-          <div className="text-center">
-            <CancelRequestButton requestId={request.id} />
-          </div>
-        )}
+        {/* 취소 버튼 - 고객 직접 취소 비활성화 (관리자만 취소 가능) */}
       </div>
     </div>
   )

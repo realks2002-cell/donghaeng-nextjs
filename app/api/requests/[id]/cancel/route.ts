@@ -1,10 +1,21 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAdminAuth } from '@/lib/auth/admin'
+import { cancelTossPayment } from '@/lib/services/toss-cancel'
 
 export async function PATCH(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
+    await requireAdminAuth()
+  } catch {
+    return NextResponse.json(
+      { success: false, message: '관리자 인증이 필요합니다.' },
+      { status: 401 }
+    )
+  }
+
   try {
     const { id } = await params
     const supabase = createServiceClient()
@@ -61,19 +72,31 @@ export async function PATCH(
 
     if (appUpdateError) {
       console.error('Applications cleanup error:', appUpdateError)
-      // 요청 취소는 성공했지만 지원내역 정리 실패 - 로깅만
     }
 
     // 연결된 결제 자동 환불
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const paymentsTable = supabase.from('payments') as any
     const { data: payment } = await paymentsTable
-      .select('id, amount, status')
+      .select('id, amount, status, payment_key')
       .eq('service_request_id', id)
       .in('status', ['PAID', 'PARTIAL_REFUNDED'])
       .single()
 
     if (payment) {
+      // 토스페이먼츠 결제 취소 API 호출
+      if (payment.payment_key) {
+        try {
+          await cancelTossPayment(payment.payment_key, '서비스 요청 취소에 따른 자동 환불')
+        } catch (tossError) {
+          console.error('토스 자동 환불 실패:', tossError)
+          return NextResponse.json({
+            success: true,
+            warning: '요청은 취소되었지만 결제 환불에 실패했습니다. 결제 관리에서 수동 환불해주세요.',
+          })
+        }
+      }
+
       const { error: refundError } = await paymentsTable
         .update({
           status: 'REFUNDED',
@@ -82,10 +105,14 @@ export async function PATCH(
           partial_refunded: false,
         })
         .eq('id', payment.id)
+        .in('status', ['PAID', 'PARTIAL_REFUNDED'])
 
       if (refundError) {
-        console.error('Auto refund error:', refundError)
-        // 요청 취소는 성공했지만 환불 실패 - 로깅만
+        console.error('Auto refund DB error (토스 취소 완료됨):', {
+          paymentId: payment.id,
+          paymentKey: payment.payment_key,
+          error: refundError,
+        })
       }
     }
 

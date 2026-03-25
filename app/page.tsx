@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Star, ShieldCheck, Users, Clock, ClipboardCheck } from 'lucide-react'
+import { Star, ShieldCheck, Users, Clock, ClipboardCheck, Phone } from 'lucide-react'
 
 const KAKAO_CHAT_URL = 'https://pf.kakao.com/_xnxaxkxj/chat'
 
@@ -37,7 +37,19 @@ export default function Home() {
                 내 서비스 확인하기
               </Link>
             </div>
-            <p className="text-base ml-[30px] bg-yellow-200/60 px-2 py-1 rounded font-semibold text-gray-800 inline-block">대표콜센터 1668-5535 (유선 접수시)</p>
+            <p className="hidden md:inline-block text-base ml-[30px] bg-yellow-200/60 px-2 py-1 rounded font-semibold text-gray-800">대표콜센터 1668-5535 (유선 접수시)</p>
+            <div className="grid grid-cols-2 gap-3 md:hidden mt-2">
+              <a href="tel:1668-5535"
+                 className="flex flex-col items-center justify-center py-3 bg-teal-600 rounded-xl text-white active:bg-teal-700 min-h-[56px] shadow-sm">
+                <span className="flex items-center gap-1 text-sm font-medium"><Phone className="w-4 h-4" />상담예약 (대표)</span>
+                <span className="text-base font-bold">1668-5535</span>
+              </a>
+              <a href="tel:010-2479-3112"
+                 className="flex flex-col items-center justify-center py-3 bg-teal-600 rounded-xl text-white active:bg-teal-700 min-h-[56px] shadow-sm">
+                <span className="flex items-center gap-1 text-sm font-medium"><Phone className="w-4 h-4" />상담예약 (휴대폰)</span>
+                <span className="text-base font-bold">010-2479-3112</span>
+              </a>
+            </div>
 
             <div className="pt-8 flex items-center gap-6 text-base text-gray-700 font-medium flex-wrap">
               <div className="flex items-center gap-2">
@@ -298,6 +310,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+
     </>
   )
 }
