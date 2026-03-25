@@ -4,6 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
 import { Colors, FontSize, Spacing, BorderRadius } from '../../constants/colors';
 import { SERVICE_TYPES, ServiceType, HomeStackParamList, RootStackParamList } from '../../types';
 import { serviceApi } from '../../api/client';
@@ -22,7 +24,7 @@ const SERVICE_CARDS: Array<{
   { type: 'hospital_companion', icon: 'medkit-outline', iconColor: '#1A6B5A', bgColor: '#FDECEC' },
   { type: 'daily_care', icon: 'home-outline', iconColor: '#B85C38', bgColor: '#FFF5E0' },
   { type: 'life_companion', icon: 'bag-handle-outline', iconColor: '#2D7A4A', bgColor: '#E8F8EF' },
-  { type: 'elderly_care', icon: 'walk-outline', iconColor: '#1A6B5A', bgColor: '#F3E8FA' },
+  { type: 'elderly_care', icon: 'people-outline', iconColor: '#1A6B5A', bgColor: '#F3E8FA' },
   { type: 'child_care', icon: 'happy-outline', iconColor: '#B85C38', bgColor: '#E8F4FD' },
 ];
 
@@ -72,19 +74,36 @@ export function HomeScreen() {
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Text style={styles.headerTitle}>행복안심동행</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ backgroundColor: '#F97316', padding: 6, borderRadius: 10 }}>
+            <Ionicons name="heart-outline" size={16} color="#FFFFFF" />
+          </View>
+          <Text style={styles.headerTitle}>행복안심<Text style={{ color: '#F97316' }}>동행</Text></Text>
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Hero Banner */}
         <View style={styles.heroBanner}>
-          {isLoggedIn && user ? (
-            <Text style={styles.greeting}>{user.name}님, 안녕하세요!</Text>
-          ) : (
-            <Text style={styles.greeting}>안녕하세요!</Text>
-          )}
-          <Text style={styles.heroTitle}>당신의 안심 돌봄{'\n'}파트너</Text>
-          <Text style={styles.heroSubtitle}>전문 매니저가 함께합니다</Text>
+          <View style={{ alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={[styles.heroTitle, { marginBottom: 0 }]}>당신의 일상에 </Text>
+              <MaskedView maskElement={<Text style={[styles.heroTitle, { marginBottom: 0 }]}>따뜻한</Text>}>
+                <LinearGradient colors={['#F97316', '#F59E0B']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  <Text style={[styles.heroTitle, { opacity: 0, marginBottom: 0 }]}>따뜻한</Text>
+                </LinearGradient>
+              </MaskedView>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <MaskedView maskElement={<Text style={[styles.heroTitle, { marginBottom: 0 }]}>동행</Text>}>
+                <LinearGradient colors={['#F97316', '#F59E0B']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  <Text style={[styles.heroTitle, { opacity: 0, marginBottom: 0 }]}>동행</Text>
+                </LinearGradient>
+              </MaskedView>
+              <Text style={[styles.heroTitle, { marginBottom: 0 }]}>을 선물합니다.</Text>
+            </View>
+          </View>
+          <Text style={[styles.heroSubtitle, { marginTop: Spacing.md }]}>전문 교육을 이수한 매니저가 함께합니다.</Text>
         </View>
 
         {/* Service Categories */}
@@ -120,13 +139,13 @@ export function HomeScreen() {
         <View style={styles.quickLinks}>
           <TouchableOpacity
             style={styles.quickLinkRow}
-            onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/service-guide`, title: '이용 안내' })}
+            onPress={() => navigation.navigate('WebViewPage', { url: `${API_BASE_URL}/refund`, title: '환불 정책' })}
             activeOpacity={0.7}
           >
             <View style={styles.quickLinkIconWrap}>
-              <Ionicons name="book-outline" size={18} color={Colors.brandTeal} />
+              <Ionicons name="shield-checkmark-outline" size={18} color={Colors.brandTeal} />
             </View>
-            <Text style={styles.quickLinkText}>이용 안내</Text>
+            <Text style={styles.quickLinkText}>환불 정책</Text>
             <Ionicons name="chevron-forward" size={18} color={Colors.brandTeal} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -169,13 +188,13 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.lg,
+    paddingBottom: Spacing.lg + 40,
     backgroundColor: Colors.white,
   },
   headerTitle: {
-    fontSize: FontSize.lg,
+    fontSize: 16,
     fontWeight: '700',
-    color: Colors.brandTeal,
+    color: Colors.text,
   },
   content: {
     flex: 1,
@@ -194,16 +213,18 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   heroTitle: {
-    fontSize: 26,
+    fontSize: 23,
     fontWeight: '700',
     color: Colors.text,
-    lineHeight: 36,
+    lineHeight: 32,
+    textAlign: 'center',
     marginBottom: Spacing.sm,
   },
   heroSubtitle: {
-    fontSize: FontSize.md,
+    fontSize: 13,
     color: Colors.brandTeal,
     fontWeight: '500',
+    textAlign: 'center',
   },
   section: {
     paddingHorizontal: Spacing.xl,
@@ -240,11 +261,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   ctaSection: {
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: Spacing.xl + 20,
     marginBottom: Spacing.xxl,
   },
   ctaButton: {
-    backgroundColor: Colors.ctaDark,
+    backgroundColor: '#F97316',
     borderRadius: BorderRadius.full,
     paddingVertical: 16,
     alignItems: 'center',
@@ -254,6 +275,15 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: FontSize.md,
     fontWeight: '700',
+  },
+  refundLink: {
+    alignItems: 'center',
+    marginTop: Spacing.md,
+  },
+  refundLinkText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    textDecorationLine: 'underline',
   },
   quickLinks: {
     paddingHorizontal: Spacing.xl,
@@ -297,13 +327,13 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
   },
   consultTitle: {
-    fontSize: FontSize.md,
+    fontSize: FontSize.md * 0.9,
     fontWeight: '700',
     color: Colors.text,
     marginBottom: Spacing.xs,
   },
   consultSubtitle: {
-    fontSize: FontSize.xs,
+    fontSize: FontSize.xs * 0.9,
     color: Colors.textSecondary,
     lineHeight: 18,
   },

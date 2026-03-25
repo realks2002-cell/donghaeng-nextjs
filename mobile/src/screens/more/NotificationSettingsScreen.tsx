@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Switch, Alert, Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
+let Notifications: any = null;
+try { Notifications = require('expo-notifications'); } catch { Notifications = null; }
 import { Colors, FontSize, Spacing } from '../../constants/colors';
 import { pushApi } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
@@ -18,6 +19,7 @@ export function NotificationSettingsScreen() {
   }, []);
 
   async function checkNotificationStatus() {
+    if (!Notifications) return;
     const { status } = await Notifications.getPermissionsAsync();
     setPushEnabled(status === 'granted');
   }
@@ -26,6 +28,7 @@ export function NotificationSettingsScreen() {
     if (value) {
       setLoading(true);
       try {
+        if (!Notifications) { Alert.alert('알림', 'Expo Go에서는 푸시 알림을 사용할 수 없습니다.'); setLoading(false); return; }
         const { status } = await Notifications.requestPermissionsAsync();
         if (status === 'granted') {
           const tokenData = await Notifications.getExpoPushTokenAsync();

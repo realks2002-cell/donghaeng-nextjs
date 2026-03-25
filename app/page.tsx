@@ -8,10 +8,9 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-gradient-to-b from-orange-50 via-amber-50/80 to-white">
         {/* Background Blobs */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-200/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-200/30 rounded-full blur-3xl translate-y-1/4 -translate-x-1/4 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-100/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
           <div className="space-y-8">
@@ -41,13 +40,13 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-3 md:hidden mt-2">
               <a href="tel:1668-5535"
                  className="flex flex-col items-center justify-center py-3 bg-teal-600 rounded-xl text-white active:bg-teal-700 min-h-[56px] shadow-sm">
-                <span className="flex items-center gap-1 text-sm font-medium"><Phone className="w-4 h-4" />상담예약 (대표)</span>
-                <span className="text-base font-bold">1668-5535</span>
+                <span className="flex items-center gap-1 text-[13px] font-medium"><Phone className="w-4 h-4" />상담예약 (대표)</span>
+                <span className="text-[17px] font-bold">1668-5535</span>
               </a>
               <a href="tel:010-2479-3112"
                  className="flex flex-col items-center justify-center py-3 bg-teal-600 rounded-xl text-white active:bg-teal-700 min-h-[56px] shadow-sm">
-                <span className="flex items-center gap-1 text-sm font-medium"><Phone className="w-4 h-4" />상담예약 (휴대폰)</span>
-                <span className="text-base font-bold">010-2479-3112</span>
+                <span className="flex items-center gap-1 text-[13px] font-medium"><Phone className="w-4 h-4" />상담예약 (휴대폰)</span>
+                <span className="text-[17px] font-bold">010-2479-3112</span>
               </a>
             </div>
 
@@ -184,7 +183,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           {/* 제목 */}
           <div className="lg:col-span-2">
-            <span className="text-teal-600 font-semibold tracking-wide uppercase text-base">Why Choose Us</span>
+            <span className="text-orange-600 font-semibold tracking-wide uppercase text-base">Why Choose Us</span>
             <h2 className="text-4xl md:text-5xl font-bold mt-4 leading-tight">
               믿을 수 있는 <span className="text-orange-500">행복안심동행</span>의 3가지 약속
             </h2>
@@ -193,15 +192,15 @@ export default function Home() {
           {/* 3가지 약속 */}
           <div className="space-y-8">
             <div className="flex gap-4 items-start">
-              <div className="flex-shrink-0 w-[50px] h-[50px] rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-2xl">1</div>
+              <div className="flex-shrink-0 w-[50px] h-[50px] rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-2xl">1</div>
               <p className="text-xl text-gray-800 leading-relaxed"><span className="font-bold text-2xl text-gray-900">엄격한 신원 검증</span> 모든 매니저는 신원 조회, 건강 검진, 인성 면접 등 5단계 검증 시스템을 통과했습니다.</p>
             </div>
             <div className="flex gap-4 items-start">
-              <div className="flex-shrink-0 w-[50px] h-[50px] rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-2xl">2</div>
+              <div className="flex-shrink-0 w-[50px] h-[50px] rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-2xl">2</div>
               <p className="text-xl text-gray-800 leading-relaxed"><span className="font-bold text-2xl text-gray-900">전문 교육 이수</span> 병원 동행, 노인 케어, 아동 심리 등 분야별 100시간 이상의 전문 교육을 의무화합니다.</p>
             </div>
             <div className="flex gap-4 items-start">
-              <div className="flex-shrink-0 w-[50px] h-[50px] rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-2xl">3</div>
+              <div className="flex-shrink-0 w-[50px] h-[50px] rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-2xl">3</div>
               <p className="text-xl text-gray-800 leading-relaxed"><span className="font-bold text-2xl text-gray-900">배상 책임 보험 가입</span> 만약의 상황에 대비하여 업계 최고 수준의 배상 책임 보험에 가입되어 있어 안심할 수 있습니다.</p>
             </div>
           </div>
