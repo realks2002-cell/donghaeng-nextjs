@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Metadata } from 'next'
+import PWAInstallButton from '@/components/PWAInstallButton'
 
 export const metadata: Metadata = {
   title: '매니저 모집 - 행복안심동행',
@@ -25,6 +26,7 @@ export default function RecruitPage() {
             >
               매니저 지원하기
             </Link>
+            <PWAInstallButton />
           </div>
         </div>
         <p className="text-gray-600">고객에게 따뜻한 돌봄을 전하는 매니저가 되어주세요.</p>
