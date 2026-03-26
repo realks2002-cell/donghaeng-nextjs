@@ -156,6 +156,17 @@ export default function PaymentForm({
     vehicle_support: formData.vehicleSupport || false,
   })
 
+  const saveTempRequest = async (method: string) => {
+    const res = await fetch('/api/requests/save-temp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...buildRequestBody(), payment_method: method }),
+    })
+    const data = await res.json()
+    if (!data.ok) throw new Error(data.error || '서비스 요청 저장에 실패했습니다.')
+    return data.request_id as string
+  }
+
   const handleWidgetPayment = useCallback(async () => {
     if (!sdkReady || !widgetsRef.current) {
       toast.error('결제 시스템이 준비되지 않았습니다. 잠시 후 다시 시도해주세요.')
@@ -165,7 +176,7 @@ export default function PaymentForm({
     setIsProcessing(true)
 
     try {
-      const orderId = crypto.randomUUID()
+      const orderId = await saveTempRequest(paymentMethod)
       const orderName = `${serviceLabel} ${formData.durationHours}시간`
 
       sessionStorage.setItem('payment_request_data', JSON.stringify({
@@ -202,10 +213,10 @@ export default function PaymentForm({
     setIsProcessing(true)
 
     try {
-      const orderId = crypto.randomUUID()
+      const method = paymentMethod as 'CARD' | 'TRANSFER'
+      const orderId = await saveTempRequest(method)
       const orderName = `${serviceLabel} ${formData.durationHours}시간`
 
-      const method = paymentMethod as 'CARD' | 'TRANSFER'
       sessionStorage.setItem('payment_request_data', JSON.stringify({
         ...buildRequestBody(),
         payment_method: method,

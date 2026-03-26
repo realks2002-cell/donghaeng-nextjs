@@ -263,13 +263,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!formData || !formData.service_type || !formData.service_date || !formData.start_time || !formData.duration_hours) {
-      return NextResponse.json(
-        { ok: false, error: '서비스 요청 정보가 누락되었습니다.' },
-        { status: 400 }
-      )
-    }
-
     const secretKey = process.env.TOSS_SECRET_KEY
     if (!secretKey) {
       return NextResponse.json(
@@ -279,9 +272,51 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createServiceClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requestsTable = supabase.from('service_requests') as any
 
-    // 서비스 가격 계산 및 금액 검증 (Supabase에서 동적 가격 로드)
-    const serviceType = formData.service_type as ServiceType
+    // DB에서 사전 저장된 서비스 요청 조회 (save-temp에서 생성)
+    const { data: existingRequest } = await requestsTable
+      .select('*')
+      .eq('id', orderId)
+      .single()
+
+    if (existingRequest?.status === 'CONFIRMED') {
+      return NextResponse.json(
+        { ok: false, error: '이미 결제가 완료된 주문입니다.' },
+        { status: 409 }
+      )
+    }
+
+    // formData 결정: sessionStorage에서 전달된 것 또는 DB에서 복원
+    const resolvedFormData = (formData && formData.service_type) ? formData : existingRequest ? {
+      service_type: existingRequest.service_type,
+      service_date: existingRequest.service_date,
+      start_time: existingRequest.start_time,
+      duration_hours: existingRequest.duration_minutes / 60,
+      address: existingRequest.address,
+      address_detail: existingRequest.address_detail,
+      phone: existingRequest.phone,
+      guest_name: existingRequest.guest_name,
+      guest_phone: existingRequest.guest_phone,
+      guest_address: existingRequest.address,
+      guest_address_detail: existingRequest.address_detail,
+      lat: existingRequest.lat,
+      lng: existingRequest.lng,
+      details: existingRequest.details,
+      designated_manager_id: existingRequest.manager_id,
+      vehicle_support: existingRequest.vehicle_support,
+    } : null
+
+    if (!resolvedFormData || !resolvedFormData.service_type || !resolvedFormData.service_date || !resolvedFormData.start_time || !resolvedFormData.duration_hours) {
+      return NextResponse.json(
+        { ok: false, error: '서비스 요청 정보가 누락되었습니다.' },
+        { status: 400 }
+      )
+    }
+
+    // 서비스 가격 계산 및 금액 검증
+    const serviceType = resolvedFormData.service_type as ServiceType
     const koreanLabel = SERVICE_TYPE_LABELS[serviceType]
     let pricePerHour = DEFAULT_SERVICE_PRICES[serviceType] ?? 20000
     if (koreanLabel) {
@@ -296,7 +331,7 @@ export async function POST(request: NextRequest) {
       }
     }
     let vehicleSupportPrice = 0
-    if (formData.vehicle_support) {
+    if (resolvedFormData.vehicle_support) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: vehicleData } = await (supabase.from('service_prices') as any)
         .select('price_per_hour')
@@ -305,34 +340,13 @@ export async function POST(request: NextRequest) {
         .single()
       vehicleSupportPrice = vehicleData?.price_per_hour ?? VEHICLE_SUPPORT_DEFAULT_PRICE
     }
-    const estimatedPrice = pricePerHour * formData.duration_hours + vehicleSupportPrice
+    const estimatedPrice = pricePerHour * resolvedFormData.duration_hours + vehicleSupportPrice
 
     if (estimatedPrice !== amount) {
       console.error('Amount mismatch:', { expected: estimatedPrice, received: amount })
       return NextResponse.json(
         { ok: false, error: '결제 금액이 일치하지 않습니다.' },
         { status: 400 }
-      )
-    }
-
-    // 중복 처리 방지: 같은 orderId로 이미 생성된 요청이 있는지 확인
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const requestsTable = supabase.from('service_requests') as any
-    const { data: existingRequest } = await requestsTable
-      .select('id, status')
-      .eq('id', orderId)
-      .single()
-
-    if (existingRequest) {
-      if (existingRequest.status === 'CONFIRMED') {
-        return NextResponse.json(
-          { ok: false, error: '이미 결제가 완료된 주문입니다.' },
-          { status: 409 }
-        )
-      }
-      return NextResponse.json(
-        { ok: false, error: '이미 처리된 주문입니다.' },
-        { status: 409 }
       )
     }
 
@@ -367,40 +381,59 @@ export async function POST(request: NextRequest) {
     const customer = await getCustomerFromRequest()
     const customerId: string | null = customer?.userId || null
 
-    const address = formData.address || formData.guest_address || ''
-    const addressDetail = formData.address_detail || formData.guest_address_detail || ''
-    const phone = formData.phone || formData.guest_phone || ''
-    const durationMinutes = formData.duration_hours * 60
+    if (existingRequest) {
+      // DB에 이미 저장된 요청이 있으면 상태만 업데이트
+      const { error: updateError } = await requestsTable
+        .update({
+          status: 'CONFIRMED',
+          confirmed_at: new Date().toISOString(),
+          customer_id: customerId || existingRequest.customer_id,
+        })
+        .eq('id', orderId)
 
-    // 서비스 요청 INSERT (바로 CONFIRMED 상태)
-    const { error: insertError } = await requestsTable.insert({
-      id: orderId,
-      customer_id: customerId,
-      guest_name: formData.guest_name || null,
-      guest_phone: formData.guest_phone || null,
-      service_type: formData.service_type,
-      service_date: formData.service_date,
-      start_time: formData.start_time,
-      duration_minutes: durationMinutes,
-      address: address,
-      address_detail: addressDetail || null,
-      phone: phone,
-      lat: formData.lat || null,
-      lng: formData.lng || null,
-      details: formData.details || null,
-      status: 'CONFIRMED',
-      estimated_price: estimatedPrice,
-      manager_id: formData.designated_manager_id || null,
-      vehicle_support: formData.vehicle_support || false,
-      confirmed_at: new Date().toISOString(),
-    })
+      if (updateError) {
+        console.error('Service request update error:', updateError)
+        return NextResponse.json(
+          { ok: false, error: '서비스 요청 업데이트에 실패했습니다. 결제는 승인되었으니 고객센터에 문의해주세요.' },
+          { status: 500 }
+        )
+      }
+    } else {
+      // DB에 없으면 새로 생성 (sessionStorage 경유 - 데스크톱)
+      const address = resolvedFormData.address || resolvedFormData.guest_address || ''
+      const addressDetail = resolvedFormData.address_detail || resolvedFormData.guest_address_detail || ''
+      const phone = resolvedFormData.phone || resolvedFormData.guest_phone || ''
+      const durationMinutes = resolvedFormData.duration_hours * 60
 
-    if (insertError) {
-      console.error('Service request insert error:', insertError)
-      return NextResponse.json(
-        { ok: false, error: '서비스 요청 저장에 실패했습니다. 결제는 승인되었으니 고객센터에 문의해주세요.' },
-        { status: 500 }
-      )
+      const { error: insertError } = await requestsTable.insert({
+        id: orderId,
+        customer_id: customerId,
+        guest_name: resolvedFormData.guest_name || null,
+        guest_phone: resolvedFormData.guest_phone || null,
+        service_type: resolvedFormData.service_type,
+        service_date: resolvedFormData.service_date,
+        start_time: resolvedFormData.start_time,
+        duration_minutes: durationMinutes,
+        address: address,
+        address_detail: addressDetail || null,
+        phone: phone,
+        lat: resolvedFormData.lat || null,
+        lng: resolvedFormData.lng || null,
+        details: resolvedFormData.details || null,
+        status: 'CONFIRMED',
+        estimated_price: estimatedPrice,
+        manager_id: resolvedFormData.designated_manager_id || null,
+        vehicle_support: resolvedFormData.vehicle_support || false,
+        confirmed_at: new Date().toISOString(),
+      })
+
+      if (insertError) {
+        console.error('Service request insert error:', insertError)
+        return NextResponse.json(
+          { ok: false, error: '서비스 요청 저장에 실패했습니다. 결제는 승인되었으니 고객센터에 문의해주세요.' },
+          { status: 500 }
+        )
+      }
     }
 
     // 결제 레코드 생성
