@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-screen">
       {/* 사이드바 - 데스크탑 */}
-      <aside className="hidden w-64 bg-white border-r border-gray-200 md:block">
+      <aside className="hidden w-56 bg-white border-r border-gray-200 md:block" style={{ zoom: 0.9 }}>
         <div className="flex flex-col h-full">
           {/* 로고 */}
           <div className="flex items-center justify-center h-16 border-b border-gray-200">
@@ -156,7 +156,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
 
         {/* 콘텐츠 영역 */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 admin-content" style={{ zoom: 0.88 }}>
           {children}
         </main>
       </div>

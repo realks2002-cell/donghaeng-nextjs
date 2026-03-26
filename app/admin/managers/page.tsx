@@ -183,7 +183,7 @@ function AdminManagersContent() {
   }
 
   return (
-    <div className="max-w-[1408px]">
+    <div className="max-w-full">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">매니저 관리</h1>
       </div>
@@ -244,7 +244,7 @@ function AdminManagersContent() {
                     <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                       전화번호
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase max-w-[150px]">
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase min-w-[300px]">
                       주소
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
@@ -293,12 +293,12 @@ function AdminManagersContent() {
                             </div>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">
                           {manager.name}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-900">{manager.ssn ? formatSsn(manager.ssn) : '-'}</td>
                         <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">{formatKoreanPhone(manager.phone)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 max-w-[150px] truncate" title={[manager.address1, manager.address2].filter(Boolean).join(' ')}>
+                        <td className="px-4 py-3 text-sm text-gray-900 !text-left">
                           {manager.address1}
                           {manager.address2 && (
                             <>

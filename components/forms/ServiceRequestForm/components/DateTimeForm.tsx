@@ -105,6 +105,11 @@ export default function DateTimeForm() {
               </label>
             ))}
           </div>
+          {formData.durationHours > 0 && basePrice > 0 && (
+            <p className="mt-2 text-sm text-gray-500">
+              예상 금액: <span className="font-semibold text-primary">{basePrice.toLocaleString()}원</span>
+            </p>
+          )}
         </div>
 
         <div>
@@ -127,7 +132,7 @@ export default function DateTimeForm() {
                 +{vehicleSupportPriceValue.toLocaleString()}원
               </span>
             </button>
-            <p className="mt-1.5 text-lg text-gray-500">※ 차량지원 필요시 선택</p>
+            <p className="mt-1.5 text-xs text-gray-500">※ 차량지원 필요시 선택</p>
           </div>
         </div>
 

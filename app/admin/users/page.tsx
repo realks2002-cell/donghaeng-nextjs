@@ -139,7 +139,7 @@ function AdminUsersContent() {
                       <tr key={user.id}>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">{user.name}</td>
                         <td className="px-3 py-3 text-sm text-gray-900 whitespace-nowrap">{user.phone ? formatKoreanPhone(user.phone) : '-'}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">
+                        <td className="px-4 py-3 text-sm text-gray-900 !text-left">
                           {user.address ? (
                             <>
                               <div>{user.address}</div>

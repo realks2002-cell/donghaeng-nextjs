@@ -12,13 +12,16 @@ interface ApplicationWithRequest {
     id: string
     customer_id: string | null
     guest_name: string | null
+    guest_phone: string | null
     service_type: string
     service_date: string
     start_time: string
     duration_minutes: number
     address: string
+    address_detail: string | null
     status: string
     estimated_price: number
+    vehicle_support: boolean
   } | null
 }
 
@@ -48,13 +51,16 @@ export async function GET() {
           id,
           customer_id,
           guest_name,
+          guest_phone,
           service_type,
           service_date,
           start_time,
           duration_minutes,
           address,
+          address_detail,
           status,
-          estimated_price
+          estimated_price,
+          vehicle_support
         )
       `)
       .eq('manager_id', session.managerId)
@@ -73,18 +79,18 @@ export async function GET() {
       ?.map((a) => a.service_requests?.customer_id)
       .filter((id): id is string => id !== null && id !== undefined) || []
 
-    let customerMap: Record<string, string> = {}
+    let customerMap: Record<string, { name: string; phone: string }> = {}
     if (customerIds.length > 0) {
       const { data: customers } = await supabase
         .from('users')
-        .select('id, name')
+        .select('id, name, phone')
         .in('id', customerIds)
 
       if (customers) {
-        customerMap = customers.reduce((acc, c: { id: string; name: string }) => {
-          acc[c.id] = c.name
+        customerMap = customers.reduce((acc, c: { id: string; name: string; phone: string }) => {
+          acc[c.id] = { name: c.name, phone: c.phone }
           return acc
-        }, {} as Record<string, string>)
+        }, {} as Record<string, { name: string; phone: string }>)
       }
     }
 
@@ -92,9 +98,9 @@ export async function GET() {
     const formattedApplications = applications?.map((app) => {
       const sr = app.service_requests
 
-      const customerName = sr?.customer_id
-        ? customerMap[sr.customer_id] || '비회원'
-        : sr?.guest_name || '비회원'
+      const customer = sr?.customer_id ? customerMap[sr.customer_id] : null
+      const customerName = customer?.name || sr?.guest_name || '비회원'
+      const customerPhone = customer?.phone || sr?.guest_phone || ''
 
       return {
         id: app.id,
@@ -106,8 +112,12 @@ export async function GET() {
         start_time: sr?.start_time || '',
         duration_minutes: sr?.duration_minutes || 0,
         customer_name: customerName,
+        customer_phone: customerPhone,
+        address: sr?.address || '',
+        address_detail: sr?.address_detail || '',
         request_status: sr?.status || '',
         estimated_price: sr?.estimated_price || 0,
+        vehicle_support: sr?.vehicle_support || false,
       }
     }) || []
 

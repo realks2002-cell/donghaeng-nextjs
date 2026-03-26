@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import PushNotificationBanner from '@/components/PushNotificationBanner'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { formatDate, formatDateTime } from '@/lib/utils/format'
+import { formatKoreanPhone } from '@/lib/utils/validation'
 
 interface ServiceRequest {
   id: string
@@ -39,8 +40,12 @@ interface Application {
   start_time: string
   duration_minutes: number
   customer_name: string
+  customer_phone: string
+  address: string
+  address_detail: string
   request_status: string
   estimated_price: number
+  vehicle_support: boolean
 }
 
 function formatDuration(minutes: number): string {
@@ -204,7 +209,12 @@ function DashboardContent() {
                   <div key={app.id} className="bg-white rounded-lg border border-gray-200 p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h3 className="font-semibold text-gray-900">{SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}</h3>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="font-semibold text-gray-900">{SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}</h3>
+                          {app.vehicle_support && (
+                            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">차량지원</span>
+                          )}
+                        </div>
                         <p className="text-sm text-gray-500 mt-1">
                           {formatDate(app.service_date)} {app.start_time.substring(0, 5)}
                         </p>
@@ -215,6 +225,14 @@ function DashboardContent() {
                       <div className="flex justify-between">
                         <span className="text-gray-500">고객</span>
                         <span className="text-gray-900 font-medium">{app.customer_name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">전화번호</span>
+                        <a href={`tel:${app.customer_phone}`} className="text-blue-600 font-medium">{formatKoreanPhone(app.customer_phone)}</a>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500 shrink-0">주소</span>
+                        <span className="text-gray-900 text-right ml-2">{app.address}{app.address_detail ? ` ${app.address_detail}` : ''}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">지원일</span>
@@ -234,6 +252,8 @@ function DashboardContent() {
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">근무일시</th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">서비스</th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">고객</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">전화번호</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">주소</th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">지원일</th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">상태</th>
                       </tr>
@@ -241,15 +261,22 @@ function DashboardContent() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {applications.map((app) => (
                         <tr key={app.id}>
-                          <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                          <td className="px-4 py-3 text-sm text-center text-gray-900 whitespace-nowrap">
                             {formatDate(app.service_date)}
                             <br />
                             <span className="text-gray-500">{app.start_time.substring(0, 5)}</span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}</td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{app.customer_name}</td>
-                          <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{formatDateTime(app.created_at)}</td>
-                          <td className="px-4 py-3 text-sm">{getStatusBadge(app.status)}</td>
+                          <td className="px-4 py-3 text-sm text-center text-gray-900">
+                            {SERVICE_TYPE_LABELS[app.service_type as ServiceType] || app.service_type}
+                            {app.vehicle_support && (
+                              <span className="ml-1 px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">차량</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-center text-gray-900">{app.customer_name}</td>
+                          <td className="px-4 py-3 text-sm text-center text-gray-900 whitespace-nowrap">{formatKoreanPhone(app.customer_phone)}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900 min-w-[200px]">{app.address}{app.address_detail ? ` ${app.address_detail}` : ''}</td>
+                          <td className="px-4 py-3 text-sm text-center text-gray-900 whitespace-nowrap">{formatDateTime(app.created_at)}</td>
+                          <td className="px-4 py-3 text-sm text-center">{getStatusBadge(app.status)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -349,22 +376,23 @@ function DashboardContent() {
                           className="hover:bg-gray-50 cursor-pointer"
                           onClick={() => setSelectedRequest(request)}
                         >
-                          <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                          <td className="px-4 py-3 text-sm text-center text-gray-900 whitespace-nowrap">
                             {formatDate(request.service_date)}
                             <br />
                             <span className="text-gray-500">{request.start_time.substring(0, 5)}</span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
+                          <td className="px-4 py-3 text-sm text-center text-gray-900">
                             {SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type}
                             {request.vehicle_support && (
                               <span className="ml-1 px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">차량</span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{request.customer_name}</td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
-                            {request.address.length > 15 ? request.address.substring(0, 15) + '...' : request.address}
+                          <td className="px-4 py-3 text-sm text-center text-gray-900">{request.customer_name}</td>
+                          <td className="px-4 py-3 text-sm text-gray-900 min-w-[200px]">
+                            {request.address}
+                            {request.address_detail && <span className="text-gray-500"> {request.address_detail}</span>}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
+                          <td className="px-4 py-3 text-sm text-center text-gray-900">
                             {request.details ? (
                               <span className="text-gray-700">
                                 {request.details.length > 30 ? request.details.substring(0, 30) + '...' : request.details}
@@ -373,13 +401,13 @@ function DashboardContent() {
                               <span className="text-gray-400">-</span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
+                          <td className="px-4 py-3 text-sm text-center text-gray-900">
                             {formatDuration(request.duration_minutes)}
                           </td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="px-4 py-3 text-sm text-center">
                             <span className="font-medium text-primary">{request.manager_amount.toLocaleString()}원</span>
                           </td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="px-4 py-3 text-sm text-center">
                             <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                               매칭대기
                             </span>

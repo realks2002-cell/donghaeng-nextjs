@@ -49,7 +49,7 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
     // 서비스 요청 정보 조회
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: request, error: reqError } = await (supabase.from('service_requests') as any)
-      .select('service_type, service_date, start_time, customer_id, guest_phone, guest_name, vehicle_support')
+      .select('service_type, service_date, start_time, customer_id, guest_phone, guest_name, vehicle_support, address, address_detail')
       .eq('id', serviceRequestId)
       .single()
 
@@ -109,6 +109,8 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
       ? customerPhone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')
       : ''
 
+    const serviceAddress = [request.address, request.address_detail].filter(Boolean).join(' ') || '미정'
+
     const sms = new CoolSMS(COOLSMS_API_KEY, COOLSMS_API_SECRET)
     const senderNumber = COOLSMS_SENDER_NUMBER.replace(/-/g, '')
 
@@ -118,6 +120,7 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
         '[행복안심동행] 매니저가 배정되었습니다.',
         `서비스: ${SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type || '돌봄 서비스'}`,
         `일시: ${serviceDate} ${startTime}`,
+        `장소: ${serviceAddress}`,
         `매니저: ${manager.name} (${managerPhone})`,
         `문의: ${COOLSMS_SENDER_NUMBER}`,
       ].join('\n')
@@ -140,6 +143,7 @@ export async function sendMatchingSMS({ serviceRequestId, managerId }: MatchingS
         '[행복안심동행] 서비스가 배정되었습니다.',
         `서비스: ${SERVICE_TYPE_LABELS[request.service_type as ServiceType] || request.service_type || '돌봄 서비스'}`,
         `일시: ${serviceDate} ${startTime}`,
+        `장소: ${serviceAddress}`,
         `차량지원: ${request.vehicle_support ? 'O' : 'X'}`,
         `고객: ${customerName || '고객'} (${customerPhoneFormatted})`,
         `문의: ${COOLSMS_SENDER_NUMBER}`,

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { STATUS_LABELS, STATUS_STYLES } from '@/lib/constants/status'
 import { formatKoreanPhone } from '@/lib/utils/validation'
-import { formatDate, formatDateTime } from '@/lib/utils/format'
+import { formatDateShort, formatDateTimeShort } from '@/lib/utils/format'
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,9 @@ interface ServiceRequest {
   id: string
   created_at: string
   customer_name: string
+  customer_phone: string
+  address: string
+  address_detail: string
   service_type: string
   service_date: string
   start_time: string
@@ -251,6 +254,8 @@ export default function AdminRequestsPage() {
                 <tr>
                   <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">요청일시</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">고객</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">고객 전화번호</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">주소</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">서비스</th>
                   <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap">예약일시</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">매니저</th>
@@ -266,21 +271,27 @@ export default function AdminRequestsPage() {
                 {filteredRequests.length > 0 ? (
                   filteredRequests.map((req) => (
                     <tr key={req.id}>
-                      <td className="px-3 py-3 text-sm text-center text-gray-900 whitespace-nowrap">
-                        {formatDateTime(req.created_at)}
+                      <td className="px-2 py-2 text-xs text-center text-gray-900 whitespace-nowrap">
+                        {formatDateTimeShort(req.created_at)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-center text-gray-900">{req.customer_name}</td>
-                      <td className="px-4 py-3 text-sm text-center text-gray-900">{SERVICE_TYPE_LABELS[req.service_type as ServiceType] || req.service_type}</td>
-                      <td className="px-3 py-3 text-sm text-center text-gray-900 whitespace-nowrap">
-                        {formatDate(req.service_date)} {req.start_time?.substring(0, 5)}
+                      <td className="px-2 py-2 text-xs text-center text-gray-900">{req.customer_name}</td>
+                      <td className="px-2 py-2 text-xs text-center text-gray-900 whitespace-nowrap">
+                        {req.customer_phone ? formatKoreanPhone(req.customer_phone) : <span className="text-gray-400">-</span>}
                       </td>
-                      <td className="px-4 py-3 text-sm text-center text-gray-900">
+                      <td className="px-2 py-2 text-xs text-gray-900 !text-left max-w-[180px]">
+                        <div className="break-words">{req.address}{req.address_detail ? ` ${req.address_detail}` : ''}</div>
+                      </td>
+                      <td className="px-2 py-2 text-xs text-center text-gray-900">{SERVICE_TYPE_LABELS[req.service_type as ServiceType] || req.service_type}</td>
+                      <td className="px-2 py-2 text-xs text-center text-gray-900 whitespace-nowrap">
+                        {formatDateShort(req.service_date)} {req.start_time?.substring(0, 5)}
+                      </td>
+                      <td className="px-2 py-2 text-xs text-center text-gray-900">
                         {req.manager_name || <span className="text-gray-400">-</span>}
                       </td>
-                      <td className="px-3 py-3 text-sm text-center text-gray-900 whitespace-nowrap">
+                      <td className="px-2 py-2 text-xs text-center text-gray-900 whitespace-nowrap">
                         {req.manager_phone ? formatKoreanPhone(req.manager_phone) : <span className="text-gray-400">-</span>}
                       </td>
-                      <td className="px-4 py-3 text-sm text-center">
+                      <td className="px-2 py-2 text-xs text-center">
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded-full ${
                             STATUS_STYLES[req.status] || 'bg-gray-100 text-gray-800'
@@ -289,17 +300,17 @@ export default function AdminRequestsPage() {
                           {STATUS_LABELS[req.status] || req.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-center text-gray-900">
+                      <td className="px-2 py-2 text-xs text-center text-gray-900">
                         {req.estimated_price.toLocaleString()}원
                       </td>
-                      <td className="px-3 py-3 text-sm text-center">
+                      <td className="px-2 py-2 text-xs text-center">
                         {req.vehicle_support ? (
                           <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-700">O</span>
                         ) : (
                           <span className="text-xs text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-center">
+                      <td className="px-2 py-2 text-xs text-center">
                         {req.is_designated ? (
                           <span className="px-2 py-1 text-xs font-medium rounded-full bg-violet-100 text-violet-800">
                             지정
@@ -308,7 +319,7 @@ export default function AdminRequestsPage() {
                           <span className="text-xs text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-center">
+                      <td className="px-2 py-2 text-xs text-center">
                         <div className="flex justify-center gap-1">
                           {req.status === 'PENDING_TRANSFER' && (
                             <button
@@ -345,7 +356,7 @@ export default function AdminRequestsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={13} className="px-4 py-8 text-center text-gray-500">
                       요청이 없습니다.
                     </td>
                   </tr>

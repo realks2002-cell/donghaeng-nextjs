@@ -151,7 +151,7 @@ export default function AdminAgencyApplicationsPage() {
                       <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{formatKoreanPhone(app.phone)}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">{app.email}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">{app.region}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 max-w-[200px] truncate" title={app.memo || ''}>
+                      <td className="px-4 py-3 text-sm text-gray-500">
                         {app.memo || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm">

@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
       id,
       created_at,
       guest_name,
+      guest_phone,
       service_type,
       service_date,
       start_time,
@@ -39,7 +40,9 @@ export async function GET(request: NextRequest) {
       estimated_price,
       customer_id,
       manager_id,
-      vehicle_support
+      vehicle_support,
+      address,
+      address_detail
     `)
 
   if (statusFilter) {
@@ -65,7 +68,7 @@ export async function GET(request: NextRequest) {
   const customerIds = [...Array.from(new Set((data || []).map((r: any) => r.customer_id).filter(Boolean)))]
 
   const managersMap: Record<string, { name: string; phone: string }> = {}
-  const customersMap: Record<string, { name: string }> = {}
+  const customersMap: Record<string, { name: string; phone: string }> = {}
 
   if (managerIds.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,10 +83,10 @@ export async function GET(request: NextRequest) {
   if (customerIds.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: customers } = await (supabase.from('users') as any)
-      .select('id, name')
+      .select('id, name, phone')
       .in('id', customerIds)
     for (const c of customers || []) {
-      customersMap[c.id] = { name: c.name }
+      customersMap[c.id] = { name: c.name, phone: c.phone }
     }
   }
 
@@ -92,6 +95,9 @@ export async function GET(request: NextRequest) {
     id: req.id,
     created_at: req.created_at,
     customer_name: (req.customer_id && customersMap[req.customer_id]?.name) || req.guest_name || '비회원',
+    customer_phone: (req.customer_id && customersMap[req.customer_id]?.phone) || req.guest_phone || '',
+    address: req.address || '',
+    address_detail: req.address_detail || '',
     service_type: req.service_type,
     service_date: req.service_date,
     start_time: req.start_time?.slice(0, 5) || '',

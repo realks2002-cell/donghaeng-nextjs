@@ -4,6 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import {
   DEFAULT_SERVICE_PRICES,
   SERVICE_TYPE_KEYS,
+  VEHICLE_SUPPORT_DEFAULT_PRICE,
   type ServiceType,
 } from '@/lib/constants/pricing'
 
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
       address,
       address_detail,
       details,
+      vehicle_support,
     } = body
 
     // Validation
@@ -56,10 +58,8 @@ export async function POST(request: Request) {
       errors.push('서비스 종류를 선택해주세요')
     }
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const dateValue = new Date(service_date)
-    if (!service_date || dateValue < today) {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })
+    if (!service_date || service_date < today) {
       errors.push('서비스 날짜를 확인해주세요')
     }
 
@@ -99,7 +99,13 @@ export async function POST(request: Request) {
       }
     }
 
-    const estimated_price = pricePerHour * hours
+    let vehicleSupportPrice = 0
+    if (vehicle_support) {
+      const vehicleRow = priceRows?.find((row: { service_type: string }) => row.service_type === '차량지원')
+      vehicleSupportPrice = vehicleRow ? (vehicleRow as { price_per_hour: number }).price_per_hour : VEHICLE_SUPPORT_DEFAULT_PRICE
+    }
+
+    const estimated_price = pricePerHour * hours + vehicleSupportPrice
 
     // Insert service request
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,6 +122,7 @@ export async function POST(request: Request) {
         address: address.trim(),
         address_detail: address_detail?.trim() || null,
         details: details?.trim() || null,
+        vehicle_support: vehicle_support || false,
         status: 'CONFIRMED',
         estimated_price,
         confirmed_at: new Date().toISOString(),

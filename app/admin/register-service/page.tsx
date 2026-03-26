@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation'
 import {
   SERVICE_TYPE_LABELS,
   DEFAULT_SERVICE_PRICES,
+  VEHICLE_SUPPORT_DEFAULT_PRICE,
   type ServiceType,
 } from '@/lib/constants/pricing'
+import { Car } from 'lucide-react'
 import { TIME_OPTIONS, DURATION_OPTIONS } from '@/components/forms/ServiceRequestForm/types'
 import { formatKoreanPhone } from '@/lib/utils/validation'
 
@@ -40,6 +42,7 @@ export default function AdminRegisterServicePage() {
   const [serviceDate, setServiceDate] = useState('')
   const [startTime, setStartTime] = useState('')
   const [durationHours, setDurationHours] = useState(0)
+  const [vehicleSupport, setVehicleSupport] = useState(false)
   const [address, setAddress] = useState('')
   const [addressDetail, setAddressDetail] = useState('')
   const [details, setDetails] = useState('')
@@ -56,6 +59,7 @@ export default function AdminRegisterServicePage() {
 
   // Dynamic prices
   const [prices, setPrices] = useState<Record<ServiceType, number>>(DEFAULT_SERVICE_PRICES)
+  const [vehicleSupportPrice, setVehicleSupportPrice] = useState(VEHICLE_SUPPORT_DEFAULT_PRICE)
 
   useEffect(() => {
     fetch('/api/service-prices')
@@ -72,6 +76,10 @@ export default function AdminRegisterServicePage() {
             '기타': 'other',
           }
           Object.entries(data.prices).forEach(([label, price]) => {
+            if (label === '차량지원') {
+              setVehicleSupportPrice(price as number)
+              return
+            }
             const key = keyMap[label]
             if (key) mapped[key] = price as number
           })
@@ -84,8 +92,9 @@ export default function AdminRegisterServicePage() {
   // Estimated price calculation
   const estimatedPrice = useMemo(() => {
     if (!serviceType || !durationHours) return 0
-    return prices[serviceType] * durationHours
-  }, [serviceType, durationHours, prices])
+    const base = prices[serviceType] * durationHours
+    return base + (vehicleSupport ? vehicleSupportPrice : 0)
+  }, [serviceType, durationHours, prices, vehicleSupport, vehicleSupportPrice])
 
   const handleAddressSearch = async () => {
     if (!address.trim()) {
@@ -136,6 +145,7 @@ export default function AdminRegisterServicePage() {
     setServiceDate('')
     setStartTime('')
     setDurationHours(0)
+    setVehicleSupport(false)
     setAddress('')
     setAddressDetail('')
     setDetails('')
@@ -180,6 +190,7 @@ export default function AdminRegisterServicePage() {
           address: address.trim(),
           address_detail: addressDetail.trim() || null,
           details: details.trim() || null,
+          vehicle_support: vehicleSupport,
         }),
       })
 
@@ -306,6 +317,18 @@ export default function AdminRegisterServicePage() {
                 {SERVICE_TYPE_LABELS[type]}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => setVehicleSupport(!vehicleSupport)}
+              className={`min-h-[44px] rounded-lg border px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                vehicleSupport
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary'
+              }`}
+            >
+              <Car className="h-4 w-4" />
+              차량지원
+            </button>
           </div>
           {errors.serviceType && <p className="mt-2 text-sm text-red-600">{errors.serviceType}</p>}
         </section>
@@ -373,6 +396,29 @@ export default function AdminRegisterServicePage() {
             </div>
           </div>
         </section>
+
+        {/* 금액 계산 */}
+        {serviceType && durationHours > 0 && (
+          <section className="rounded-lg border border-primary/30 bg-primary/5 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">금액 계산</h2>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">{SERVICE_TYPE_LABELS[serviceType]} ({prices[serviceType].toLocaleString()}원 × {durationHours}시간)</span>
+                <span className="font-medium">{(prices[serviceType] * durationHours).toLocaleString()}원</span>
+              </div>
+              {vehicleSupport && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">차량지원</span>
+                  <span className="font-medium">{vehicleSupportPrice.toLocaleString()}원</span>
+                </div>
+              )}
+              <div className="border-t pt-2 mt-2 flex justify-between">
+                <span className="font-semibold text-gray-900">결제 금액</span>
+                <span className="text-xl font-bold text-primary">{estimatedPrice.toLocaleString()}원</span>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* 방문 주소 */}
         <section className="rounded-lg border bg-white p-6">
@@ -463,21 +509,6 @@ export default function AdminRegisterServicePage() {
             placeholder="고객의 요청사항을 입력해주세요"
           />
         </section>
-
-        {/* 예상 금액 */}
-        {estimatedPrice > 0 && (
-          <section className="rounded-lg border border-primary/30 bg-primary/5 p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">예상 금액</span>
-              <span className="text-xl font-bold text-primary">{estimatedPrice.toLocaleString()}원</span>
-            </div>
-            {serviceType && (
-              <p className="mt-1 text-sm text-gray-500 text-right">
-                {SERVICE_TYPE_LABELS[serviceType]} {prices[serviceType].toLocaleString()}원/시간 × {durationHours}시간
-              </p>
-            )}
-          </section>
-        )}
 
         {/* 에러 메시지 */}
         {errors.submit && (

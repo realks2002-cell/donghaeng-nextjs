@@ -8,6 +8,10 @@
   }
 }
 
+.admin-content td {
+  text-align: center;
+}
+
 
 
 html, body {
