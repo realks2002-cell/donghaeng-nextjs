@@ -14,7 +14,7 @@ function detectBrowser(): BrowserType {
   if (typeof navigator === 'undefined') return 'desktop'
   const ua = navigator.userAgent
 
-  if (/NAVER|KAKAOTALK|FB_IAB|Instagram|Line|DaumApps|SamsungBrowser.*CrossApp/i.test(ua)) {
+  if (/NAVER|KAKAOTALK|FB_IAB|Instagram|Line|DaumApps|SamsungBrowser/i.test(ua)) {
     return 'inapp'
   }
 
