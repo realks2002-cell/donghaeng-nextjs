@@ -14,7 +14,7 @@ function detectBrowser(): BrowserType {
   if (typeof navigator === 'undefined') return 'desktop'
   const ua = navigator.userAgent
 
-  if (/NAVER|KAKAOTALK|FB_IAB|Instagram|Line|DaumApps|SamsungBrowser/i.test(ua)) {
+  if (/NAVER|KAKAOTALK|FB_IAB|Instagram|Line|DaumApps/i.test(ua)) {
     return 'inapp'
   }
 
@@ -26,7 +26,7 @@ function detectBrowser(): BrowserType {
 export default function PWAInstallButton() {
   const [browserType, setBrowserType] = useState<BrowserType>('desktop')
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [showIOSGuide, setShowIOSGuide] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
 
   useEffect(() => {
@@ -42,10 +42,15 @@ export default function PWAInstallButton() {
       setDeferredPrompt(e as BeforeInstallPromptEvent)
     }
 
-    window.addEventListener('beforeinstallprompt', handler)
-    window.addEventListener('appinstalled', () => setIsInstalled(true))
+    const installedHandler = () => setIsInstalled(true)
 
-    return () => window.removeEventListener('beforeinstallprompt', handler)
+    window.addEventListener('beforeinstallprompt', handler)
+    window.addEventListener('appinstalled', installedHandler)
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler)
+      window.removeEventListener('appinstalled', installedHandler)
+    }
   }, [])
 
   const handleClick = useCallback(async () => {
@@ -53,11 +58,6 @@ export default function PWAInstallButton() {
       const url = 'https://donghaeng77.co.kr/manager/recruit'
       const intentUrl = `intent://${url.replace('https://', '')}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`
       window.location.href = intentUrl
-      return
-    }
-
-    if (browserType === 'ios') {
-      setShowIOSGuide(true)
       return
     }
 
@@ -71,7 +71,7 @@ export default function PWAInstallButton() {
       return
     }
 
-    setShowIOSGuide(true)
+    setShowGuide(true)
   }, [browserType, deferredPrompt])
 
   if (isInstalled) return null
@@ -86,29 +86,46 @@ export default function PWAInstallButton() {
         앱 설치
       </button>
 
-      {showIOSGuide && (
+      {showGuide && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 pb-8">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold">앱 설치 방법</h3>
-              <button onClick={() => setShowIOSGuide(false)} className="p-1">
+              <button onClick={() => setShowGuide(false)} className="p-1">
                 <X className="h-5 w-5 text-gray-400" />
               </button>
             </div>
-            <div className="space-y-4 text-sm text-gray-700">
-              <div className="flex items-start gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">1</span>
-                <p>하단의 <Share className="inline h-4 w-4 text-blue-600" /> <strong>공유</strong> 버튼을 누르세요</p>
+            {browserType === 'ios' ? (
+              <div className="space-y-4 text-sm text-gray-700">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">1</span>
+                  <p>하단의 <Share className="inline h-4 w-4 text-blue-600" /> <strong>공유</strong> 버튼을 누르세요</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">2</span>
+                  <p><strong>홈 화면에 추가</strong>를 선택하세요</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">3</span>
+                  <p>오른쪽 상단 <strong>추가</strong>를 누르면 완료!</p>
+                </div>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">2</span>
-                <p><strong>홈 화면에 추가</strong>를 선택하세요</p>
+            ) : (
+              <div className="space-y-4 text-sm text-gray-700">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">1</span>
+                  <p>브라우저 우측 상단 <strong>메뉴(&#8942;)</strong>를 누르세요</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">2</span>
+                  <p><strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong>를 선택하세요</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">3</span>
+                  <p><strong>설치</strong>를 누르면 완료!</p>
+                </div>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">3</span>
-                <p>오른쪽 상단 <strong>추가</strong>를 누르면 완료!</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       )}

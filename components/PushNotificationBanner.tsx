@@ -18,17 +18,32 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 type PushState = 'loading' | 'subscribed' | 'not-subscribed' | 'denied' | 'unsupported'
 
+const DISMISSED_KEY = 'push_banner_dismissed'
+
 export default function PushNotificationBanner() {
   const [state, setState] = useState<PushState>('loading')
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(DISMISSED_KEY) === 'true'
+    }
+    return false
+  })
   const [subscribing, setSubscribing] = useState(false)
 
   useEffect(() => {
     checkPushState()
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        checkPushState()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
   async function checkPushState() {
-    if (!('Notification' in window)) {
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
       setState('unsupported')
       return
     }
@@ -44,32 +59,20 @@ export default function PushNotificationBanner() {
       return
     }
 
-    // permission이 'default'이면 아직 허용 안 한 상태
-    if (permission === 'default') {
-      setState('not-subscribed')
-      return
-    }
-
-    // permission이 'granted'인 경우, 실제 구독 여부 확인
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      setState('unsupported')
-      return
-    }
-
+    // permission이 granted 또는 default든, 실제 subscription 존재 여부로 판단
     try {
-      const swReady = await Promise.race([
-        navigator.serviceWorker.ready,
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)),
-      ])
-      if (!swReady) {
-        setState('not-subscribed')
+      const registration = await navigator.serviceWorker.ready
+      const subscription = await registration.pushManager.getSubscription()
+      if (subscription) {
+        setState('subscribed')
         return
       }
-      const subscription = await swReady.pushManager.getSubscription()
-      setState(subscription ? 'subscribed' : 'not-subscribed')
     } catch {
-      setState('not-subscribed')
+      // SW 접근 실패 시 아래로 진행
     }
+
+    // subscription이 없는 경우
+    setState('not-subscribed')
   }
 
   async function handleSubscribe() {
@@ -139,7 +142,10 @@ export default function PushNotificationBanner() {
         </button>
       )}
       <button
-        onClick={() => setDismissed(true)}
+        onClick={() => {
+          setDismissed(true)
+          localStorage.setItem(DISMISSED_KEY, 'true')
+        }}
         className="text-orange-400 hover:text-orange-600 shrink-0"
       >
         <X className="w-4 h-4" />
