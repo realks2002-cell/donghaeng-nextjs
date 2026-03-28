@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Star, ShieldCheck, Users, Clock, ClipboardCheck, Phone } from 'lucide-react'
 
-const KAKAO_CHAT_URL = 'https://pf.kakao.com/_xnxaxkxj/chat'
 
 export default function Home() {
   return (
@@ -170,9 +169,9 @@ export default function Home() {
               <p className="text-base text-orange-100 mb-8">
                 고객님의 상황에 맞는<br />맞춤형 서비스를 상담해드립니다.
               </p>
-              <Link href="/faq" className="text-base bg-white text-orange-600 hover:bg-orange-50 w-full shadow-none border-0 px-6 py-3 rounded-full font-semibold transition-all min-h-[44px] flex items-center justify-center">
+              <a href="https://open.kakao.com/o/g1N12Xli" target="_blank" rel="noopener noreferrer" className="text-base bg-white text-orange-600 hover:bg-orange-50 w-full shadow-none border-0 px-6 py-3 rounded-full font-semibold transition-all min-h-[44px] flex items-center justify-center">
                 1:1 맞춤 상담하기
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -295,7 +294,7 @@ export default function Home() {
               상담은 언제나 무료입니다. 고객님의 상황에 맞는 최적의 서비스를 제안해드립니다.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-              <a href={KAKAO_CHAT_URL} target="_blank" rel="noopener noreferrer" className="bg-[#ffc000] hover:bg-[#e6ad00] text-gray-900 text-lg px-10 py-3 rounded-full font-bold shadow-lg transition-all min-h-[44px] flex items-center justify-center gap-2">
+              <a href="https://open.kakao.com/o/g1N12Xli" target="_blank" rel="noopener noreferrer" className="bg-[#ffc000] hover:bg-[#e6ad00] text-gray-900 text-lg px-10 py-3 rounded-full font-bold shadow-lg transition-all min-h-[44px] flex items-center justify-center gap-2">
                 <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3z" /></svg>
                 카톡 상담하기
               </a>
