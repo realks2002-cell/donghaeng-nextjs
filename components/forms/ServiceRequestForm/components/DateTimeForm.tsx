@@ -83,7 +83,7 @@ export default function DateTimeForm() {
 
         <div>
           <span className="block text-sm font-medium text-gray-700">예상 소요 시간</span>
-          <div className="mt-2 grid grid-cols-8 gap-1.5">
+          <div className="mt-2 grid grid-cols-8 gap-1.5 duration-grid">
             {DURATION_OPTIONS.map((hours) => (
               <label
                 key={hours}

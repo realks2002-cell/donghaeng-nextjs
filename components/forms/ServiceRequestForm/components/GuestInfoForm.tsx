@@ -218,7 +218,7 @@ export default function GuestInfoForm({ isLoggedIn = false }: GuestInfoFormProps
           <label htmlFor="guest_address" className="block text-sm font-medium text-gray-700">
             방문주소
           </label>
-          <div className="mt-1 flex gap-2">
+          <div className="mt-1 flex gap-2 address-search-row">
             <input
               type="text"
               id="guest_address"

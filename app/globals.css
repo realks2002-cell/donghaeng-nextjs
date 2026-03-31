@@ -92,3 +92,29 @@ html, body {
     @apply bg-background text-foreground;
   }
 }
+
+/* 네이티브 앱 전용 스타일 - 제목/부제목 2px(0.125rem) 축소 */
+.native-app h1.text-4xl,
+.native-app h2.text-4xl { font-size: 2.125rem !important; }
+.native-app h2.text-3xl,
+.native-app h3.text-3xl { font-size: 1.75rem !important; }
+.native-app .text-2xl { font-size: 1.375rem !important; }
+.native-app .section-subtitle.text-xl,
+.native-app p.text-xl { font-size: 1.125rem !important; }
+.native-app .section-subtitle.text-lg { font-size: 1rem !important; }
+.native-app .service-detail-link { display: none !important; }
+.native-app .address-search-row {
+  flex-wrap: wrap !important;
+}
+.native-app .address-search-row input {
+  width: 100% !important;
+  flex: none !important;
+}
+.native-app .address-search-row button {
+  width: 100% !important;
+}
+.native-app .duration-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 0.5rem !important;
+}
+.native-app .min-h-screen.pt-\[250px\] { padding-top: 160px !important; }

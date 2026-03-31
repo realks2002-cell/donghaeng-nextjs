@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Star, ShieldCheck, Users, Clock, ClipboardCheck, Phone } from 'lucide-react'
+import ReviewSection from '@/components/home/ReviewSection'
+import AppHidden from '@/components/home/AppHidden'
 
 
 export default function Home() {
@@ -22,7 +24,7 @@ export default function Home() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">따뜻한 동행</span>을 선물<br />
               합니다.
             </h1>
-            <p className="text-lg md:text-xl text-gray-800 leading-relaxed max-w-lg">
+            <p className="section-subtitle text-lg md:text-xl text-gray-800 leading-relaxed max-w-lg">
               병원 동행부터 가사, 육아, 일상 케어까지.<br className="hidden md:block" />
               전문 교육을 이수한 매니저가 가족의 마음으로 함께합니다.
             </p>
@@ -65,18 +67,20 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="w-[85%] mx-auto bg-white p-4 pb-12 shadow-[0_4px_20px_rgba(0,0,0,0.15),0_8px_30px_rgba(0,0,0,0.1)] rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
-              <Image
-                src="/images/hero.jpg"
-                alt="행복안심동행 서비스"
-                width={600}
-                height={320}
-                className="w-full h-[320px] object-cover"
-                priority
-              />
+          <AppHidden>
+            <div className="relative">
+              <div className="w-[85%] mx-auto bg-white p-4 pb-12 shadow-[0_4px_20px_rgba(0,0,0,0.15),0_8px_30px_rgba(0,0,0,0.1)] rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
+                <Image
+                  src="/images/hero.jpg"
+                  alt="행복안심동행 서비스"
+                  width={600}
+                  height={320}
+                  className="w-full h-[320px] object-cover"
+                  priority
+                />
+              </div>
             </div>
-          </div>
+          </AppHidden>
         </div>
       </section>
 
@@ -85,7 +89,7 @@ export default function Home() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-orange-600 font-semibold tracking-wide uppercase text-base">Our Services</span>
           <h2 className="text-4xl md:text-5xl font-bold mt-3 mb-6">어떤 도움이 필요하신가요?</h2>
-          <p className="text-gray-800 text-xl">
+          <p className="section-subtitle text-gray-800 text-xl">
             고객님의 상황에 딱 맞는 1:1 맞춤형 동행 서비스를 제공합니다.<br />
             전문 매니저가 세심하게 케어해드립니다.
           </p>
@@ -101,7 +105,7 @@ export default function Home() {
               <div className="p-6">
                 <h3 className="text-3xl font-bold mb-3">병원동행</h3>
                 <p className="text-base text-gray-800 leading-relaxed mb-4">진료 접수부터 약국 처방까지, 병원 방문의 모든 과정을 가족처럼 든든하게 동행해드립니다.</p>
-                <Link href="/service-guide" className="inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
+                <Link href="/service-guide" className="service-detail-link inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
               </div>
             </div>
           </div>
@@ -115,7 +119,7 @@ export default function Home() {
               <div className="p-6">
                 <h3 className="text-3xl font-bold mb-3">아이돌봄</h3>
                 <p className="text-base text-gray-800 leading-relaxed mb-4">등하원 매니저부터 긴급 돌봄까지, 사랑과 정성으로 우리 아이의 행복한 시간을 책임집니다.</p>
-                <Link href="/service-guide" className="inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
+                <Link href="/service-guide" className="service-detail-link inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
               </div>
             </div>
           </div>
@@ -129,7 +133,7 @@ export default function Home() {
               <div className="p-6">
                 <h3 className="text-3xl font-bold mb-3">가사동행</h3>
                 <p className="text-base text-gray-800 leading-relaxed mb-4">청소, 정리정돈, 반찬 만들기 등 쾌적한 주거 환경을 위해 세심한 가사 서비스를 제공합니다.</p>
-                <Link href="/service-guide" className="inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
+                <Link href="/service-guide" className="service-detail-link inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
               </div>
             </div>
           </div>
@@ -143,7 +147,7 @@ export default function Home() {
               <div className="p-6">
                 <h3 className="text-3xl font-bold mb-3">생활동행</h3>
                 <p className="text-base text-gray-800 leading-relaxed mb-4">관공서 방문, 은행 업무, 장보기 등 혼자하기 힘든 일상 생활의 불편함을 해소해드립니다.</p>
-                <Link href="/service-guide" className="inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
+                <Link href="/service-guide" className="service-detail-link inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
               </div>
             </div>
           </div>
@@ -157,7 +161,7 @@ export default function Home() {
               <div className="p-6">
                 <h3 className="text-3xl font-bold mb-3">일상동행</h3>
                 <p className="text-base text-gray-800 leading-relaxed mb-4">산책, 말벗, 취미 활동 공유 등 외로움을 덜어드리고 활기찬 하루를 선물합니다.</p>
-                <Link href="/service-guide" className="inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
+                <Link href="/service-guide" className="service-detail-link inline-flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors">자세히 보기 →</Link>
               </div>
             </div>
           </div>
@@ -204,79 +208,25 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 이미지 */}
-          <div className="relative self-start">
-            <div className="w-[70%] mx-auto bg-white p-4 pb-12 shadow-[0_4px_20px_rgba(0,0,0,0.15),0_8px_30px_rgba(0,0,0,0.1)] rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
-              <Image
-                src="/images/cleaner.png"
-                alt="가사돌봄 서비스"
-                width={600}
-                height={400}
-                className="object-cover w-full h-[400px]"
-              />
+          {/* 이미지 - 앱에서 숨김 */}
+          <AppHidden>
+            <div className="relative self-start">
+              <div className="w-[70%] mx-auto bg-white p-4 pb-12 shadow-[0_4px_20px_rgba(0,0,0,0.15),0_8px_30px_rgba(0,0,0,0.1)] rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
+                <Image
+                  src="/images/cleaner.png"
+                  alt="가사돌봄 서비스"
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-[400px]"
+                />
+              </div>
+              <div className="absolute inset-0 bg-orange-500/5 -z-10 blur-3xl rounded-full"></div>
             </div>
-            <div className="absolute inset-0 bg-orange-500/5 -z-10 blur-3xl rounded-full"></div>
-          </div>
+          </AppHidden>
         </div>
       </section>
 
-      {/* Review Section */}
-      <section id="reviews" className="py-20 px-4 md:px-8 max-w-7xl mx-auto bg-orange-50/50 rounded-[3rem] my-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">고객님의 행복한 이야기</h2>
-          <p className="text-lg text-gray-800">서비스를 이용하신 고객님들의 생생한 후기를 만나보세요.</p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Review 1 */}
-          <div>
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-orange-100 h-full flex flex-col">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <p className="text-lg text-gray-900 leading-relaxed mb-6 flex-grow">&ldquo;바쁜 업무 때문에 어머니 병원 가시는 길을 챙겨드리지 못해 늘 죄송했는데, 매니저님이 친딸처럼 챙겨주셔서 너무 안심이 됩니다. 진료 내용도 꼼꼼히 정리해서 보내주셔서 감동했어요.&rdquo;</p>
-              <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                <span className="text-base font-bold text-gray-900">이OO 고객님 (직장인)</span>
-                <span className="text-sm bg-orange-100 text-orange-700 px-2 py-1 rounded-full">병원동행</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Review 2 */}
-          <div>
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-orange-100 h-full flex flex-col">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <p className="text-lg text-gray-900 leading-relaxed mb-6 flex-grow">&ldquo;갑자기 아이가 아파서 급하게 돌봄 서비스가 필요했는데, 2시간 만에 오셔서 정말 구세주 같았어요. 아이가 선생님을 너무 좋아해서 정기 이용하기로 했습니다.&rdquo;</p>
-              <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                <span className="text-base font-bold text-gray-900">김OO 고객님 (워킹맘)</span>
-                <span className="text-sm bg-orange-100 text-orange-700 px-2 py-1 rounded-full">아이돌봄</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Review 3 */}
-          <div>
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-orange-100 h-full flex flex-col">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <p className="text-lg text-gray-900 leading-relaxed mb-6 flex-grow">&ldquo;혼자 사시는 아버지 반찬이 늘 걱정이었는데, 가사동행 서비스 덕분에 냉장고가 꽉 찼다고 좋아하시네요. 집안 분위기도 훨씬 밝아진 것 같아 감사합니다.&rdquo;</p>
-              <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                <span className="text-base font-bold text-gray-900">박OO 고객님</span>
-                <span className="text-sm bg-orange-100 text-orange-700 px-2 py-1 rounded-full">가사동행</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ReviewSection />
 
       {/* CTA Section */}
       <section className="py-20 px-6">
@@ -290,7 +240,7 @@ export default function Home() {
               사랑하는 가족을 위한<br />
               <span className="text-teal-200">따뜻한 동행</span>, 지금 시작하세요.
             </h2>
-            <p className="text-teal-100 text-lg md:text-xl max-w-2xl mx-auto">
+            <p className="section-subtitle text-teal-100 text-lg md:text-xl max-w-2xl mx-auto">
               상담은 언제나 무료입니다. 고객님의 상황에 맞는 최적의 서비스를 제안해드립니다.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">

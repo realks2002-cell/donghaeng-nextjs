@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { HeartHandshake, Menu, X } from 'lucide-react'
+import { isNativeApp } from '@/lib/capacitor'
 
 const APP_NAME = '행복안심동행'
 
@@ -16,8 +17,10 @@ interface HeaderProps {
 export default function Header({ user }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [isApp, setIsApp] = useState(false)
 
   useEffect(() => {
+    setIsApp(isNativeApp())
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
     }
@@ -97,19 +100,21 @@ export default function Header({ user }: HeaderProps) {
           )}
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          id="mobile-menu-toggle"
-          className="md:hidden p-2 text-gray-900 min-h-[44px] min-w-[44px]"
-          aria-label={mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile Menu Toggle - 앱에서는 하단 네비 사용 */}
+        {!isApp && (
+          <button
+            id="mobile-menu-toggle"
+            className="md:hidden p-2 text-gray-900 min-h-[44px] min-w-[44px]"
+            aria-label={mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        )}
       </div>
 
-      {/* Mobile Menu */}
-      <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden bg-white border-t`}>
+      {/* Mobile Menu - 앱에서는 숨김 */}
+      <div className={`${mobileMenuOpen && !isApp ? 'block' : 'hidden'} md:hidden bg-white border-t`}>
         <nav className="px-4 py-4 space-y-1" aria-label="모바일 메뉴">
           <Link href="/about" className="min-h-[44px] flex items-center px-4 py-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100" onClick={() => setMobileMenuOpen(false)}>
             회사소개

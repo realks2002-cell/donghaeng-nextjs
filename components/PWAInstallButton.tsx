@@ -74,7 +74,9 @@ export default function PWAInstallButton() {
     setShowGuide(true)
   }, [browserType, deferredPrompt])
 
-  if (isInstalled) return null
+  // Capacitor 네이티브 앱에서는 이미 설치된 상태이므로 버튼 숨기기
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (isInstalled || (typeof window !== 'undefined' && 'Capacitor' in window)) return null
 
   return (
     <>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>행복안심동행</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: #111827; }
+    .offline {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      text-align: center;
+    }
+    .offline.show { display: flex; }
+    .offline-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .offline h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .offline p { color: #6b7280; margin-bottom: 1.5rem; }
+    .offline button {
+      padding: 0.75rem 2rem;
+      background: #F97316;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .offline button:active { opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div id="offline" class="offline">
+    <div class="offline-icon">📡</div>
+    <h2>인터넷 연결을 확인해주세요</h2>
+    <p>네트워크에 연결되면 자동으로 앱이 로드됩니다.</p>
+    <button onclick="retry()">다시 시도</button>
+  </div>
+
+  <script>
+    function retry() {
+      window.location.href = 'https://donghaeng77.co.kr';
+    }
+
+    if (navigator.onLine) {
+      retry();
+    } else {
+      document.getElementById('offline').classList.add('show');
+      window.addEventListener('online', retry);
+    }
+  </script>
+</body>
+</html>

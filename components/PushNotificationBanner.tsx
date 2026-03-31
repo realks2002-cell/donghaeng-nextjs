@@ -112,8 +112,10 @@ export default function PushNotificationBanner() {
     }
   }
 
+  // Capacitor 네이티브 앱에서는 FCM 사용하므로 배너 숨기기
   // Don't show banner if subscribed, loading, unsupported, or dismissed
-  if (state === 'loading' || state === 'subscribed' || state === 'unsupported' || dismissed) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (state === 'loading' || state === 'subscribed' || state === 'unsupported' || dismissed || (typeof window !== 'undefined' && 'Capacitor' in window)) {
     return null
   }
 

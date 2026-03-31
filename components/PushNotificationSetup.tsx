@@ -16,6 +16,12 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 async function subscribeToPush() {
+  // Capacitor 네이티브 앱에서는 FCM을 사용하므로 Web Push 건너뛰기
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ('Capacitor' in window) {
+    return
+  }
+
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     return
   }

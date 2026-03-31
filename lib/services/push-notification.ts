@@ -83,9 +83,10 @@ export async function sendPushToAllManagers(payload: PushPayload): Promise<PushR
   let removed = 0
   const errors: string[] = []
 
-  // Expo Push 토큰과 Web Push 구독 분리
+  // Expo Push, FCM, Web Push 구독 분리
   const expoSubs = subscriptions.filter((s: { auth: string }) => s.auth === 'expo')
-  const webSubs = subscriptions.filter((s: { auth: string }) => s.auth !== 'expo')
+  const fcmSubs = subscriptions.filter((s: { auth: string; fcm_token?: string }) => s.auth === 'fcm' && s.fcm_token)
+  const webSubs = subscriptions.filter((s: { auth: string }) => s.auth !== 'expo' && s.auth !== 'fcm')
 
   // Expo Push 발송 (100개 단위 청킹)
   if (expoSubs.length > 0) {
@@ -140,6 +141,30 @@ export async function sendPushToAllManagers(payload: PushPayload): Promise<PushR
         console.error('[PUSH] Expo send error:', err)
         errors.push(`expo: ${err instanceof Error ? err.message : String(err)}`)
       }
+    }
+  }
+
+  // FCM 발송
+  if (fcmSubs.length > 0) {
+    const firebaseCredential = process.env.FIREBASE_SERVICE_ACCOUNT
+    if (firebaseCredential) {
+      try {
+        const { sendFcmNotifications } = await import('@/lib/services/fcm')
+        const fcmResult = await sendFcmNotifications(
+          fcmSubs.map((s: { id: string; fcm_token: string }) => ({ id: s.id, token: s.fcm_token })),
+          payload
+        )
+        sent += fcmResult.sent
+        failed += fcmResult.failed
+        removed += fcmResult.removed
+        errors.push(...fcmResult.errors)
+      } catch (err) {
+        failed += fcmSubs.length
+        console.error('[PUSH] FCM send error:', err)
+        errors.push(`fcm: ${err instanceof Error ? err.message : String(err)}`)
+      }
+    } else {
+      console.warn('[PUSH] FIREBASE_SERVICE_ACCOUNT not set, skipping FCM')
     }
   }
 
