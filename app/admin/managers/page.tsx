@@ -397,33 +397,60 @@ function AdminManagersContent() {
                   총 {total.toLocaleString()}명 중 {(offset + 1).toLocaleString()}-
                   {Math.min(offset + perPage, total).toLocaleString()}명 표시
                 </div>
-                <div className="flex gap-2">
-                  {page > 1 && (
-                    <button
-                      onClick={() => {
-                        const params = new URLSearchParams()
-                        params.set('page', String(page - 1))
-                        if (search) params.set('search', search)
-                        router.push(`/admin/managers?${params.toString()}`)
-                      }}
-                      className="min-h-[44px] px-4 border border-gray-300 rounded-lg hover:bg-gray-50 inline-flex items-center"
-                    >
-                      이전
-                    </button>
-                  )}
-                  {page < totalPages && (
-                    <button
-                      onClick={() => {
-                        const params = new URLSearchParams()
-                        params.set('page', String(page + 1))
-                        if (search) params.set('search', search)
-                        router.push(`/admin/managers?${params.toString()}`)
-                      }}
-                      className="min-h-[44px] px-4 border border-gray-300 rounded-lg hover:bg-gray-50 inline-flex items-center"
-                    >
-                      다음
-                    </button>
-                  )}
+                <div className="flex gap-1 items-center">
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams()
+                      params.set('page', String(page - 1))
+                      if (search) params.set('search', search)
+                      router.push(`/admin/managers?${params.toString()}`)
+                    }}
+                    disabled={page <= 1}
+                    className="min-h-[44px] px-3 border border-gray-300 rounded-lg hover:bg-gray-50 inline-flex items-center disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    이전
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+                    .reduce<(number | '...')[]>((acc, p, idx, arr) => {
+                      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...')
+                      acc.push(p)
+                      return acc
+                    }, [])
+                    .map((p, idx) =>
+                      p === '...' ? (
+                        <span key={`dot-${idx}`} className="px-2 text-gray-400">...</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => {
+                            const params = new URLSearchParams()
+                            params.set('page', String(p))
+                            if (search) params.set('search', search)
+                            router.push(`/admin/managers?${params.toString()}`)
+                          }}
+                          className={`min-h-[44px] min-w-[44px] border rounded-lg inline-flex items-center justify-center ${
+                            p === page
+                              ? 'bg-primary text-white border-primary'
+                              : 'border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams()
+                      params.set('page', String(page + 1))
+                      if (search) params.set('search', search)
+                      router.push(`/admin/managers?${params.toString()}`)
+                    }}
+                    disabled={page >= totalPages}
+                    className="min-h-[44px] px-3 border border-gray-300 rounded-lg hover:bg-gray-50 inline-flex items-center disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    다음
+                  </button>
                 </div>
               </div>
             )}

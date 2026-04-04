@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { STATUS_LABELS, STATUS_STYLES } from '@/lib/constants/status'
 import { formatKoreanPhone } from '@/lib/utils/validation'
@@ -12,6 +13,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import Pagination from '@/components/admin/Pagination'
 
 interface ServiceRequest {
   id: string
@@ -42,17 +44,19 @@ const STATUS_FILTERS: { key: string | null; label: string }[] = [
   { key: null, label: '전체' },
 ]
 
-export default function AdminRequestsPage() {
+const PER_PAGE = 20
+
+function RequestsContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const page = parseInt(searchParams.get('page') || '1', 10)
   const [requests, setRequests] = useState<ServiceRequest[]>([])
+  const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
-  const [activeFilter, setActiveFilter] = useState<string | null>('CONFIRMED')
-
-  const filteredRequests = activeFilter
-    ? requests.filter(r => r.status === activeFilter)
-    : requests
+  const [activeFilter, setActiveFilter] = useState<string | null>(searchParams.get('status') || 'CONFIRMED')
 
   // 수동 매칭 모달 상태
   const [manualMatchOpen, setManualMatchOpen] = useState(false)
@@ -66,11 +70,17 @@ export default function AdminRequestsPage() {
 
 
   const fetchRequests = async () => {
+    setIsLoading(true)
     try {
-      const res = await fetch('/api/admin/requests', { cache: 'no-store' })
+      const params = new URLSearchParams()
+      params.set('page', String(page))
+      params.set('perPage', String(PER_PAGE))
+      if (activeFilter) params.set('status', activeFilter)
+      const res = await fetch(`/api/admin/requests?${params.toString()}`, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setRequests(data.requests || [])
+        setTotal(data.total || 0)
         setError(null)
       } else {
         const data = await res.json().catch(() => null)
@@ -200,7 +210,7 @@ export default function AdminRequestsPage() {
       fetchRequests()
     }, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [page, activeFilter])
 
   return (
     <div className="max-w-[1408px]">
@@ -211,24 +221,30 @@ export default function AdminRequestsPage() {
       <div className="flex flex-wrap gap-2 mb-4">
         {STATUS_FILTERS.map((f) => {
           const isActive = activeFilter === f.key
-          const count = f.key
-            ? requests.filter(r => r.status === f.key).length
-            : requests.length
+          const count = isActive ? total : null
           const activeStyle = f.key
             ? STATUS_STYLES[f.key] || 'bg-gray-100 text-gray-800'
             : 'bg-gray-800 text-white'
           return (
             <button
               key={f.key ?? '__all'}
-              onClick={() => setActiveFilter(f.key)}
+              onClick={() => {
+                setActiveFilter(f.key)
+                const params = new URLSearchParams()
+                params.set('page', '1')
+                if (f.key) params.set('status', f.key)
+                router.push(`/admin/requests?${params.toString()}`)
+              }}
               className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
                 isActive ? activeStyle : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {f.label}
-              <span className={`ml-1.5 text-xs ${isActive ? 'opacity-80' : 'opacity-60'}`}>
-                {count}
-              </span>
+              {count !== null && (
+                <span className={`ml-1.5 text-xs ${isActive ? 'opacity-80' : 'opacity-60'}`}>
+                  {count}
+                </span>
+              )}
             </button>
           )
         })}
@@ -268,8 +284,8 @@ export default function AdminRequestsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredRequests.length > 0 ? (
-                  filteredRequests.map((req) => (
+                {requests.length > 0 ? (
+                  requests.map((req) => (
                     <tr key={req.id}>
                       <td className="px-2 py-2 text-xs text-center text-gray-900 whitespace-nowrap">
                         {formatDateTimeShort(req.created_at)}
@@ -365,6 +381,7 @@ export default function AdminRequestsPage() {
             </table>
           </div>
         )}
+        <Pagination total={total} perPage={PER_PAGE} basePath="/admin/requests" />
       </div>
 
       <Dialog open={manualMatchOpen} onOpenChange={setManualMatchOpen}>
@@ -430,5 +447,13 @@ export default function AdminRequestsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function AdminRequestsPage() {
+  return (
+    <Suspense>
+      <RequestsContent />
+    </Suspense>
   )
 }

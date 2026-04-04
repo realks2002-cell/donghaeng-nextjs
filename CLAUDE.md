@@ -118,6 +118,46 @@ Supabase 주요 테이블: `users`, `service_requests`, `managers`, `application
 - `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (푸시 알림)
 - `COOLSMS_API_KEY`, `COOLSMS_API_SECRET`, `COOLSMS_SENDER_NUMBER` (SMS 알림, 미설정 시 스킵)
 
+### Capacitor 고객앱 (Android)
+
+`capacitor-customer/` 디렉토리에 위치. 프로덕션 웹사이트(`https://donghaeng77.co.kr`)를 WebView로 감싼 네이티브 앱.
+
+- **앱 ID**: `kr.co.donghaeng77.customer`
+- **앱 이름**: 행복안심동행
+- **Capacitor 버전**: 8.x
+- **플러그인**: `@capacitor/app` (뒤로가기), `@capacitor/splash-screen`, `@capacitor/status-bar`
+
+**개발/프로덕션 모드 전환**: `capacitor-customer/capacitor.config.ts`의 `DEV_MODE` 플래그
+- `DEV_MODE = true`: 로컬 개발 서버(`DEV_SERVER_IP:3000`) 사용
+- `DEV_MODE = false`: 프로덕션 URL(`https://donghaeng77.co.kr`) 사용
+
+**네이티브 앱 감지**: `lib/capacitor.ts`의 `isNativeApp()` → `window.Capacitor` 존재 여부 확인
+- 앱 모드에서 Header/Footer 숨김, BottomNavigation 표시 (`components/layout/PublicLayoutWrapper.tsx`)
+- `document.documentElement`에 `native-app` CSS 클래스 추가 → `globals.css`에서 앱 전용 스타일 적용
+- `AppHidden` 컴포넌트 (`components/home/AppHidden.tsx`): 앱에서 특정 섹션 숨김용 래퍼
+
+**빌드 명령어**:
+```bash
+cd capacitor-customer
+npx cap sync android          # 웹 자산 + 설정 동기화
+# APK (테스터 직접 설치용)
+JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./android/gradlew -p android assembleDebug
+# AAB (Google Play 제출용)
+JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./android/gradlew -p android bundleRelease
+# 폰 설치 (USB 연결)
+~/Library/Android/sdk/platform-tools/adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+**서명 키 (Google Play 배포용)**:
+- Keystore 파일: `capacitor-customer/donghaeng-customer.keystore`
+- Alias: `donghaeng-customer`
+- 비밀번호: `donghaeng2026`
+- ⚠️ keystore 분실 시 앱 업데이트 불가 — 반드시 백업 유지
+
+**주의사항**:
+- `tsconfig.json`의 `exclude`에 `capacitor-customer` 포함 필수 (Next.js 빌드에서 제외)
+- 웹 코드 수정 시 앱에 영향이 가므로 `isNativeApp()` 또는 `.native-app` CSS로 분기
+
 ## 코딩 규칙
 
 - 모든 UI는 한국어 (ko 로케일)

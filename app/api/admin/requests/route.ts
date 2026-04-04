@@ -23,6 +23,9 @@ export async function GET(request: NextRequest) {
   const supabase = createServiceClient()
   const { searchParams } = new URL(request.url)
   const statusFilter = searchParams.get('status')
+  const page = parseInt(searchParams.get('page') || '1', 10)
+  const perPage = parseInt(searchParams.get('perPage') || '20', 10)
+  const offset = (page - 1) * perPage
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const requestsTable = supabase.from('service_requests') as any
@@ -52,9 +55,18 @@ export async function GET(request: NextRequest) {
     query = query.in('status', ['PENDING_TRANSFER', 'CONFIRMED', 'MATCHED', 'COMPLETED', 'CANCELLED'])
   }
 
+  // 총 건수 조회
+  const countQuery = requestsTable.select('*', { count: 'exact', head: true })
+  if (statusFilter) {
+    countQuery.eq('status', statusFilter)
+  } else {
+    countQuery.in('status', ['PENDING_TRANSFER', 'CONFIRMED', 'MATCHED', 'COMPLETED', 'CANCELLED'])
+  }
+  const { count: totalCount } = await countQuery
+
   const { data, error } = await query
     .order('created_at', { ascending: false })
-    .limit(50)
+    .range(offset, offset + perPage - 1)
 
   if (error) {
     console.error('Error fetching requests:', error)
@@ -109,5 +121,5 @@ export async function GET(request: NextRequest) {
     is_designated: !!req.manager_id,
   }))
 
-  return NextResponse.json({ requests })
+  return NextResponse.json({ requests, total: totalCount || 0 })
 }

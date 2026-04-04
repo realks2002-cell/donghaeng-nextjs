@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { formatKoreanPhone } from '@/lib/utils/validation'
 import { formatDateTime } from '@/lib/utils/format'
+import Pagination from '@/components/admin/Pagination'
 
 interface RefundRecord {
   id: string
@@ -38,23 +40,35 @@ const getRefundLabel = (refund: RefundRecord) => {
   return { label: '전액환불', style: 'bg-gray-100 text-gray-800' }
 }
 
-export default function AdminRefundInfoPage() {
+const PER_PAGE = 20
+
+function RefundInfoContent() {
+  const searchParams = useSearchParams()
+  const page = parseInt(searchParams.get('page') || '1', 10)
   const [refunds, setRefunds] = useState<RefundRecord[]>([])
+  const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [customerMap, setCustomerMap] = useState<Record<string, string>>({})
 
+  const offset = (page - 1) * PER_PAGE
 
   useEffect(() => {
     const fetchRefunds = async () => {
+      setIsLoading(true)
       const supabase = createClient()
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const paymentsTable = supabase.from('payments') as any
+      const { count } = await paymentsTable
+        .select('*', { count: 'exact', head: true })
+        .in('status', ['REFUNDED', 'PARTIAL_REFUNDED'])
+      setTotal(count || 0)
+
       const { data, error } = await paymentsTable
         .select('*, service_requests(service_type, service_date, status, phone, guest_name, guest_phone, customer_id)')
         .in('status', ['REFUNDED', 'PARTIAL_REFUNDED'])
         .order('refunded_at', { ascending: false })
-        .limit(100)
+        .range(offset, offset + PER_PAGE - 1)
 
       if (error) {
         console.error('Error fetching refunds:', error)
@@ -89,7 +103,7 @@ export default function AdminRefundInfoPage() {
     }
 
     fetchRefunds()
-  }, [])
+  }, [page])
 
   const getCustomerName = (record: RefundRecord) => {
     const sr = record.service_requests
@@ -217,7 +231,16 @@ export default function AdminRefundInfoPage() {
             </table>
           </div>
         )}
+        <Pagination total={total} perPage={PER_PAGE} basePath="/admin/refund-info" />
       </div>
     </div>
+  )
+}
+
+export default function AdminRefundInfoPage() {
+  return (
+    <Suspense>
+      <RefundInfoContent />
+    </Suspense>
   )
 }

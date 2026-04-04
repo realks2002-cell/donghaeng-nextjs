@@ -53,7 +53,7 @@ export async function DELETE(
     if (deleteError) {
       console.error('Manager delete error:', deleteError)
       return NextResponse.json(
-        { success: false, message: '매니저 삭제에 실패했습니다.' },
+        { success: false, message: `매니저 삭제에 실패했습니다: ${deleteError.message || JSON.stringify(deleteError)}` },
         { status: 500 }
       )
     }

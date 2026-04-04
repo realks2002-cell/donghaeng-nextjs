@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { formatKoreanPhone } from '@/lib/utils/validation'
 import { formatDate, formatDateTime } from '@/lib/utils/format'
+import Pagination from '@/components/admin/Pagination'
 
 interface DesignatedRequest {
   id: string
@@ -19,18 +21,24 @@ interface DesignatedRequest {
   manager_phone: string
 }
 
-export default function AdminDesignatedMatchingPage() {
+const PER_PAGE = 20
+
+function DesignatedMatchingContent() {
+  const searchParams = useSearchParams()
+  const page = parseInt(searchParams.get('page') || '1', 10)
   const [requests, setRequests] = useState<DesignatedRequest[]>([])
+  const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
 
-
   const fetchData = async () => {
+    setIsLoading(true)
     try {
-      const res = await fetch('/api/admin/designated-matching', { cache: 'no-store' })
+      const res = await fetch(`/api/admin/designated-matching?page=${page}&perPage=${PER_PAGE}`, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setRequests(data.requests || [])
+        setTotal(data.total || data.requests?.length || 0)
       }
     } catch (error) {
       console.error('Error:', error)
@@ -40,7 +48,7 @@ export default function AdminDesignatedMatchingPage() {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [page])
 
   const handleAction = async (requestId: string, action: 'approve' | 'reject') => {
     const label = action === 'approve' ? '승인' : '거절'
@@ -157,7 +165,16 @@ export default function AdminDesignatedMatchingPage() {
             </table>
           </div>
         )}
+        <Pagination total={total} perPage={PER_PAGE} basePath="/admin/designated-matching" />
       </div>
     </div>
+  )
+}
+
+export default function AdminDesignatedMatchingPage() {
+  return (
+    <Suspense>
+      <DesignatedMatchingContent />
+    </Suspense>
   )
 }

@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { formatKoreanPhone } from '@/lib/utils/validation'
 import { formatDateTime } from '@/lib/utils/format'
+import Pagination from '@/components/admin/Pagination'
 
 interface Payment {
   id: string
@@ -43,26 +45,36 @@ const statusStyles: Record<string, string> = {
   CANCELLED: 'bg-gray-100 text-gray-800',
 }
 
-export default function AdminPaymentsPage() {
+const PER_PAGE = 20
+
+function PaymentsContent() {
+  const searchParams = useSearchParams()
+  const page = parseInt(searchParams.get('page') || '1', 10)
   const [payments, setPayments] = useState<Payment[]>([])
+  const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
+
+  const offset = (page - 1) * PER_PAGE
 
   // 부분환불 모달
   const [refundModal, setRefundModal] = useState<Payment | null>(null)
   const [refundAmount, setRefundAmount] = useState('')
   const [cancelReason, setCancelReason] = useState('')
 
-
   const fetchPayments = async () => {
+    setIsLoading(true)
     const supabase = createClient()
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const paymentsTable = supabase.from('payments') as any
+    const { count } = await paymentsTable.select('*', { count: 'exact', head: true })
+    setTotal(count || 0)
+
     const { data, error } = await paymentsTable
       .select('*, service_requests(service_type, phone, guest_name, guest_phone)')
       .order('created_at', { ascending: false })
-      .limit(50)
+      .range(offset, offset + PER_PAGE - 1)
 
     if (error) {
       console.error('Error fetching payments:', error)
@@ -75,7 +87,7 @@ export default function AdminPaymentsPage() {
 
   useEffect(() => {
     fetchPayments()
-  }, [])
+  }, [page])
 
   const handleFullRefund = async (payment: Payment) => {
     const reason = prompt(`주문 ${payment.order_id.slice(0, 8)}...\n${payment.amount.toLocaleString()}원 전액 환불\n\n환불 사유를 입력하세요:`)
@@ -258,6 +270,7 @@ export default function AdminPaymentsPage() {
             </table>
           </div>
         )}
+        <Pagination total={total} perPage={PER_PAGE} basePath="/admin/payments" />
       </div>
 
       {/* 부분환불 모달 */}
@@ -335,5 +348,13 @@ export default function AdminPaymentsPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function AdminPaymentsPage() {
+  return (
+    <Suspense>
+      <PaymentsContent />
+    </Suspense>
   )
 }

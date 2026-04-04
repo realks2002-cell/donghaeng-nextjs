@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
 import { formatKoreanPhone } from '@/lib/utils/validation'
+import { isNativeApp, setupBackButton } from '@/lib/capacitor'
+import { managerFetch } from '@/lib/api-base'
 
 export default function ManagerLoginPage() {
   const router = useRouter()
@@ -15,6 +16,17 @@ export default function ManagerLoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [recovering, setRecovering] = useState(true)
+  const [isApp, setIsApp] = useState(false)
+
+  useEffect(() => {
+    const native = isNativeApp()
+    setIsApp(native)
+    if (native) {
+      document.documentElement.classList.add('native-app')
+      document.documentElement.classList.add('native-manager-app')
+      setupBackButton()
+    }
+  }, [])
 
   // PWA 세션 복구: localStorage에 저장된 토큰으로 쿠키 복원
   useEffect(() => {
@@ -26,7 +38,7 @@ export default function ManagerLoginPage() {
       }
 
       try {
-        const res = await fetch('/api/manager/recover-session', {
+        const res = await managerFetch('/api/manager/recover-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: savedToken }),
@@ -65,7 +77,7 @@ export default function ManagerLoginPage() {
     }
 
     try {
-      const res = await fetch('/api/manager/login', {
+      const res = await managerFetch('/api/manager/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, password }),
@@ -98,18 +110,10 @@ export default function ManagerLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex flex-col items-center pt-8 bg-gray-50 px-4">
       <div className="w-full max-w-md">
         {/* 로고 */}
         <div className="text-center mb-8">
-          <Image
-            src="/images/app-logo.png"
-            alt="행복안심동행 로고"
-            width={120}
-            height={91}
-            className="mx-auto mb-4"
-            priority
-          />
           <h1 className="text-3xl font-bold text-primary">행복안심동행</h1>
           <p className="mt-2 text-gray-600">매니저 로그인</p>
         </div>
@@ -194,9 +198,11 @@ export default function ManagerLoginPage() {
               회원가입
             </Link>
           </p>
-          <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
-            일반 사용자 로그인
-          </Link>
+          {!isApp && (
+            <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
+              일반 사용자 로그인
+            </Link>
+          )}
         </div>
       </div>
     </div>

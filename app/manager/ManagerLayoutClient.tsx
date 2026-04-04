@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -12,6 +12,10 @@ import {
   LogOut,
 } from 'lucide-react'
 import PushNotificationSetup from '@/components/PushNotificationSetup'
+import ManagerBottomNavigation from '@/components/manager/ManagerBottomNavigation'
+import ManagerPushToggle from '@/components/manager/ManagerPushToggle'
+import { isNativeApp } from '@/lib/capacitor'
+import { managerFetch } from '@/lib/api-base'
 
 const menuItems = [
   { href: '/manager/dashboard', label: '서비스 요청', icon: Home },
@@ -23,6 +27,16 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isApp, setIsApp] = useState(false)
+
+  useEffect(() => {
+    const native = isNativeApp()
+    setIsApp(native)
+    if (native) {
+      document.documentElement.classList.add('native-app')
+      document.documentElement.classList.add('native-manager-app')
+    }
+  }, [])
 
   // 로그인, 회원가입, 완료 페이지는 레이아웃 없이 렌더링
   if (
@@ -49,12 +63,31 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
   const handleLogout = async () => {
     try {
       localStorage.removeItem('manager_token')
-      await fetch('/api/manager/logout', { method: 'POST' })
+      await managerFetch('/api/manager/logout', { method: 'POST' })
       router.push('/manager/login')
     } catch (error) {
       console.error('Logout error:', error)
       router.push('/manager/login')
     }
+  }
+
+  // 네이티브 앱 모드: 사이드바/헤더 숨기고 하단 네비게이션 표시
+  if (isApp) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <PushNotificationSetup />
+        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-primary">행복안심동행 매니저</span>
+            <ManagerPushToggle />
+          </div>
+        </header>
+        <main className="p-4 pb-20">
+          {children}
+        </main>
+        <ManagerBottomNavigation />
+      </div>
+    )
   }
 
   return (

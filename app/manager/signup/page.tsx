@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import { formatKoreanPhone } from '@/lib/utils/validation'
+import { API_BASE, managerFetch } from '@/lib/api-base'
 
 const BANKS = [
   '국민은행', '신한은행', '하나은행', '우리은행', '농협', '기업은행',
@@ -54,7 +55,7 @@ export default function ManagerSignupPage() {
     setAddressResults([])
     setError('')
     try {
-      const res = await fetch(`/api/address/search?keyword=${encodeURIComponent(formData.address1)}`)
+      const res = await managerFetch(`/api/address/search?keyword=${encodeURIComponent(formData.address1)}`)
       const data = await res.json()
       if (data.success && data.items?.length > 0) {
         setAddressResults(data.items)
@@ -154,7 +155,7 @@ export default function ManagerSignupPage() {
         submitData.append('photo', photo)
       }
 
-      const res = await fetch('/api/manager/signup', {
+      const res = await fetch(`${API_BASE}/api/manager/signup`, {
         method: 'POST',
         body: submitData,
       })
@@ -176,8 +177,8 @@ export default function ManagerSignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-12" style={{ paddingTop: '120px' }}>
-      <div className="mx-auto max-w-2xl mt-12 text-base">
+    <div className="min-h-screen bg-gray-50 px-4 pt-8 pb-16">
+      <div className="mx-auto max-w-2xl text-base">
         {/* 헤더 */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary">행복안심동행</h1>

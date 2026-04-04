@@ -95,6 +95,8 @@ export async function GET() {
     }
 
     // Format applications
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })
+
     const formattedApplications = applications?.map((app) => {
       const sr = app.service_requests
 
@@ -119,7 +121,7 @@ export async function GET() {
         estimated_price: sr?.estimated_price || 0,
         vehicle_support: sr?.vehicle_support || false,
       }
-    }) || []
+    }).filter(app => app.service_date >= today) || []
 
     return NextResponse.json({ applications: formattedApplications })
   } catch (error) {

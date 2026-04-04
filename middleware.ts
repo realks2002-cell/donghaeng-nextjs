@@ -1,8 +1,26 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
+const ALLOWED_ORIGINS = ['https://localhost', 'capacitor://localhost', 'http://localhost']
+
+function setCorsHeaders(response: NextResponse, origin: string | null) {
+  if (origin && ALLOWED_ORIGINS.some(o => origin.startsWith(o))) {
+    response.headers.set('Access-Control-Allow-Origin', origin)
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  }
+  return response
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+  const origin = request.headers.get('origin')
+
+  // Capacitor 앱에서 API 호출 시 CORS preflight 처리
+  if ((pathname.startsWith('/api/manager') || pathname.startsWith('/api/address')) && request.method === 'OPTIONS') {
+    const response = new NextResponse(null, { status: 204 })
+    return setCorsHeaders(response, origin)
+  }
 
   // Supabase 세션 갱신
   const response = await updateSession(request)
@@ -33,6 +51,11 @@ export async function middleware(request: NextRequest) {
     if (!managerToken) {
       return NextResponse.redirect(new URL('/manager/login', request.url))
     }
+  }
+
+  // 매니저/주소 API 응답에 CORS 헤더 추가 (Capacitor 앱 크로스 오리진 지원)
+  if (pathname.startsWith('/api/manager') || pathname.startsWith('/api/address')) {
+    setCorsHeaders(response, origin)
   }
 
   return response

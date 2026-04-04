@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { formatDate } from '@/lib/utils/format'
+import { managerFetch } from '@/lib/api-base'
 
 interface WorkRecord {
   id: string
@@ -39,7 +40,7 @@ export default function SchedulePage() {
   const fetchRecords = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/manager/schedule')
+      const res = await managerFetch('/api/manager/schedule')
       if (res.ok) {
         const data = await res.json()
         setRecords(data.records || [])
@@ -55,7 +56,7 @@ export default function SchedulePage() {
 
     setProcessingId(recordId)
     try {
-      const res = await fetch(`/api/manager/service/${recordId}`, {
+      const res = await managerFetch(`/api/manager/service/${recordId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'complete' }),

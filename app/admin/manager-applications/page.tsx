@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { STATUS_LABELS, STATUS_STYLES } from '@/lib/constants/status'
 import { formatKoreanPhone } from '@/lib/utils/validation'
 import { formatDate, formatDateTime } from '@/lib/utils/format'
+import Pagination from '@/components/admin/Pagination'
 
 interface ApplicationRecord {
   id: string
@@ -24,17 +26,29 @@ interface ApplicationRecord {
   estimated_price: number
 }
 
-export default function AdminManagerApplicationsPage() {
+const PER_PAGE = 20
+
+function ManagerApplicationsContent() {
+  const searchParams = useSearchParams()
+  const page = parseInt(searchParams.get('page') || '1', 10)
   const [applications, setApplications] = useState<ApplicationRecord[]>([])
+  const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
 
+  const offset = (page - 1) * PER_PAGE
 
   const fetchApplications = async () => {
+    setIsLoading(true)
     const supabase = createClient()
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.from('manager_applications') as any)
+    const table = supabase.from('manager_applications') as any
+    const { count } = await table.select('*', { count: 'exact', head: true })
+    setTotal(count || 0)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await table
       .select(`
         id,
         manager_id,
@@ -54,7 +68,7 @@ export default function AdminManagerApplicationsPage() {
         )
       `)
       .order('created_at', { ascending: false })
-      .limit(100)
+      .range(offset, offset + PER_PAGE - 1)
 
     if (error) {
       console.error('Error fetching applications:', error)
@@ -113,7 +127,7 @@ export default function AdminManagerApplicationsPage() {
 
   useEffect(() => {
     fetchApplications()
-  }, [])
+  }, [page])
 
   const handleAction = async (applicationId: string, action: 'reject') => {
     if (!confirm('이 매칭을 취소하시겠습니까?')) return
@@ -223,7 +237,16 @@ export default function AdminManagerApplicationsPage() {
             </table>
           </div>
         )}
+        <Pagination total={total} perPage={PER_PAGE} basePath="/admin/manager-applications" />
       </div>
     </div>
+  )
+}
+
+export default function AdminManagerApplicationsPage() {
+  return (
+    <Suspense>
+      <ManagerApplicationsContent />
+    </Suspense>
   )
 }

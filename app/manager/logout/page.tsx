@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { managerFetch } from '@/lib/api-base'
 
 export default function LogoutPage() {
   const router = useRouter()
@@ -9,7 +10,7 @@ export default function LogoutPage() {
   useEffect(() => {
     const logout = async () => {
       try {
-        await fetch('/api/manager/logout', { method: 'POST' })
+        await managerFetch('/api/manager/logout', { method: 'POST' })
       } catch (error) {
         console.error('Logout error:', error)
       }

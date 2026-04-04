@@ -9,6 +9,7 @@ import PushNotificationBanner from '@/components/PushNotificationBanner'
 import { SERVICE_TYPE_LABELS, ServiceType } from '@/lib/constants/pricing'
 import { formatDate, formatDateTime } from '@/lib/utils/format'
 import { formatKoreanPhone } from '@/lib/utils/validation'
+import { managerFetch } from '@/lib/api-base'
 
 interface ServiceRequest {
   id: string
@@ -83,7 +84,7 @@ function DashboardContent() {
   const fetchRequests = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/manager/requests')
+      const res = await managerFetch('/api/manager/requests')
       if (res.ok) {
         const data = await res.json()
         setRequests(data.requests || [])
@@ -97,7 +98,7 @@ function DashboardContent() {
   const fetchApplications = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/manager/applications')
+      const res = await managerFetch('/api/manager/applications')
       if (res.ok) {
         const data = await res.json()
         setApplications(data.applications || [])
@@ -113,7 +114,7 @@ function DashboardContent() {
 
     setApplying(true)
     try {
-      const res = await fetch('/api/manager/apply', {
+      const res = await managerFetch('/api/manager/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -167,8 +168,8 @@ function DashboardContent() {
   return (
     <>
       <PushNotificationBanner />
-      {/* 탭 네비게이션 */}
-      <div className="mb-6 border-b border-gray-200">
+      {/* 탭 네비게이션 - 네이티브 앱에서는 하단 네비로 대체 */}
+      <div className="mb-6 border-b border-gray-200 native-app-hidden">
         <nav className="flex gap-1">
           <Link
             href="/manager/dashboard"

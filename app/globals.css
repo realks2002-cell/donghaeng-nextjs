@@ -118,3 +118,17 @@ html, body {
   gap: 0.5rem !important;
 }
 .native-app .min-h-screen.pt-\[250px\] { padding-top: 160px !important; }
+
+/* 매니저 네이티브 앱 전용 스타일 */
+.native-manager-app {
+  padding-top: env(safe-area-inset-top);
+}
+.native-manager-app .manager-bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.native-app .native-app-hidden {
+  display: none !important;
+}
+.native-manager-app nav[aria-label="하단 네비게이션"]:not(.manager-bottom-nav) {
+  display: none !important;
+}
