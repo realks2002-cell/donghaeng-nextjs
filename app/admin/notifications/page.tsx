@@ -182,45 +182,6 @@ export default function AdminNotificationsPage() {
         </div>
       </div>
 
-      {/* 구독 목록 테이블 */}
-      {!isTableMissing && (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-200">
-            <h2 className="font-semibold">구독 목록</h2>
-          </div>
-          {status?.subscriptions && status.subscriptions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">매니저</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Endpoint</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">등록일</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {status.subscriptions.map((sub) => (
-                    <tr key={sub.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium">{sub.manager_name}</td>
-                      <td className="px-4 py-3 text-gray-500 font-mono text-xs break-all max-w-xs">
-                        {sub.endpoint_preview}
-                      </td>
-                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                        {new Date(sub.created_at).toLocaleDateString('ko-KR')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-8 text-center text-gray-400">
-              등록된 구독이 없습니다.
-            </div>
-          )}
-        </div>
-      )}
-
       {/* 테스트 푸시 발송 */}
       {!isTableMissing && (
         <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -281,6 +242,45 @@ export default function AdminNotificationsPage() {
                   </span>
                 )}
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 구독 목록 테이블 */}
+      {!isTableMissing && (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-200">
+            <h2 className="font-semibold">구독 목록</h2>
+          </div>
+          {status?.subscriptions && status.subscriptions.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">매니저</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">Endpoint</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">등록일</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {status.subscriptions.map((sub) => (
+                    <tr key={sub.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium">{sub.manager_name}</td>
+                      <td className="px-4 py-3 text-gray-500 font-mono text-xs break-all max-w-xs">
+                        {sub.endpoint_preview}
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                        {new Date(sub.created_at).toLocaleDateString('ko-KR')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-8 text-center text-gray-400">
+              등록된 구독이 없습니다.
             </div>
           )}
         </div>

@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { Clock } from 'lucide-react'
+import { isNativeApp } from '@/lib/capacitor'
 
 export default function SignupCompletePage() {
   return (
@@ -28,10 +31,10 @@ export default function SignupCompletePage() {
           </div>
 
           <Link
-            href="/"
+            href={isNativeApp() ? '/manager/login' : '/'}
             className="inline-block w-full min-h-[44px] bg-primary text-white rounded-lg font-medium hover:opacity-90 transition-opacity py-3"
           >
-            홈으로 이동
+            {isNativeApp() ? '로그인으로 이동' : '홈으로 이동'}
           </Link>
         </div>
       </div>

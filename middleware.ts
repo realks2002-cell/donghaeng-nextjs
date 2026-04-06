@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
   const origin = request.headers.get('origin')
 
   // Capacitor 앱에서 API 호출 시 CORS preflight 처리
-  if ((pathname.startsWith('/api/manager') || pathname.startsWith('/api/address')) && request.method === 'OPTIONS') {
+  if ((pathname.startsWith('/api/manager') || pathname.startsWith('/api/address') || pathname.startsWith('/api/push')) && request.method === 'OPTIONS') {
     const response = new NextResponse(null, { status: 204 })
     return setCorsHeaders(response, origin)
   }
@@ -54,7 +54,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 매니저/주소 API 응답에 CORS 헤더 추가 (Capacitor 앱 크로스 오리진 지원)
-  if (pathname.startsWith('/api/manager') || pathname.startsWith('/api/address')) {
+  if (pathname.startsWith('/api/manager') || pathname.startsWith('/api/address') || pathname.startsWith('/api/push')) {
     setCorsHeaders(response, origin)
   }
 

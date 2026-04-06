@@ -14,7 +14,7 @@ import {
 import PushNotificationSetup from '@/components/PushNotificationSetup'
 import ManagerBottomNavigation from '@/components/manager/ManagerBottomNavigation'
 import ManagerPushToggle from '@/components/manager/ManagerPushToggle'
-import { isNativeApp } from '@/lib/capacitor'
+import { isNativeApp, registerFcmToken } from '@/lib/capacitor'
 import { managerFetch } from '@/lib/api-base'
 
 const menuItems = [
@@ -35,6 +35,7 @@ export default function ManagerLayoutClient({ children }: { children: React.Reac
     if (native) {
       document.documentElement.classList.add('native-app')
       document.documentElement.classList.add('native-manager-app')
+      registerFcmToken()
     }
   }, [])
 

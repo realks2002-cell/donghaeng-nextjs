@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import { Phone, Home, ClipboardList, Calendar } from 'lucide-react'
 import { isNativeApp, setupBackButton } from '@/lib/capacitor'
+import { managerFetch } from '@/lib/api-base'
 
 const HELPDESK_TEL = 'tel:1668-5535'
 
@@ -19,10 +20,36 @@ function BottomNavContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentTab = searchParams.get('tab')
+  const router = useRouter()
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressTriggered = useRef(false)
 
   useEffect(() => {
     setIsApp(isNativeApp())
     setupBackButton()
+  }, [])
+
+  const handleLogout = useCallback(async () => {
+    localStorage.removeItem('manager_token')
+    await managerFetch('/api/manager/logout', { method: 'POST' }).catch(() => {})
+    router.push('/manager/login')
+  }, [router])
+
+  const onTouchStart = useCallback(() => {
+    longPressTriggered.current = false
+    longPressTimer.current = setTimeout(() => {
+      longPressTriggered.current = true
+      if (confirm('로그아웃 하시겠습니까?')) {
+        handleLogout()
+      }
+    }, 5000)
+  }, [handleLogout])
+
+  const onTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current)
+      longPressTimer.current = null
+    }
   }, [])
 
   if (!isApp) return null
@@ -48,6 +75,25 @@ function BottomNavContent() {
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
         {tabs.map(({ href, label, icon: Icon }) => {
           const isActive = isTabActive(href)
+          const isHome = href === '/manager/dashboard' && !href.includes('?')
+          if (isHome) {
+            return (
+              <div
+                key={href}
+                onTouchStart={onTouchStart}
+                onTouchEnd={(e) => { onTouchEnd(); if (!longPressTriggered.current) router.push(href); e.preventDefault() }}
+                onTouchCancel={onTouchEnd}
+                onContextMenu={(e) => e.preventDefault()}
+                style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none' } as React.CSSProperties}
+                className={`flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[44px] transition-colors cursor-pointer ${
+                  isActive ? 'text-green-600' : 'text-gray-500'
+                }`}
+              >
+                <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+                <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>{label}</span>
+              </div>
+            )
+          }
           return (
             <Link
               key={href}

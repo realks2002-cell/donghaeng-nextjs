@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import { formatKoreanPhone } from '@/lib/utils/validation'
-import { isNativeApp, setupBackButton } from '@/lib/capacitor'
+import { isNativeApp, setupBackButton, registerFcmToken } from '@/lib/capacitor'
 import { managerFetch } from '@/lib/api-base'
 
 export default function ManagerLoginPage() {
@@ -96,6 +96,7 @@ export default function ManagerLoginPage() {
         localStorage.setItem('manager_token', data.token)
       }
 
+      registerFcmToken()
       router.push('/manager/dashboard')
     } catch (err) {
       console.error('Login error:', err)
